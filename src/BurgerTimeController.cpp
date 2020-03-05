@@ -5,6 +5,7 @@
 #include <thread>
 #include <SFML/System.hpp>
 #include "Constants.hpp"
+#include "InputSystem.hpp"
 
 BurgerTimeController::BurgerTimeController()
     : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE)
@@ -28,6 +29,7 @@ BurgerTimeController &BurgerTimeController::get()
 void BurgerTimeController::startup()
 {
     stateMachine = std::unique_ptr<BurgerTimeStateMachine>(new BurgerTimeStateMachine());
+    stateMachine->initialize();
 }
 
 void BurgerTimeController::run()
@@ -65,6 +67,7 @@ void BurgerTimeController::run()
 
 void BurgerTimeController::update()
 {
+    InputSystem::update();
     stateMachine->execute();
 }
 
@@ -72,7 +75,7 @@ void BurgerTimeController::draw()
 {
     window.clear();
 
-    for (auto obj : drawablesOnScreen)
+    for (const auto &obj : drawablesOnScreen)
     {
         window.draw(*obj);
     }

@@ -4,39 +4,71 @@
 #include <SFML/Graphics.hpp>
 #include "BurgerTimeController.hpp"
 #include "Constants.hpp"
+#include "InputSystem.hpp"
 
 
 constexpr std::array<uint8_t, BurgerTimeStateMachine::NUM_STATES> BurgerTimeStateMachine::STATE_WAIT_TIME;
 constexpr std::array<BurgerTimeStateMachine::State, BurgerTimeStateMachine::NUM_STATES> BurgerTimeStateMachine::STATE_NEXT_STATE;
 
 BurgerTimeStateMachine::BurgerTimeStateMachine()
-: controller(BurgerTimeController::get()), currentState(INITIAL_STATE)
+: StateMachine(INITIAL_STATE), controller(BurgerTimeController::get())
+{
+}
+
+bool BurgerTimeStateMachine::nextOnStateLogic()
+{
+    return onStateLogic[currentState]();
+}
+
+void BurgerTimeStateMachine::nextTransitionStateLogic()
 {
     transitionStateLogic[currentState]();
 }
 
-void BurgerTimeStateMachine::execute()
+void BurgerTimeStateMachine::moveToNextState()
 {
-    onStateLogic[currentState]();
+    currentState = BurgerTimeStateMachine::STATE_NEXT_STATE[currentState];
+    nextTransitionStateLogic();
 }
 
-void BurgerTimeStateMachine::checkNextTimedGameState()
+bool BurgerTimeStateMachine::checkNextTimedGameState()
 {
     auto elapsedTime = controller.logicClock.getElapsedTime();
     if (elapsedTime.asSeconds() >= BurgerTimeStateMachine::STATE_WAIT_TIME[currentState])
     {
         controller.logicClock.restart();
-        currentState = BurgerTimeStateMachine::STATE_NEXT_STATE[currentState];
-        transitionStateLogic[currentState]();
+
+        return true;
     }
+
+    return false;
 }
+
+bool BurgerTimeStateMachine::checkSkipGameState()
+{
+    if (hasInputJustBeenPressed(InputSystem::Input::PAUSE))
+    {
+        controller.logicClock.restart();
+
+        return true;
+    }
+
+    return false;
+}
+
 
 
 // TODO: all transitions
 
-void BurgerTimeStateMachine::onHighScoreScreen()
+bool BurgerTimeStateMachine::onHighScoreScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionHighScoreScreen()
@@ -51,9 +83,15 @@ void BurgerTimeStateMachine::transitionHighScoreScreen()
 }
 
 
-void BurgerTimeStateMachine::onItemPointsScreen()
+bool BurgerTimeStateMachine::onItemPointsScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionItemPointsScreen()
@@ -76,9 +114,15 @@ void BurgerTimeStateMachine::transitionItemPointsScreen()
 }
 
 
-void BurgerTimeStateMachine::onCharacterScreen()
+bool BurgerTimeStateMachine::onCharacterScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionCharacterScreen()
@@ -94,9 +138,15 @@ void BurgerTimeStateMachine::transitionCharacterScreen()
 }
 
 
-void BurgerTimeStateMachine::onFirstTutorialVidScreen()
+bool BurgerTimeStateMachine::onFirstTutorialVidScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionFirstTutorialVidScreen()
@@ -112,9 +162,15 @@ void BurgerTimeStateMachine::transitionFirstTutorialVidScreen()
 }
 
 
-void BurgerTimeStateMachine::onSecondTutorialVidScreen()
+bool BurgerTimeStateMachine::onSecondTutorialVidScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionSecondTutorialVidScreen()
@@ -130,9 +186,15 @@ void BurgerTimeStateMachine::transitionSecondTutorialVidScreen()
 }
 
 
-void BurgerTimeStateMachine::onTutorialScreen()
+bool BurgerTimeStateMachine::onTutorialScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionTutorialScreen()
@@ -148,9 +210,15 @@ void BurgerTimeStateMachine::transitionTutorialScreen()
 }
 
 
-void BurgerTimeStateMachine::onThirdTutorialVidScreen()
+bool BurgerTimeStateMachine::onThirdTutorialVidScreen()
 {
-    checkNextTimedGameState();
+    bool hasStateFinished = checkSkipGameState();
+    if (!hasStateFinished) 
+    {
+        hasStateFinished = checkNextTimedGameState();
+    }
+
+    return hasStateFinished;
 }
 
 void BurgerTimeStateMachine::transitionThirdTutorialVidScreen()
@@ -166,28 +234,8 @@ void BurgerTimeStateMachine::transitionThirdTutorialVidScreen()
 }
 
 
-void BurgerTimeStateMachine::onMainScreen()
+bool BurgerTimeStateMachine::onGameReadyScreen()
 {
-    checkNextTimedGameState();
-    // TODO
-}
-
-void BurgerTimeStateMachine::transitionMainScreen()
-{
-    controller.drawablesOnScreen.clear();
-
-    auto text = std::make_shared<sf::Text>();
-
-    text->setFont(controller.font);
-    text->setString("TODO: Main Screen");
-
-    controller.drawablesOnScreen.push_back(text);
-}
-
-
-void BurgerTimeStateMachine::onGameReadyScreen()
-{
-
 }
 
 void BurgerTimeStateMachine::transitionGameReadyScreen()

@@ -37,4 +37,5 @@ private:
     sf::Clock logicClock;
 
     friend class BurgerTimeStateMachine;
+    friend class MainScreenStateMachine;
 };

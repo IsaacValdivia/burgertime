@@ -5,64 +5,68 @@
 #include <memory>
 #include <functional>
 #include "StateMachine.hpp"
+#include "MainScreenStateMachine.hpp"
 
 class BurgerTimeController;
 
-class BurgerTimeStateMachine : StateMachine
+class BurgerTimeStateMachine : public StateMachine
 {
 public:
     BurgerTimeStateMachine();
 
-    void execute();
+private:
+    bool nextOnStateLogic();
 
-    void checkNextTimedGameState();
+    void nextTransitionStateLogic();
+
+    void moveToNextState();
+
+    bool checkNextTimedGameState();
+    
+    bool checkSkipGameState();
 
 
-    void onHighScoreScreen();
+    bool onHighScoreScreen();
 
     void transitionHighScoreScreen();
 
 
-    void onItemPointsScreen();
+    bool onItemPointsScreen();
 
     void transitionItemPointsScreen();
 
 
-    void onCharacterScreen();
+    bool onCharacterScreen();
 
     void transitionCharacterScreen();
 
 
-    void onFirstTutorialVidScreen();
+    bool onFirstTutorialVidScreen();
 
     void transitionFirstTutorialVidScreen();
 
 
-    void onSecondTutorialVidScreen();
+    bool onSecondTutorialVidScreen();
 
     void transitionSecondTutorialVidScreen();
 
 
-    void onTutorialScreen();
+    bool onTutorialScreen();
 
     void transitionTutorialScreen();
 
 
-    void onThirdTutorialVidScreen();
+    bool onThirdTutorialVidScreen();
 
     void transitionThirdTutorialVidScreen();
 
 
-    void onMainScreen();
-
-    void transitionMainScreen();
-
-
-    void onGameReadyScreen();
+    bool onGameReadyScreen();
 
     void transitionGameReadyScreen();
 
-private:
+
+    // TODO: proper times etc
 
     enum State : uint8_t
     {
@@ -84,17 +88,15 @@ private:
     static constexpr auto INITIAL_STATE = HIGHSCORE_DISPLAY_SCREEN;
 
     static constexpr std::array<uint8_t, NUM_STATES> STATE_WAIT_TIME = {
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        0,
+        5,
     };
 
     static constexpr std::array<State, NUM_STATES> STATE_NEXT_STATE = {
@@ -109,12 +111,12 @@ private:
         PLAYING_SCREEN,
     };
 
-
     BurgerTimeController &controller;
-    State currentState;
+
+    MainScreenStateMachine mainScreenStateMach;
 
     // TODO: const?
-    const std::array<std::function<void()>, NUM_STATES> onStateLogic = {
+    const std::array<std::function<bool()>, NUM_STATES> onStateLogic = {
         std::bind(&BurgerTimeStateMachine::onHighScoreScreen, this),
         std::bind(&BurgerTimeStateMachine::onItemPointsScreen, this),
         std::bind(&BurgerTimeStateMachine::onCharacterScreen, this),
@@ -122,7 +124,7 @@ private:
         std::bind(&BurgerTimeStateMachine::onSecondTutorialVidScreen, this),
         std::bind(&BurgerTimeStateMachine::onTutorialScreen, this),
         std::bind(&BurgerTimeStateMachine::onThirdTutorialVidScreen, this),
-        std::bind(&BurgerTimeStateMachine::onMainScreen, this),
+        std::bind(&MainScreenStateMachine::mainStateMachineBinding, &mainScreenStateMach),
         std::bind(&BurgerTimeStateMachine::onGameReadyScreen, this),
     };
 
@@ -135,7 +137,7 @@ private:
         std::bind(&BurgerTimeStateMachine::transitionSecondTutorialVidScreen, this),
         std::bind(&BurgerTimeStateMachine::transitionTutorialScreen, this),
         std::bind(&BurgerTimeStateMachine::transitionThirdTutorialVidScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionMainScreen, this),
+        std::bind(&MainScreenStateMachine::initialize, &mainScreenStateMach),
         std::bind(&BurgerTimeStateMachine::transitionGameReadyScreen, this),
     };
 };
