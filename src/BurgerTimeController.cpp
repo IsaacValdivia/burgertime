@@ -7,9 +7,9 @@
 #include "Constants.hpp"
 
 BurgerTimeController::BurgerTimeController()
-    : window(sf::VideoMode(windowWidth, windowHeight), windowTitle)
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE)
 {
-    if (!font.loadFromFile(fontFile))
+    if (!font.loadFromFile(FONT_FILE))
     {
         // TODO: error
     }
@@ -35,7 +35,7 @@ void BurgerTimeController::run()
     startup();
     logicClock.restart();
 
-    const auto logicDeltaTime = sf::seconds(logicUpdateFreq);
+    const auto logicDeltaTime = sf::seconds(LOGIC_UPDATE_FREQ);
 
     sf::Clock clock;
     auto nextTime = clock.getElapsedTime();

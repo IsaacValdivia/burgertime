@@ -56,6 +56,12 @@ public:
     void onMainScreen();
 
     void transitionMainScreen();
+
+
+    void onGameReadyScreen();
+
+    void transitionGameReadyScreen();
+
 private:
 
     enum State : uint8_t
@@ -75,19 +81,23 @@ private:
         NUM_STATES,
     };
 
-    static constexpr auto initialState = HIGHSCORE_DISPLAY_SCREEN;
+    static constexpr auto INITIAL_STATE = HIGHSCORE_DISPLAY_SCREEN;
 
-    static constexpr std::array<uint8_t, NUM_STATES> stateWaitTime = {
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
+    static constexpr std::array<uint8_t, NUM_STATES> STATE_WAIT_TIME = {
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
     };
 
-    static constexpr std::array<State, NUM_STATES> stateNextState = {
+    static constexpr std::array<State, NUM_STATES> STATE_NEXT_STATE = {
         ITEM_POINTS_SCREEN,
         CHARACTER_SCREEN,
         FIRST_TUTORIAL_VID_SCREEN,
@@ -95,6 +105,8 @@ private:
         TUTORIAL_SCREEN,
         THIRD_TUTORIAL_VID_SCREEN,
         MAIN_SCREEN,
+        GAME_READY_SCREEN,
+        PLAYING_SCREEN,
     };
 
 
@@ -111,6 +123,7 @@ private:
         std::bind(&BurgerTimeStateMachine::onTutorialScreen, this),
         std::bind(&BurgerTimeStateMachine::onThirdTutorialVidScreen, this),
         std::bind(&BurgerTimeStateMachine::onMainScreen, this),
+        std::bind(&BurgerTimeStateMachine::onGameReadyScreen, this),
     };
 
     // TODO: const?
@@ -123,5 +136,6 @@ private:
         std::bind(&BurgerTimeStateMachine::transitionTutorialScreen, this),
         std::bind(&BurgerTimeStateMachine::transitionThirdTutorialVidScreen, this),
         std::bind(&BurgerTimeStateMachine::transitionMainScreen, this),
+        std::bind(&BurgerTimeStateMachine::transitionGameReadyScreen, this),
     };
 };
