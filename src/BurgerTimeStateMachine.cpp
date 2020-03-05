@@ -236,6 +236,7 @@ void BurgerTimeStateMachine::transitionThirdTutorialVidScreen()
 
 bool BurgerTimeStateMachine::onGameReadyScreen()
 {
+    return false;
 }
 
 void BurgerTimeStateMachine::transitionGameReadyScreen()

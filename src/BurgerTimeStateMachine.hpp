@@ -97,6 +97,7 @@ private:
         5,
         0,
         5,
+        // ...
     };
 
     static constexpr std::array<State, NUM_STATES> STATE_NEXT_STATE = {
@@ -109,6 +110,7 @@ private:
         MAIN_SCREEN,
         GAME_READY_SCREEN,
         PLAYING_SCREEN,
+        // ...
     };
 
     BurgerTimeController &controller;
@@ -126,6 +128,7 @@ private:
         std::bind(&BurgerTimeStateMachine::onThirdTutorialVidScreen, this),
         std::bind(&MainScreenStateMachine::mainStateMachineBinding, &mainScreenStateMach),
         std::bind(&BurgerTimeStateMachine::onGameReadyScreen, this),
+        // ...
     };
 
     // TODO: const?
@@ -139,5 +142,6 @@ private:
         std::bind(&BurgerTimeStateMachine::transitionThirdTutorialVidScreen, this),
         std::bind(&MainScreenStateMachine::initialize, &mainScreenStateMach),
         std::bind(&BurgerTimeStateMachine::transitionGameReadyScreen, this),
+        // ...
     };
 };
