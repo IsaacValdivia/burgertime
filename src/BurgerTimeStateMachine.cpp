@@ -8,14 +8,13 @@
 
 
 constexpr std::array<uint8_t, BurgerTimeStateMachine::NUM_STATES> BurgerTimeStateMachine::STATE_WAIT_TIME;
-constexpr std::array<BurgerTimeStateMachine::State, BurgerTimeStateMachine::NUM_STATES> BurgerTimeStateMachine::STATE_NEXT_STATE;
 
 BurgerTimeStateMachine::BurgerTimeStateMachine()
 : StateMachine(INITIAL_STATE), controller(BurgerTimeController::get())
 {
 }
 
-bool BurgerTimeStateMachine::nextOnStateLogic()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::nextOnStateLogic()
 {
     return onStateLogic[currentState]();
 }
@@ -23,12 +22,6 @@ bool BurgerTimeStateMachine::nextOnStateLogic()
 void BurgerTimeStateMachine::nextTransitionStateLogic()
 {
     transitionStateLogic[currentState]();
-}
-
-void BurgerTimeStateMachine::moveToNextState()
-{
-    currentState = BurgerTimeStateMachine::STATE_NEXT_STATE[currentState];
-    nextTransitionStateLogic();
 }
 
 bool BurgerTimeStateMachine::checkNextTimedGameState()
@@ -60,7 +53,7 @@ bool BurgerTimeStateMachine::checkSkipGameState()
 
 // TODO: all transitions
 
-bool BurgerTimeStateMachine::onHighScoreScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onHighScoreScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -68,7 +61,7 @@ bool BurgerTimeStateMachine::onHighScoreScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, ITEM_POINTS_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionHighScoreScreen()
@@ -83,7 +76,7 @@ void BurgerTimeStateMachine::transitionHighScoreScreen()
 }
 
 
-bool BurgerTimeStateMachine::onItemPointsScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onItemPointsScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -91,7 +84,7 @@ bool BurgerTimeStateMachine::onItemPointsScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, CHARACTER_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionItemPointsScreen()
@@ -114,7 +107,7 @@ void BurgerTimeStateMachine::transitionItemPointsScreen()
 }
 
 
-bool BurgerTimeStateMachine::onCharacterScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onCharacterScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -122,7 +115,7 @@ bool BurgerTimeStateMachine::onCharacterScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, FIRST_TUTORIAL_VID_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionCharacterScreen()
@@ -138,7 +131,7 @@ void BurgerTimeStateMachine::transitionCharacterScreen()
 }
 
 
-bool BurgerTimeStateMachine::onFirstTutorialVidScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onFirstTutorialVidScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -146,7 +139,7 @@ bool BurgerTimeStateMachine::onFirstTutorialVidScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, SECOND_TUTORIAL_VID_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionFirstTutorialVidScreen()
@@ -162,7 +155,7 @@ void BurgerTimeStateMachine::transitionFirstTutorialVidScreen()
 }
 
 
-bool BurgerTimeStateMachine::onSecondTutorialVidScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onSecondTutorialVidScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -170,7 +163,7 @@ bool BurgerTimeStateMachine::onSecondTutorialVidScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, TUTORIAL_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionSecondTutorialVidScreen()
@@ -186,7 +179,7 @@ void BurgerTimeStateMachine::transitionSecondTutorialVidScreen()
 }
 
 
-bool BurgerTimeStateMachine::onTutorialScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onTutorialScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -194,7 +187,7 @@ bool BurgerTimeStateMachine::onTutorialScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, THIRD_TUTORIAL_VID_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionTutorialScreen()
@@ -210,7 +203,7 @@ void BurgerTimeStateMachine::transitionTutorialScreen()
 }
 
 
-bool BurgerTimeStateMachine::onThirdTutorialVidScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onThirdTutorialVidScreen()
 {
     bool hasStateFinished = checkSkipGameState();
     if (!hasStateFinished) 
@@ -218,7 +211,7 @@ bool BurgerTimeStateMachine::onThirdTutorialVidScreen()
         hasStateFinished = checkNextTimedGameState();
     }
 
-    return hasStateFinished;
+    return std::make_pair(hasStateFinished, MAIN_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionThirdTutorialVidScreen()
@@ -234,9 +227,9 @@ void BurgerTimeStateMachine::transitionThirdTutorialVidScreen()
 }
 
 
-bool BurgerTimeStateMachine::onGameReadyScreen()
+std::pair<bool, uint32_t> BurgerTimeStateMachine::onGameReadyScreen()
 {
-    return false;
+    return std::make_pair(false, PLAYING_SCREEN);
 }
 
 void BurgerTimeStateMachine::transitionGameReadyScreen()

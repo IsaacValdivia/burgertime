@@ -13,10 +13,11 @@ public:
     {
         if (isInitialized)
         {
-            bool isStateFinished = nextOnStateLogic();
-            if (isStateFinished)
+            auto nextStateInfo = nextOnStateLogic();
+            if (nextStateInfo.first)
             {
-                moveToNextState();
+                currentState = nextStateInfo.second;
+                nextTransitionStateLogic();
             }
         }
     }
@@ -27,12 +28,12 @@ public:
         nextTransitionStateLogic();
     }
 
-    virtual void moveToNextState() = 0;
-
-    virtual bool nextOnStateLogic() = 0;
+protected:
+    virtual std::pair<bool, uint32_t> nextOnStateLogic() = 0;
 
     virtual void nextTransitionStateLogic() = 0;
-protected:
+
+
     bool isInitialized;
 
     uint32_t currentState;

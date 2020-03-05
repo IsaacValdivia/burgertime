@@ -1,5 +1,6 @@
 #include "MainScreenStateMachine.hpp"
 
+#include "BurgerTimeStateMachine.hpp"
 #include "BurgerTimeController.hpp"
 #include "InputSystem.hpp"
 
@@ -8,7 +9,7 @@ MainScreenStateMachine::MainScreenStateMachine()
 : StateMachine(INITIAL_STATE), controller(BurgerTimeController::get())
 {}
 
-bool MainScreenStateMachine::nextOnStateLogic()
+std::pair<bool, uint32_t> MainScreenStateMachine::nextOnStateLogic()
 {
     return onStateLogic[currentState]();
 }
@@ -18,17 +19,28 @@ void MainScreenStateMachine::nextTransitionStateLogic()
     transitionStateLogic[currentState]();
 }
 
-void MainScreenStateMachine::moveToNextState()
-{
-    currentState = stateNextState[currentState];
-    nextTransitionStateLogic();
-}
-
-bool MainScreenStateMachine::mainStateMachineBinding()
+std::pair<bool, uint32_t> MainScreenStateMachine::mainStateMachineBinding()
 {
     execute();
 
-    return currentState == FINISHED_STATE;
+    switch (currentState)
+    {
+        case FINISHED_EXIT_STATE:
+            // TODO: change to BurgerTimeStateMachine::State::EXIT_GAME or sth like that
+            return std::make_pair(true, BurgerTimeStateMachine::State::GAME_READY_SCREEN);
+        
+        case FINISHED_START_STATE:
+            return std::make_pair(true, BurgerTimeStateMachine::State::GAME_READY_SCREEN);
+
+        default:
+            return std::make_pair(false, BurgerTimeStateMachine::State::GAME_READY_SCREEN);
+    }
+}
+
+
+std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onEntered()
+{
+    return std::make_pair(true, START_OPTION);
 }
 
 void MainScreenStateMachine::transitionEntered()
@@ -55,8 +67,12 @@ void MainScreenStateMachine::transitionEntered()
     controller.drawablesOnScreen.push_back(startText);
     controller.drawablesOnScreen.push_back(exitText);
     controller.drawablesOnScreen.push_back(selectionTriangle);
+}
 
-    currentState = START_OPTION;
+
+std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onFinished()
+{
+    return std::make_pair(false, ENTER_STATE);
 }
 
 
@@ -66,20 +82,19 @@ void MainScreenStateMachine::transitionFinished()
 }
 
 
-bool MainScreenStateMachine::onStartOption()
+std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onStartOption()
 {
     if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
     {
-        stateNextState[START_OPTION] = FINISHED_STATE;
-        return true;
+        return std::make_pair(true, FINISHED_START_STATE);
     }
 
     if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
     {
-        return true;
+        return std::make_pair(true, EXIT_OPTION);
     }
 
-    return false;
+    return std::make_pair(false, EXIT_OPTION);
 }
 
 void MainScreenStateMachine::transitionStartOption()
@@ -88,14 +103,19 @@ void MainScreenStateMachine::transitionStartOption()
 }
 
 
-bool MainScreenStateMachine::onExitOption()
+std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onExitOption()
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
+    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
     {
-        return true;
+        return std::make_pair(true, FINISHED_EXIT_STATE);
     }
 
-    return false;
+    if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
+    {
+        return std::make_pair(true, START_OPTION);
+    }
+
+    return std::make_pair(false, START_OPTION);
 }
 
 void MainScreenStateMachine::transitionExitOption()

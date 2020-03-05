@@ -14,7 +14,7 @@ CFLAGS=-Wall -Wextra
 # Required flags.
 
 CFLAGS+=-MD -MP # Autogenerate dependencies.
-CFLAGS+=-O3 -std=c++11
+CFLAGS+=-ggdb -std=c++11
 
 # Required libraries
 
