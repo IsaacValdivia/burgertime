@@ -3,6 +3,9 @@
 
 using namespace sf;
 
+/**
+ * Class MapView: stores a Map, and has a callable function to draw it on the screen
+ */
 class MapView {
 private:
     const float TILE_DIM = 4.0;

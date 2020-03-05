@@ -4,6 +4,10 @@
 
 using namespace std;
 
+/**
+ * Class Map: stores a matrix of tiles, obtained from an encoded vector of strings,
+ * corresponding the rows of the map to generate"
+ */
 class Map {
 private:
     static const int MAX_TILES = 30;
@@ -22,7 +26,7 @@ public:
     Tile data[MAX_TILES][MAX_TILES] = { {Tile()} };
 
     /**
-     * Constructor, takes map coded as an array of chars
+     * Constructor, takes map coded as a vector of strings
      */
     Map(vector<string> map_data);
 
