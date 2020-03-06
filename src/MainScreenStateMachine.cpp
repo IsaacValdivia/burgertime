@@ -1,49 +1,12 @@
 #include "MainScreenStateMachine.hpp"
-
-#include "BurgerTimeStateMachine.hpp"
-#include "BurgerTimeController.hpp"
 #include "InputSystem.hpp"
 
+FSM_INITIAL_STATE(MainScreenStateMachine, EnterState)
 
-MainScreenStateMachine::MainScreenStateMachine() 
-: StateMachine(INITIAL_STATE), controller(BurgerTimeController::get())
-{}
+static BurgerTimeController &controller = BurgerTimeController::get();
+std::shared_ptr<sf::CircleShape> MainScreenStateMachine::selectionTriangle = nullptr;
 
-std::pair<bool, uint32_t> MainScreenStateMachine::nextOnStateLogic()
-{
-    return onStateLogic[currentState]();
-}
-
-void MainScreenStateMachine::nextTransitionStateLogic()
-{
-    transitionStateLogic[currentState]();
-}
-
-std::pair<bool, uint32_t> MainScreenStateMachine::mainStateMachineBinding()
-{
-    execute();
-
-    switch (currentState)
-    {
-        case FINISHED_EXIT_STATE:
-            // TODO: change to BurgerTimeStateMachine::State::EXIT_GAME or sth like that
-            return std::make_pair(true, BurgerTimeStateMachine::State::GAME_READY_SCREEN);
-        
-        case FINISHED_START_STATE:
-            return std::make_pair(true, BurgerTimeStateMachine::State::GAME_READY_SCREEN);
-
-        default:
-            return std::make_pair(false, BurgerTimeStateMachine::State::GAME_READY_SCREEN);
-    }
-}
-
-
-std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onEntered()
-{
-    return std::make_pair(true, START_OPTION);
-}
-
-void MainScreenStateMachine::transitionEntered()
+void MainScreenStateMachine::enterStateEntry()
 {
     controller.drawablesOnScreen.clear();
 
@@ -62,63 +25,65 @@ void MainScreenStateMachine::transitionEntered()
     selectionTriangle = std::make_shared<sf::CircleShape>(10, 3);
     selectionTriangle->setFillColor(sf::Color::White);
     selectionTriangle->setRotation(90);
-    selectionTriangle->setPosition(START_SELECTION_POSITION.first, START_SELECTION_POSITION.second);
+    // selectionTriangle->setPosition(START_SELECTION_POSITION.first, START_SELECTION_POSITION.second);
 
     controller.drawablesOnScreen.push_back(startText);
     controller.drawablesOnScreen.push_back(exitText);
     controller.drawablesOnScreen.push_back(selectionTriangle);
 }
 
-
-std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onFinished()
+void EnterState::entry()
 {
-    return std::make_pair(false, ENTER_STATE);
+    MainScreenStateMachine::enterStateEntry();
+}
+
+void EnterState::react(const ExecuteEvent &)
+{
+    transit<StartOptionState>();
 }
 
 
-void MainScreenStateMachine::transitionFinished()
-{
-
-}
-
-
-std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onStartOption()
-{
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
-    {
-        return std::make_pair(true, FINISHED_START_STATE);
-    }
-
-    if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
-    {
-        return std::make_pair(true, EXIT_OPTION);
-    }
-
-    return std::make_pair(false, EXIT_OPTION);
-}
-
-void MainScreenStateMachine::transitionStartOption()
+void MainScreenStateMachine::startOptionStateEntry()
 {
     selectionTriangle->setPosition(START_SELECTION_POSITION.first, START_SELECTION_POSITION.second);
 }
 
+void StartOptionState::entry()
+{
+    MainScreenStateMachine::startOptionStateEntry();
+}
 
-std::pair<bool, MainScreenStateMachine::State> MainScreenStateMachine::onExitOption()
+void StartOptionState::react(const ExecuteEvent &)
 {
     if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
     {
-        return std::make_pair(true, FINISHED_EXIT_STATE);
+        transit<FinishedStartState>();
     }
-
-    if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
+    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
     {
-        return std::make_pair(true, START_OPTION);
+        transit<ExitOptionState>();
     }
-
-    return std::make_pair(false, START_OPTION);
 }
 
-void MainScreenStateMachine::transitionExitOption()
+
+void MainScreenStateMachine::exitOptionStateEntry()
 {
     selectionTriangle->setPosition(EXIT_SELECTION_POSITION.first, EXIT_SELECTION_POSITION.second);
+}
+
+void ExitOptionState::entry()
+{
+    MainScreenStateMachine::exitOptionStateEntry();
+}
+
+void ExitOptionState::react(const ExecuteEvent &)
+{
+    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    {
+        transit<FinishedExitState>();
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN) || hasInputJustBeenPressed(InputSystem::Input::UP))
+    {
+        transit<StartOptionState>();
+    }
 }

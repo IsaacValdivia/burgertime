@@ -1,137 +1,106 @@
 #pragma once
 
-#include <array>
-#include <cstdint>
-#include <memory>
-#include <functional>
-#include "StateMachine.hpp"
-#include "MainScreenStateMachine.hpp"
+#include <tinyfsm.hpp>
+#include "Constants.hpp"
 
-class BurgerTimeController;
-
-class BurgerTimeStateMachine : public StateMachine
+class BurgerTimeStateMachine : public tinyfsm::MooreMachine<BurgerTimeStateMachine>
 {
 public:
-    BurgerTimeStateMachine();
+    void react(const tinyfsm::Event &){};
 
+    virtual void react(const ExecuteEvent &) = 0;
+
+    virtual int getWaitTime() { return 0; };
+
+    bool timedStateReact();
+
+    void highscoreDisplayScreenStateEntry();
+    void itemPointsScreenStateEntry();
+    void characterScreenStateEntry();
+    void firstTutorialVidScreenStateEntry();
+    void secondTutorialVidScreenStateEntry();
+    void tutorialScreenStateEntry();
+    void thirdTutorialVidScreenStateEntry();
+    void gameReadyScreenState();
+
+protected:
+};
+
+class HighscoreDisplayScreenState : public BurgerTimeStateMachine
+{
 private:
-    std::pair<bool, uint32_t> nextOnStateLogic();
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
-    void nextTransitionStateLogic();
+    int getWaitTime() override { return 5; }
+};
 
-    bool checkNextTimedGameState();
-    
-    bool checkSkipGameState();
+class ItemPointsScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
+    int getWaitTime() override { return 5; }
+};
 
-    enum State
-    {
-        HIGHSCORE_DISPLAY_SCREEN,
-        ITEM_POINTS_SCREEN,
-        CHARACTER_SCREEN,
-        FIRST_TUTORIAL_VID_SCREEN,
-        SECOND_TUTORIAL_VID_SCREEN,
-        TUTORIAL_SCREEN,
-        THIRD_TUTORIAL_VID_SCREEN,
-        MAIN_SCREEN,
-        GAME_READY_SCREEN,
-        PLAYING_SCREEN,
-        PAUSED_SCREEN,
-        // ...
-        NUM_STATES,
-    };
+class CharacterScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
+    int getWaitTime() override { return 5; }
+};
 
-    std::pair<bool, uint32_t> onHighScoreScreen();
+class FirstTutorialVidScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
-    void transitionHighScoreScreen();
+    int getWaitTime() override { return 5; }
+};
 
+class SecondTutorialVidScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
-    std::pair<bool, uint32_t> onItemPointsScreen();
+    int getWaitTime() override { return 5; }
+};
 
-    void transitionItemPointsScreen();
+class TutorialScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
+    int getWaitTime() override { return 5; }
+};
 
-    std::pair<bool, uint32_t> onCharacterScreen();
+class ThirdTutorialVidScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
-    void transitionCharacterScreen();
+    int getWaitTime() override { return 5; }
+};
 
+class MainScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+};
 
-    std::pair<bool, uint32_t> onFirstTutorialVidScreen();
+class GameReadyScreenState : public BurgerTimeStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
 
-    void transitionFirstTutorialVidScreen();
-
-
-    std::pair<bool, uint32_t> onSecondTutorialVidScreen();
-
-    void transitionSecondTutorialVidScreen();
-
-
-    std::pair<bool, uint32_t> onTutorialScreen();
-
-    void transitionTutorialScreen();
-
-
-    std::pair<bool, uint32_t> onThirdTutorialVidScreen();
-
-    void transitionThirdTutorialVidScreen();
-
-
-    std::pair<bool, uint32_t> onGameReadyScreen();
-
-    void transitionGameReadyScreen();
-
-
-    // TODO: proper times etc
-
-
-
-    static constexpr auto INITIAL_STATE = HIGHSCORE_DISPLAY_SCREEN;
-
-    static constexpr std::array<uint8_t, NUM_STATES> STATE_WAIT_TIME = {
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        0,
-        5,
-        // ...
-    };
-
-    BurgerTimeController &controller;
-
-    MainScreenStateMachine mainScreenStateMach;
-
-    // TODO: const?
-    const std::array<std::function<std::pair<bool, uint32_t>()>, NUM_STATES> onStateLogic = {
-        std::bind(&BurgerTimeStateMachine::onHighScoreScreen, this),
-        std::bind(&BurgerTimeStateMachine::onItemPointsScreen, this),
-        std::bind(&BurgerTimeStateMachine::onCharacterScreen, this),
-        std::bind(&BurgerTimeStateMachine::onFirstTutorialVidScreen, this),
-        std::bind(&BurgerTimeStateMachine::onSecondTutorialVidScreen, this),
-        std::bind(&BurgerTimeStateMachine::onTutorialScreen, this),
-        std::bind(&BurgerTimeStateMachine::onThirdTutorialVidScreen, this),
-        std::bind(&MainScreenStateMachine::mainStateMachineBinding, &mainScreenStateMach),
-        std::bind(&BurgerTimeStateMachine::onGameReadyScreen, this),
-        // ...
-    };
-
-    // TODO: const?
-    const std::array<std::function<void()>, NUM_STATES> transitionStateLogic = {
-        std::bind(&BurgerTimeStateMachine::transitionHighScoreScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionItemPointsScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionCharacterScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionFirstTutorialVidScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionSecondTutorialVidScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionTutorialScreen, this),
-        std::bind(&BurgerTimeStateMachine::transitionThirdTutorialVidScreen, this),
-        std::bind(&MainScreenStateMachine::initialize, &mainScreenStateMach),
-        std::bind(&BurgerTimeStateMachine::transitionGameReadyScreen, this),
-        // ...
-    };
-
-    friend class MainScreenStateMachine;
+    int getWaitTime() override { return 5; }
 };

@@ -1,80 +1,56 @@
 #pragma once
 
-#include "StateMachine.hpp"
-#include "Constants.hpp"
+#include <tinyfsm.hpp>
+
+#include <utility>
 #include <memory>
 #include <SFML/Graphics.hpp>
+#include "Constants.hpp"
+#include "BurgerTimeController.hpp"
 
-class BurgerTimeController;
-
-class MainScreenStateMachine : public StateMachine
+class MainScreenStateMachine : public tinyfsm::MooreMachine<MainScreenStateMachine>
 {
 public:
-    MainScreenStateMachine();
+    void react(const tinyfsm::Event &){};
 
-    std::pair<bool, uint32_t> mainStateMachineBinding();
-private:
-    std::pair<bool, uint32_t> nextOnStateLogic();
+    virtual void react(const ExecuteEvent &){};
 
-    void nextTransitionStateLogic();
+    void enterStateEntry();
+    void startOptionStateEntry();
+    void exitOptionStateEntry();
 
-
-    enum State
-    {
-        ENTER_STATE,
-        START_OPTION,
-        EXIT_OPTION,
-        FINISHED_START_STATE,
-        FINISHED_EXIT_STATE,
-        NUM_STATES
-    };
-
-
-    std::pair<bool, State> onEntered();
-
-    void transitionEntered();
-
-
-    std::pair<bool, State> onFinished();
-    
-    void transitionFinished();
-
-
-    std::pair<bool, State> onStartOption();
-
-    void transitionStartOption();
-
-
-    std::pair<bool, State> onExitOption();
-
-    void transitionExitOption();
-
-
-
+protected:
     static constexpr auto START_SELECTION_POSITION = std::make_pair(4 * WINDOW_WIDTH / 10 - 13, 3 * WINDOW_HEIGHT / 10);
     static constexpr auto EXIT_SELECTION_POSITION = std::make_pair(4 * WINDOW_WIDTH / 10 - 13, 4 * WINDOW_HEIGHT / 10);
 
-    static constexpr auto INITIAL_STATE = ENTER_STATE;
+    static std::shared_ptr<sf::CircleShape> selectionTriangle;
+};
 
-    BurgerTimeController &controller;
-    std::shared_ptr<sf::CircleShape> selectionTriangle;
+class EnterState : public MainScreenStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+};
 
+class StartOptionState : public MainScreenStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+};
 
-    // TODO: const?
-    const std::array<std::function<std::pair<bool, State>()>, NUM_STATES> onStateLogic = {
-        std::bind(&MainScreenStateMachine::onEntered, this),
-        std::bind(&MainScreenStateMachine::onStartOption, this),
-        std::bind(&MainScreenStateMachine::onExitOption, this),
-        std::bind(&MainScreenStateMachine::onFinished, this),
-        std::bind(&MainScreenStateMachine::onFinished, this),
-    };
+class ExitOptionState : public MainScreenStateMachine
+{
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+};
 
-    // TODO: const?
-    const std::array<std::function<void()>, NUM_STATES> transitionStateLogic = {
-        std::bind(&MainScreenStateMachine::transitionEntered, this),
-        std::bind(&MainScreenStateMachine::transitionStartOption, this),
-        std::bind(&MainScreenStateMachine::transitionExitOption, this),
-        std::bind(&MainScreenStateMachine::transitionFinished, this),
-        std::bind(&MainScreenStateMachine::transitionFinished, this),
-    };
+class FinishedStartState : public MainScreenStateMachine
+{
+};
+
+class FinishedExitState : public MainScreenStateMachine
+{
 };

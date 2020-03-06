@@ -3,7 +3,6 @@
 #include <vector>
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "BurgerTimeStateMachine.hpp"
 
 class BurgerTimeController
 {
@@ -26,9 +25,6 @@ private:
     void update();
 
     void draw();
-
-
-    std::unique_ptr<BurgerTimeStateMachine> stateMachine;
 
     sf::Font font;
     sf::RenderWindow window;
