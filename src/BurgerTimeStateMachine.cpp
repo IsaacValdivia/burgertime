@@ -2,14 +2,13 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "BurgerTimeController.hpp"
 #include "InputSystem.hpp"
 #include "MainScreenStateMachine.hpp"
 
 
 FSM_INITIAL_STATE(BurgerTimeStateMachine, HighscoreDisplayScreenState)
 
-static BurgerTimeController &controller = BurgerTimeController::get();
+BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController::get();
 
 
 bool BurgerTimeStateMachine::timedStateReact()
@@ -236,7 +235,7 @@ void MainScreenState::react(const ExecuteEvent &)
 
     if (MainScreenStateMachine::is_in_state<FinishedExitState>())
     {
-        //TODO
+        transit<FinishedState>();
     }
 }
 

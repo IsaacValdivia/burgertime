@@ -2,13 +2,14 @@
 
 #include <tinyfsm.hpp>
 #include "Constants.hpp"
+#include "BurgerTimeController.hpp"
 
 class BurgerTimeStateMachine : public tinyfsm::MooreMachine<BurgerTimeStateMachine>
 {
 public:
     void react(const tinyfsm::Event &){};
 
-    virtual void react(const ExecuteEvent &) = 0;
+    virtual void react(const ExecuteEvent &){};
 
     virtual int getWaitTime() { return 0; };
 
@@ -24,11 +25,11 @@ public:
     void gameReadyScreenState();
 
 protected:
+    static BurgerTimeController &controller;
 };
 
 class HighscoreDisplayScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -37,7 +38,6 @@ private:
 
 class ItemPointsScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -46,7 +46,6 @@ private:
 
 class CharacterScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -55,7 +54,6 @@ private:
 
 class FirstTutorialVidScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -64,7 +62,6 @@ private:
 
 class SecondTutorialVidScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -73,7 +70,6 @@ private:
 
 class TutorialScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -82,7 +78,6 @@ private:
 
 class ThirdTutorialVidScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
@@ -91,16 +86,18 @@ private:
 
 class MainScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 };
 
 class GameReadyScreenState : public BurgerTimeStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 
     int getWaitTime() override { return 5; }
+};
+
+class FinishedState : public BurgerTimeStateMachine
+{
 };

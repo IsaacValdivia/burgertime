@@ -24,25 +24,23 @@ protected:
     static constexpr auto EXIT_SELECTION_POSITION = std::make_pair(4 * WINDOW_WIDTH / 10 - 13, 4 * WINDOW_HEIGHT / 10);
 
     static std::shared_ptr<sf::CircleShape> selectionTriangle;
+    static BurgerTimeController &controller;
 };
 
 class EnterState : public MainScreenStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 };
 
 class StartOptionState : public MainScreenStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 };
 
 class ExitOptionState : public MainScreenStateMachine
 {
-private:
     void entry() override;
     void react(const ExecuteEvent &) override;
 };

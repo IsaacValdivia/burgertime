@@ -42,7 +42,7 @@ void BurgerTimeController::run()
     sf::Clock clock;
     auto nextTime = clock.getElapsedTime();
 
-    while (true)
+    while (!hasGameFinished())
     {
         auto currentTime = clock.getElapsedTime();
 
@@ -81,4 +81,9 @@ void BurgerTimeController::draw()
     }
 
     window.display();
+}
+
+bool BurgerTimeController::hasGameFinished()
+{
+    return BurgerTimeStateMachine::is_in_state<FinishedState>();
 }

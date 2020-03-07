@@ -3,7 +3,7 @@
 
 FSM_INITIAL_STATE(MainScreenStateMachine, EnterState)
 
-static BurgerTimeController &controller = BurgerTimeController::get();
+BurgerTimeController &MainScreenStateMachine::controller = BurgerTimeController::get();
 std::shared_ptr<sf::CircleShape> MainScreenStateMachine::selectionTriangle = nullptr;
 
 void MainScreenStateMachine::enterStateEntry()
