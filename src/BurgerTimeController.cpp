@@ -5,11 +5,13 @@
 #include <thread>
 #include <SFML/System.hpp>
 #include "Constants.hpp"
+#include "InputSystem.hpp"
+#include "BurgerTimeStateMachine.hpp"
 
 BurgerTimeController::BurgerTimeController()
-    : window(sf::VideoMode(windowWidth, windowHeight), windowTitle)
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE)
 {
-    if (!font.loadFromFile(fontFile))
+    if (!font.loadFromFile(FONT_FILE))
     {
         // TODO: error
     }
@@ -27,7 +29,7 @@ BurgerTimeController &BurgerTimeController::get()
 
 void BurgerTimeController::startup()
 {
-    stateMachine = std::unique_ptr<BurgerTimeStateMachine>(new BurgerTimeStateMachine());
+    BurgerTimeStateMachine::start();
 }
 
 void BurgerTimeController::run()
@@ -35,12 +37,12 @@ void BurgerTimeController::run()
     startup();
     logicClock.restart();
 
-    const auto logicDeltaTime = sf::seconds(logicUpdateFreq);
+    const auto logicDeltaTime = sf::seconds(LOGIC_UPDATE_FREQ);
 
     sf::Clock clock;
     auto nextTime = clock.getElapsedTime();
 
-    while (true)
+    while (!hasGameFinished())
     {
         auto currentTime = clock.getElapsedTime();
 
@@ -65,17 +67,23 @@ void BurgerTimeController::run()
 
 void BurgerTimeController::update()
 {
-    stateMachine->execute();
+    InputSystem::update();
+    BurgerTimeStateMachine::dispatch(ExecuteEvent());
 }
 
 void BurgerTimeController::draw()
 {
     window.clear();
 
-    for (auto obj : drawablesOnScreen)
+    for (const auto &obj : drawablesOnScreen)
     {
         window.draw(*obj);
     }
 
     window.display();
+}
+
+bool BurgerTimeController::hasGameFinished()
+{
+    return BurgerTimeStateMachine::is_in_state<FinishedState>();
 }

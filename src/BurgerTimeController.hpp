@@ -3,7 +3,6 @@
 #include <vector>
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "BurgerTimeStateMachine.hpp"
 
 class BurgerTimeController
 {
@@ -27,8 +26,7 @@ private:
 
     void draw();
 
-
-    std::unique_ptr<BurgerTimeStateMachine> stateMachine;
+    bool hasGameFinished();
 
     sf::Font font;
     sf::RenderWindow window;
@@ -37,4 +35,5 @@ private:
     sf::Clock logicClock;
 
     friend class BurgerTimeStateMachine;
+    friend class MainScreenStateMachine;
 };

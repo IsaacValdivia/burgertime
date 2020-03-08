@@ -14,7 +14,8 @@ CFLAGS=-Wall -Wextra
 # Required flags.
 
 CFLAGS+=-MD -MP # Autogenerate dependencies.
-CFLAGS+=-O3 -std=c++11
+CFLAGS+=-ggdb -std=c++11
+CFLAGS+=-Iinclude
 
 # Required libraries
 
@@ -47,7 +48,7 @@ DEPS:=$(subst $(SRCDIR),$(OBJDIR),$(SRCS:%.cpp=%.d))
 # Executables.
 #
 CHEF=$(BINDIR)/chef
-_CHEF_OBJS=main BurgerTimeController BurgerTimeStateMachine
+_CHEF_OBJS=main BurgerTimeController InputSystem BurgerTimeStateMachine MainScreenStateMachine
 CHEF_OBJS=$(call name_to_object,$(_CHEF_OBJS))
 
 #
