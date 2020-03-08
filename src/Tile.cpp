@@ -18,6 +18,18 @@ bool Tile::isFloor() {
 	return content == FLOOR || content == ENTRY_N_FLOOR;
 }
 
+bool Tile::isGoUp() {
+	return content == GO_UP || content == ENTRY_N_UP;
+}
+
+bool Tile::isGoDown() {
+	return content == GO_DOWN || content == ENTRY_N_DOWN;
+}
+
+bool Tile::isGoBoth() {
+	return content == GO_BOTH || content == ENTRY_N_BOTH;
+}
+
 bool Tile::isConnector() {
 	return content == GO_UP || content == GO_DOWN || content == GO_BOTH ||
 			content == ENTRY_N_UP || content == ENTRY_N_DOWN || content == ENTRY_N_BOTH;

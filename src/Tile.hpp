@@ -16,7 +16,7 @@ public:
     static const char ENTRY_N_BOTH = 'B';
     // Empty tile (background)
     static const char EMPTY = ' ';
-    
+
     uint8_t col;
     uint8_t row;
     char content;
@@ -28,6 +28,9 @@ public:
 
     bool isEmpty();
     bool isFloor();
+    bool isGoUp();
+    bool isGoDown();
+    bool isGoBoth();
     bool isConnector();
     bool isStairs();
 };
