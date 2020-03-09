@@ -51,10 +51,17 @@ CHEF=$(BINDIR)/chef
 _CHEF_OBJS=main BurgerTimeController InputSystem BurgerTimeStateMachine MainScreenStateMachine
 CHEF_OBJS=$(call name_to_object,$(_CHEF_OBJS))
 
+MAIN_LORIEN=$(BINDIR)/main_lorien
+_MAIN_LORIEN_OBJS=main_lorien BT_sprites
+MAIN_LORIEN_OBJS=$(call name_to_object,$(_MAIN_LORIEN_OBJS))
+
 #
 # Generate executables
 #
 $(CHEF): $(CHEF_OBJS) | $(BINDIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+
+$(MAIN_LORIEN): $(MAIN_LORIEN_OBJS) | $(BINDIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 #
@@ -81,9 +88,11 @@ $(OBJDIR):
 #
 .DEFAULT_GOAL:=all
 .PHONY: all
-all: $(CHEF)
+all: $(CHEF) $(MAIN_LORIEN)
 
 chef: $(CHEF)
+
+main_lorien: $(MAIN_LORIEN)
 
 .PHONY: clean
 clean:
