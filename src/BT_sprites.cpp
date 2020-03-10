@@ -2,8 +2,8 @@
 
 const int BT_sprites::containers[][DIMENSIONS] = {
     /*
-    * Regular size sprites.
-    */
+     * Regular size sprites.
+     */
 
     // Regular size sprites line 0
     {sprite_size * 0, sprite_size * 0, sprite_size, sprite_size}, // PLAYER_DOWNSTAIRS_1
@@ -125,8 +125,8 @@ const int BT_sprites::containers[][DIMENSIONS] = {
     {small_sprite_size * 17, small_sprite_size * 11, small_sprite_size, small_sprite_size}, // LETTUCE_4
 
     /*
-    * Indicator sprites.
-    */
+     * Indicator sprites.
+     */
 
     // Indicator sprites line 0
     {small_sprite_size * 25, small_sprite_size * 0, small_sprite_size, small_sprite_size}, // LIVES
@@ -138,8 +138,8 @@ const int BT_sprites::containers[][DIMENSIONS] = {
     {small_sprite_size * 27, small_sprite_size * 1, pepper_text_sprite_size_x, small_sprite_size}, // PEPPER
 
     /*
-    * Pepper sprites.
-    */
+     * Pepper sprites.
+     */
 
     // Pepper sprites line 0
     {sprite_size * 11, sprite_size * 1, sprite_size, sprite_size}, // PEPPER_LEFT_1
@@ -179,11 +179,7 @@ sf::Texture BT_sprites::char_and_obj_sprites = create_texture(
 
 void BT_sprites::set_initial_sprite(sf::Sprite &sp, const Sprite new_sprite) {
     sp.setTexture(char_and_obj_sprites);
-    sp.setTextureRect(sf::IntRect(
-                          containers[new_sprite][padding_x_idx],
-                          containers[new_sprite][padding_y_idx],
-                          containers[new_sprite][x_idx],
-                          containers[new_sprite][y_idx]));
+    update_sprite(sp, new_sprite);
 };
 
 void BT_sprites::update_sprite(sf::Sprite &sp, const Sprite new_sprite) {
