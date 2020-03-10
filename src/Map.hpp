@@ -13,11 +13,10 @@ class Map {
 private:
     void fill_tiles(const vector<string> &map_data);
 
-    static const int MAX_TILES = 30;
+    static const int MAX_ROWS = 30;
+    static const int MAX_COLS = 17;
     static const int MAX_ENEMY_ENTRIES = 10;
 public:
-    static const int TILE_HEIGHT = 4;
-    static const int TILE_WIDTH  = 4;
 
     unsigned int num_rows;
     unsigned int num_cols;
@@ -26,7 +25,7 @@ public:
     const Tile enemy_entries[MAX_ENEMY_ENTRIES];
     const Tile chef_spawn;
 
-    Tile data[MAX_TILES][MAX_TILES] = { {Tile()} };
+    Tile data[MAX_ROWS][MAX_COLS] = { {Tile()} };
 
     /**
      * Constructor, takes map coded as a vector of strings

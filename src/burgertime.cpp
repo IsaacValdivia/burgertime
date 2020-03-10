@@ -6,9 +6,7 @@
 using namespace std;
 
 int main() {
-	//vector<string> v{"v__v_v_v___v__v_v","#  # # #   #  # #","#  # # #   #  # #"};
-
-	Map m("./maps/map1.map");
+	Map m("./maps/map5.map");
 
 	MapView view(&m);
 

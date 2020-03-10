@@ -24,7 +24,7 @@ public:
     Tile();
     Tile(uint8_t _col, uint8_t _row, char _content);
 
-    Tile& operator=(const Tile& other);
+    void operator=(const Tile& other);
 
     bool isEmpty();
     bool isFloor();
