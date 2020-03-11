@@ -36,10 +36,18 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
     controller.drawablesOnScreen.clear();
     auto text = std::make_shared<sf::Text>();
 
+    auto burgerTimeText = std::make_shared<sf::Text>();
+    burgerTimeText->setFillColor(sf::Color::Red);
+    burgerTimeText->setScale(0.70, 0.70);
+    burgerTimeText->setFont(controller.font);
+    burgerTimeText->setString("BURGER TIME");
+    burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
+
     text->setFont(controller.font);
     text->setString("TODO: High Score Screen");
 
     controller.drawablesOnScreen.push_back(text);
+    controller.drawablesOnScreen.push_back(burgerTimeText);
 }
 
 void HighscoreDisplayScreenState::entry()
