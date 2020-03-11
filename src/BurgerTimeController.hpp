@@ -26,7 +26,7 @@ private:
 
     void draw();
 
-    bool hasGameFinished();
+    bool hasGameFinished() const;
 
     sf::Font font;
     sf::RenderWindow window;

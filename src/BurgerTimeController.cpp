@@ -8,8 +8,8 @@
 #include "InputSystem.hpp"
 #include "BurgerTimeStateMachine.hpp"
 
-BurgerTimeController::BurgerTimeController()
-    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close)
+BurgerTimeController::BurgerTimeController() : 
+    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close)
 {
     if (!font.loadFromFile(FONT_FILE))
     {
@@ -92,7 +92,7 @@ void BurgerTimeController::draw()
     window.display();
 }
 
-bool BurgerTimeController::hasGameFinished()
+bool BurgerTimeController::hasGameFinished() const
 {
     return BurgerTimeStateMachine::is_in_state<FinishedState>();
 }
