@@ -9,7 +9,7 @@
 #include "BurgerTimeStateMachine.hpp"
 
 BurgerTimeController::BurgerTimeController()
-    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE)
+    : window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close)
 {
     if (!font.loadFromFile(FONT_FILE))
     {
@@ -42,8 +42,17 @@ void BurgerTimeController::run()
     sf::Clock clock;
     auto nextTime = clock.getElapsedTime();
 
-    while (!hasGameFinished())
+    sf::Event event;
+
+    while (window.isOpen() && !hasGameFinished())
     {
+        while (window.pollEvent(event)) 
+        {
+            if (event.type == sf::Event::Closed) 
+            {
+                window.close();
+            }
+        }
         auto currentTime = clock.getElapsedTime();
 
         if (currentTime >= nextTime)
