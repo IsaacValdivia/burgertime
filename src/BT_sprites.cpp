@@ -81,9 +81,9 @@ const int BT_sprites::containers[][DIMENSIONS] = {
     // Regular size sprites line 10
     {sprite_size * 0, sprite_size * 10, sprite_size, sprite_size}, // P_100
     {sprite_size * 1, sprite_size * 10, sprite_size, sprite_size}, // P_200
-    {sprite_size * 2, sprite_size * 10, sprite_size, sprite_size}, // // P_300
-    {sprite_size * 3, sprite_size * 10, sprite_size, sprite_size}, // // P_500
-    {sprite_size * 4, sprite_size * 10, sprite_size, sprite_size}, // // P_1000
+    // {sprite_size * 2, sprite_size * 10, sprite_size, sprite_size}, // // P_300
+    // {sprite_size * 3, sprite_size * 10, sprite_size, sprite_size}, // // P_500
+    // {sprite_size * 4, sprite_size * 10, sprite_size, sprite_size}, // // P_1000
     {sprite_size * 5, sprite_size * 10, sprite_size, sprite_size}, // P_2000
     {sprite_size * 6, sprite_size * 10, sprite_size, sprite_size}, // P_4000
     {sprite_size * 7, sprite_size * 10, sprite_size, sprite_size}, // P_8000

@@ -48,7 +48,7 @@ DEPS:=$(subst $(SRCDIR),$(OBJDIR),$(SRCS:%.cpp=%.d))
 # Executables.
 #
 CHEF=$(BINDIR)/chef
-_CHEF_OBJS=main BurgerTimeController InputSystem BurgerTimeStateMachine MainScreenStateMachine
+_CHEF_OBJS=main BurgerTimeController InputSystem BurgerTimeStateMachine MainScreenStateMachine BT_sprites
 CHEF_OBJS=$(call name_to_object,$(_CHEF_OBJS))
 
 MAIN_LORIEN=$(BINDIR)/main_lorien
