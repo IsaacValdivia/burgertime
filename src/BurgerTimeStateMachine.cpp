@@ -1,10 +1,12 @@
 #include "BurgerTimeStateMachine.hpp"
 
 #include <memory>
+#include <string>
 #include <SFML/Graphics.hpp>
 #include "InputSystem.hpp"
 #include "MainScreenStateMachine.hpp"
 #include "BT_sprites.hpp"
+#include "HighScores.hpp"
 
 
 FSM_INITIAL_STATE(BurgerTimeStateMachine, HighscoreDisplayScreenState)
@@ -34,7 +36,6 @@ bool BurgerTimeStateMachine::timedStateReact()
 void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
 {
     controller.drawablesOnScreen.clear();
-    auto text = std::make_shared<sf::Text>();
 
     auto burgerTimeText = std::make_shared<sf::Text>();
     burgerTimeText->setFillColor(sf::Color::Red);
@@ -43,11 +44,38 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
     burgerTimeText->setString("BURGER TIME");
     burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
 
-    text->setFont(controller.font);
-    text->setString("TODO: High Score Screen");
+    auto bestFivePlayersText = std::make_shared<sf::Text>();
+    bestFivePlayersText->setFillColor(sf::Color::White);
+    bestFivePlayersText->setScale(0.70, 0.70);
+    bestFivePlayersText->setFont(controller.font);
+    bestFivePlayersText->setString("BEST FIVE PLAYERS");
+    bestFivePlayersText->setPosition(22 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
 
-    controller.drawablesOnScreen.push_back(text);
+    HighScores highScores("welp.hscores");
+    auto hScores = highScores.getHighScores();
+
+    std::shared_ptr<sf::Text> hScoreText;
+    for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
+    {
+        auto scoreStr = std::to_string(hScores[i].second);
+        std::string whiteSpace(" ");
+
+        for (uint8_t j = 0; j < HighScores::MAX_SCORE_CHARS - scoreStr.length(); ++j) 
+        {
+            whiteSpace += " ";
+        }
+
+        hScoreText = std::make_shared<sf::Text>();
+        hScoreText->setFillColor(sf::Color::White);
+        hScoreText->setScale(0.70, 0.70);
+        hScoreText->setFont(controller.font);
+        hScoreText->setString(std::to_string(i + 1) + " " + hScores[i].first.data() + whiteSpace + scoreStr + " PTS");
+        hScoreText->setPosition(22 * WINDOW_WIDTH / 100, (45 + i * 10) * WINDOW_HEIGHT / 100);
+        controller.drawablesOnScreen.push_back(hScoreText);
+    }
+
     controller.drawablesOnScreen.push_back(burgerTimeText);
+    controller.drawablesOnScreen.push_back(bestFivePlayersText);
 }
 
 void HighscoreDisplayScreenState::entry()
@@ -66,7 +94,7 @@ void HighscoreDisplayScreenState::react(const ExecuteEvent &)
 
 void BurgerTimeStateMachine::itemPointsScreenStateEntry()
 {
-    // TODO: change magic numbers to constants
+    // TODO: change magic numbers to constants and mb reduce code size
 
     controller.drawablesOnScreen.clear();
 
