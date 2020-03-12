@@ -98,6 +98,28 @@ class GameReadyScreenState : public BurgerTimeStateMachine
     int getWaitTime() const override { return 5; }
 };
 
+class GameOverScreenState : public BurgerTimeStateMachine
+{
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+
+    static constexpr auto MAX_TEXTS = 8;
+    static constexpr auto ANIMATION_FREQ = 0.2;
+    static constexpr std::array<const char*, MAX_TEXTS> DIFFERENT_TEXTS = {
+        "G",
+        "GA",
+        "GAM",
+        "GAME",
+        "GAME O",
+        "GAME OV",
+        "GAME OVE",
+        "GAME OVER"
+    };
+
+    int currentText;
+    std::shared_ptr<sf::Text> text;
+};
+
 class FinishedState : public BurgerTimeStateMachine
 {
 };

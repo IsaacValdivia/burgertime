@@ -60,7 +60,7 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
         auto scoreStr = std::to_string(hScores[i].second);
         std::string whiteSpace(" ");
 
-        for (uint8_t j = 0; j < HighScores::MAX_SCORE_CHARS - scoreStr.length(); ++j) 
+        for (uint8_t j = 0; j < HighScores::MAX_SCORE_CHARS - scoreStr.length(); ++j)
         {
             whiteSpace += " ";
         }
@@ -76,6 +76,7 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
 
     controller.drawablesOnScreen.push_back(burgerTimeText);
     controller.drawablesOnScreen.push_back(bestFivePlayersText);
+    controller.logicClock.restart();
 }
 
 void HighscoreDisplayScreenState::entry()
@@ -351,6 +352,7 @@ void BurgerTimeStateMachine::itemPointsScreenStateEntry()
     controller.drawablesOnScreen.push_back(pepper);
     controller.drawablesOnScreen.push_back(bonusLifeText);
     controller.drawablesOnScreen.push_back(chef);
+    controller.logicClock.restart();
 }
 
 void ItemPointsScreenState::entry()
@@ -377,6 +379,7 @@ void BurgerTimeStateMachine::characterScreenStateEntry()
     text->setString("TODO: Character Screen");
 
     controller.drawablesOnScreen.push_back(text);
+    controller.logicClock.restart();
 }
 
 void CharacterScreenState::entry()
@@ -403,6 +406,7 @@ void BurgerTimeStateMachine::firstTutorialVidScreenStateEntry()
     text->setString("TODO: First Tutorial Video");
 
     controller.drawablesOnScreen.push_back(text);
+    controller.logicClock.restart();
 }
 
 void FirstTutorialVidScreenState::entry()
@@ -429,6 +433,7 @@ void BurgerTimeStateMachine::secondTutorialVidScreenStateEntry()
     text->setString("TODO: Second Tutorial Video");
 
     controller.drawablesOnScreen.push_back(text);
+    controller.logicClock.restart();
 }
 
 void SecondTutorialVidScreenState::entry()
@@ -455,6 +460,7 @@ void BurgerTimeStateMachine::tutorialScreenStateEntry()
     text->setString("TODO: Tutorial Screen");
 
     controller.drawablesOnScreen.push_back(text);
+    controller.logicClock.restart();
 }
 
 void TutorialScreenState::entry()
@@ -481,6 +487,7 @@ void BurgerTimeStateMachine::thirdTutorialVidScreenStateEntry()
     text->setString("TODO: Third Tutorial Video");
 
     controller.drawablesOnScreen.push_back(text);
+    controller.logicClock.restart();
 }
 
 void ThirdTutorialVidScreenState::entry()
@@ -531,6 +538,7 @@ void BurgerTimeStateMachine::gameReadyScreenState()
     text->setPosition(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2);
 
     controller.drawablesOnScreen.push_back(text);
+    controller.logicClock.restart();
 }
 
 void GameReadyScreenState::entry()
@@ -542,6 +550,47 @@ void GameReadyScreenState::react(const ExecuteEvent &)
 {
     if (BurgerTimeStateMachine::timedStateReact())
     {
-        // transit<ThirdTutorialVidScreenState>();
+        // TODO: change
+        transit<GameOverScreenState>();
+    }
+}
+
+
+constexpr std::array<const char*, GameOverScreenState::MAX_TEXTS> GameOverScreenState::DIFFERENT_TEXTS;
+
+void GameOverScreenState::entry()
+{
+    controller.drawablesOnScreen.clear();
+
+    text = std::make_shared<sf::Text>();
+
+    text->setFont(controller.font);
+    text->setString(DIFFERENT_TEXTS[0]);
+    text->setScale(0.8, 0.8);
+    text->setPosition(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2);
+
+    controller.drawablesOnScreen.push_back(text);
+    currentText = 1;
+    controller.logicClock.restart();
+}
+
+void GameOverScreenState::react(const ExecuteEvent &)
+{
+    auto elapsedTime = controller.logicClock.getElapsedTime();
+
+    if (currentText == MAX_TEXTS)
+    {
+        if (elapsedTime.asSeconds() >= 1)
+        {
+            // TODO: change
+            transit<MainScreenState>();
+            return;
+        }
+    }
+    else if (elapsedTime.asSeconds() >= ANIMATION_FREQ)
+    {
+        text->setString(DIFFERENT_TEXTS[currentText]);
+        currentText++;
+        controller.logicClock.restart();
     }
 }

@@ -36,4 +36,5 @@ private:
 
     friend class BurgerTimeStateMachine;
     friend class MainScreenStateMachine;
+    friend class GameOverScreenState;
 };
