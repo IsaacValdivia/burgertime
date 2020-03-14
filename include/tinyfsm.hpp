@@ -144,8 +144,8 @@ namespace tinyfsm
       current_state_ptr->exit();
       // NOTE: we get into deep trouble if the action_function sends a new event.
       // TODO: implement a mechanism to check for reentrancy
-      action_function();
       current_state_ptr = &_state_instance<S>::value;
+      action_function();
       current_state_ptr->entry();
     }
 

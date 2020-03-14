@@ -2,9 +2,11 @@
 
 #include <memory>
 #include <string>
+#include <functional>
 #include <SFML/Graphics.hpp>
 #include "InputSystem.hpp"
 #include "MainScreenStateMachine.hpp"
+#include "PlayingStateMachine.hpp"
 #include "BT_sprites.hpp"
 #include "HighScores.hpp"
 
@@ -54,7 +56,6 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
     HighScores highScores("welp.hscores");
     auto hScores = highScores.getHighScores();
 
-    std::shared_ptr<sf::Text> hScoreText;
     for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
     {
         auto scoreStr = std::to_string(hScores[i].second);
@@ -65,7 +66,7 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
             whiteSpace += " ";
         }
 
-        hScoreText = std::make_shared<sf::Text>();
+        std::shared_ptr<sf::Text> hScoreText = std::make_shared<sf::Text>();
         hScoreText->setFillColor(sf::Color::White);
         hScoreText->setScale(0.70, 0.70);
         hScoreText->setFont(controller.font);
@@ -551,8 +552,31 @@ void GameReadyScreenState::react(const ExecuteEvent &)
     if (BurgerTimeStateMachine::timedStateReact())
     {
         // TODO: change
-        transit<GameOverScreenState>();
+        transit<PlayingState>();
+        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }
+}
+
+
+void PlayingState::entry()
+{
+    PlayingStateMachine::reset();
+    PlayingStateMachine::start();
+}
+
+void PlayingState::react(const ExecuteEvent &)
+{
+    PlayingStateMachine::dispatch(ExecuteEvent());
+
+    // if (MainScreenStateMachine::is_in_state<FinishedStartState>())
+    // {
+    //     transit<GameReadyScreenState>();
+    // }
+
+    // if (MainScreenStateMachine::is_in_state<FinishedExitState>())
+    // {
+    //     transit<FinishedState>();
+    // }
 }
 
 
@@ -593,4 +617,125 @@ void GameOverScreenState::react(const ExecuteEvent &)
         currentText++;
         controller.logicClock.restart();
     }
+}
+
+
+uint32_t EnterHighscoreState::newHighscore;
+
+void EnterHighscoreState::entry()
+{
+    controller.drawablesOnScreen.clear();
+
+    newHighScoreText = std::make_shared<sf::Text>();
+
+    auto burgerTimeText = std::make_shared<sf::Text>();
+    burgerTimeText->setFillColor(sf::Color::Red);
+    burgerTimeText->setScale(0.70, 0.70);
+    burgerTimeText->setFont(controller.font);
+    burgerTimeText->setString("BURGER TIME");
+    burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
+
+    helpText = std::make_shared<sf::Text>();
+    helpText->setFillColor(sf::Color::White);
+    helpText->setScale(0.70, 0.70);
+    helpText->setFont(controller.font);
+    helpText->setString(ENTER_NAME_STR);
+    helpText->setPosition(24 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
+
+    HighScores highScores("welp.hscores");
+    auto hScores = highScores.getHighScores();
+
+    int highScorePosition = highScores.highScorePosition(newHighscore);
+    bool hasWrittenNewScore = false;
+
+    for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
+    {
+        uint32_t highScore;
+        std::string playerName;
+        std::shared_ptr<sf::Text> hScoreText;
+        if (i + 1 == highScorePosition)
+        {
+            hScoreText = newHighScoreText;
+            highScore = newHighscore;
+            playerName = "_  ";
+            hasWrittenNewScore = true;
+        }
+        else
+        {
+            int pos = i;
+            if (hasWrittenNewScore)
+            {
+                pos -= 1;
+            }
+            hScoreText = std::make_shared<sf::Text>();
+            highScore = hScores[pos].second;
+            playerName = hScores[pos].first.data();
+        }
+
+        auto scoreStr = std::to_string(highScore);
+        std::string whiteSpace(" ");
+
+        for (uint8_t j = 0; j < HighScores::MAX_SCORE_CHARS - scoreStr.length(); ++j)
+        {
+            whiteSpace += " ";
+        }
+
+        hScoreText->setFillColor(sf::Color::White);
+        hScoreText->setScale(0.70, 0.70);
+        hScoreText->setFont(controller.font);
+        hScoreText->setString(std::to_string(i + 1) + " " + playerName + whiteSpace + scoreStr + " PTS");
+        hScoreText->setPosition(22 * WINDOW_WIDTH / 100, (45 + i * 10) * WINDOW_HEIGHT / 100);
+        controller.drawablesOnScreen.push_back(hScoreText);
+    }
+
+    controller.drawablesOnScreen.push_back(burgerTimeText);
+    controller.drawablesOnScreen.push_back(helpText);
+    controller.logicClock.restart();
+}
+
+void EnterHighscoreState::react(const ExecuteEvent &)
+{
+    auto currentStr = newHighScoreText->getString();
+    if (charPosition > 0 && InputSystem::hasInputJustBeenPressed(InputSystem::Input::DELETE))
+    {
+        if (charPosition < HighScores::PLAYER_NAME_SIZE - 1)
+        {
+            currentStr[2 + charPosition] = ' ';
+        }
+        charPosition--;
+        currentStr[2 + charPosition] = '_';
+    }
+
+    if (charPosition < HighScores::PLAYER_NAME_SIZE - 1 && InputSystem::hasEnteredText())
+    {
+        char newChar = InputSystem::getCurrentChar();
+        currentStr[2 + charPosition] = newChar;
+        if (charPosition < HighScores::PLAYER_NAME_SIZE - 2)
+        {
+            currentStr[2 + charPosition + 1] = '_';
+        }
+        charPosition++;
+    }
+
+    if (charPosition == HighScores::PLAYER_NAME_SIZE - 1)
+    {
+        helpText->setString("CONFIRM? (PEPPER)");
+        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+        {
+            // TODO: save new highscores etc etc
+            transit<MainScreenState>();
+        }
+    }
+    else
+    {
+        helpText->setString(ENTER_NAME_STR);
+    }
+    
+
+    newHighScoreText->setString(currentStr);
+}
+
+void EnterHighscoreState::setHighScore(uint32_t highScore)
+{
+    newHighscore = highScore;
 }

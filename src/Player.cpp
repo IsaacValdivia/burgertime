@@ -1,6 +1,7 @@
 #include "Player.hpp"
+#include "InputSystem.hpp"
 
-const BT_sprites::Sprite Player::sprite_state_machine[][NUM_PLAYER_ACTIONS] = {
+const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
     // PLAYER_DOWNSTAIRS_1
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
@@ -201,30 +202,57 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_PLAYER_ACTIONS] = {
     },
 };
 
-Player::Player() {
+Player::Player(const sf::Vector2f &init_pos) 
+: Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT) {
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
-    last_direction = NONE;
-
-    BT_sprites::set_initial_sprite(player_sprite, BT_sprites::Sprite::PLAYER_STILL_FRONT);
-    player_sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
-
-    // Set origin in the center of the sprite.
-    player_sprite.setOrigin({player_sprite.getLocalBounds().width / 2,
-                             player_sprite.getLocalBounds().height / 2});
-
-    // TODO: BORRAR
-    player_sprite.setPosition(80, 80);
+    last_direction = LEFT;
+    last_action = NONE;
 };
 
-void Player::update(Action pa) {
-    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite][pa];
+void Player::update(float delta_t) {
+    static float t = 0;
+    t += delta_t;
 
-    // Set new sprite.
-    if (new_sprite != current_sprite) {
+    // New action
+
+    Action new_last_direction = last_direction;
+    Action new_action = NONE;
+
+    InputSystem::Input inputToProcess = InputSystem::getLastInput();
+
+    if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
+        new_action = PEPPER;
+        // PEPEREAR
+    }
+    else if (inputToProcess == InputSystem::Input::RIGHT && !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
+        new_action = new_last_direction = RIGHT;
+        this->move(velocity * delta_t, 0);
+    }
+    else if (inputToProcess == InputSystem::Input::LEFT && !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
+        new_action = new_last_direction = LEFT;
+        this->move(-velocity * delta_t, 0);
+    }
+    else if (inputToProcess == InputSystem::Input::UP && !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
+        new_action = new_last_direction = UP;
+        this->move(0, -velocity / 1.72 * delta_t);
+    }
+    else if (inputToProcess == InputSystem::Input::DOWN && !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
+        new_action = new_last_direction = DOWN;
+        this->move(0, velocity / 1.72 * delta_t);
+    }
+
+    // TODO MORIR
+    // TODO GANAR
+
+    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite][new_action];
+
+    if ((new_sprite != current_sprite && t > 1.5) || last_action != new_action) {
+        t = 0;
         // Mirror sprite.
-        if ((pa == RIGHT && last_direction != RIGHT) ||
-                ((pa == LEFT || pa == DOWN || pa == UP) && last_direction == RIGHT)) {
-            player_sprite.scale(-1, 1); // Mirror.
+        if ((new_action == RIGHT && last_direction != RIGHT) ||
+            ((new_action == LEFT || new_action == DOWN || new_action == UP) 
+            && last_direction == RIGHT)) {
+            this->scale(-1, 1); // Mirror.
         }
 
         // Special state machine case.
@@ -235,32 +263,11 @@ void Player::update(Action pa) {
         }
 
         current_sprite = new_sprite;
-        BT_sprites::update_sprite(player_sprite, current_sprite);
+        BT_sprites::update_sprite(*static_cast<sf::Sprite *>(this), current_sprite);
+
+        last_direction = new_last_direction;
     }
 
-    // Move
-    switch (pa) {
-        case LEFT:
-            last_direction = LEFT;
-            player_sprite.move(-step_size, 0);
-            break;
-        case RIGHT:
-            last_direction = RIGHT;
-            player_sprite.move(step_size, 0);
-            break;
-        case UP:
-            last_direction = UP;
-            player_sprite.move(0, -step_size);
-            break;
-        case DOWN:
-            last_direction = DOWN;
-            player_sprite.move(0, step_size);
-            break;
-        default:
-            break;
-    }
+    last_action = new_action;
 }
 
-sf::Sprite Player::get_sprite() const {
-    return player_sprite;
-}

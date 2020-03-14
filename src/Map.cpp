@@ -27,14 +27,15 @@ Map::Map(const string &filename) {
 
     if (f.is_open()) {
         vector<string> rows;
-        char row_aux[18];
+        char row_aux[MAX_COLS + 1];
         string row;
         while (!f.eof()) {
-            f.getline(row_aux, 18);
+            f.getline(row_aux, MAX_COLS + 1);
             row = row_aux;
             int s = row.size();
-            if (s != 17) {
-                throw runtime_error("Rows can only have 17 tiles");
+            printf("cols %d\n", s);
+            if (s != MAX_COLS) {
+                throw runtime_error("Rows can only have " + to_string(MAX_COLS) + " tiles");
             }
             rows.push_back(row);
         }

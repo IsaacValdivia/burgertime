@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstdint>
 
-constexpr std::array<std::pair<const char*, uint16_t>, HighScores::NUM_HIGH_SCORES> HighScores::DEFAULT_SCORES;
+constexpr std::array<std::pair<const char*, uint32_t>, HighScores::NUM_HIGH_SCORES> HighScores::DEFAULT_SCORES;
 
 HighScores::HighScores(const std::string &fileName)
 {
@@ -28,7 +28,7 @@ HighScores::HighScores(const std::string &fileName)
             return;
         }
 
-        uint16_t score;
+        uint32_t score;
         file.read(reinterpret_cast<char*>(&score), sizeof(score));
 
         if (!file)
@@ -43,7 +43,7 @@ HighScores::HighScores(const std::string &fileName)
     // TODO: sort highScores
 }
 
-std::array<std::pair<std::array<char, 4>, uint16_t>, HighScores::NUM_HIGH_SCORES> HighScores::getHighScores() const
+std::array<std::pair<std::array<char, 4>, uint32_t>, HighScores::NUM_HIGH_SCORES> HighScores::getHighScores() const
 {
     return highScores;
 }
@@ -72,4 +72,22 @@ void HighScores::createDefaultScores()
         highScores[i].first = playerName;
         highScores[i].second = DEFAULT_SCORES[i].second;
     }
+}
+
+bool HighScores::isHighScore(uint32_t score) const
+{
+    return score >= highScores[NUM_HIGH_SCORES - 1].second; 
+}
+
+int HighScores::highScorePosition(uint32_t score) const
+{
+    for (int i = 0; i < NUM_HIGH_SCORES; ++i)
+    {
+        if (score >= highScores[i].second)
+        {
+            return i + 1;
+        }
+    }
+
+    return 0;
 }

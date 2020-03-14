@@ -1,5 +1,6 @@
 #include "InputSystem.hpp"
 
+#include <list>
 #include <map>
 #include <set>
 #include <SFML/Window.hpp>
@@ -15,11 +16,15 @@ namespace InputSystem
             {Input::RIGHT, sf::Keyboard::Key::D},
             {Input::PEPPER, sf::Keyboard::Key::Space},
             {Input::PAUSE, sf::Keyboard::Key::Escape},
+            {Input::DELETE, sf::Keyboard::Key::BackSpace},
         };
 
+        static std::list<Input> orderedPressedInputs;
         static std::set<Input> currentPressedInputs;
         static std::set<Input> justPressedInputs;
         static std::set<Input> justReleasedInputs;
+        static bool isCharEntered = false;
+        static char charEntered;
     }
 
     bool isInputPressed(Input input, const std::set<Input> &pressedInputs)
@@ -27,7 +32,7 @@ namespace InputSystem
         return pressedInputs.find(input) != pressedInputs.end();
     }
 
-    void update()
+    void updateCommon()
     {
         std::set<Input> pressedInputs;
         justPressedInputs.clear();
@@ -49,15 +54,43 @@ namespace InputSystem
 
             if (!isInputPressed(input, currentPressedInputs) && isInputPressed(input, pressedInputs))
             {
+                orderedPressedInputs.push_back(input);
                 justPressedInputs.insert(input);
             }
             else if (isInputPressed(input, currentPressedInputs) && !isInputPressed(input, pressedInputs))
             {
+                orderedPressedInputs.remove(input);
                 justReleasedInputs.insert(input);
             }
         }
 
         currentPressedInputs = pressedInputs;
+    }
+
+    void update()
+    {
+        isCharEntered = false;
+        updateCommon();
+    }
+
+    void update(char newChar)
+    {
+        isCharEntered = true;
+        charEntered = newChar;
+        updateCommon();
+    }
+
+    Input getLastInput()
+    {
+        if (orderedPressedInputs.size() > 0)
+        {
+            return orderedPressedInputs.back();
+        }
+        else
+        {
+            return Input::NONE;
+        }
+        
     }
 
     bool isSingleInputActive(Input input)
@@ -73,5 +106,23 @@ namespace InputSystem
     bool hasInputJustBeenReleased(Input input)
     {
         return isInputPressed(input, justReleasedInputs);
+    }
+
+    bool hasEnteredText()
+    {
+        return isCharEntered;
+    }
+
+    char getCurrentChar()
+    {
+        if (isCharEntered)
+        {
+            return charEntered;
+        }
+        else
+        {
+            // TODO: change, do properly
+            throw -1;
+        }
     }
 } // namespace InputSystem

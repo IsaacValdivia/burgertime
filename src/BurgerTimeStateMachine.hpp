@@ -98,6 +98,12 @@ class GameReadyScreenState : public BurgerTimeStateMachine
     int getWaitTime() const override { return 5; }
 };
 
+class PlayingState : public BurgerTimeStateMachine
+{
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+};
+
 class GameOverScreenState : public BurgerTimeStateMachine
 {
     void entry() override;
@@ -118,6 +124,22 @@ class GameOverScreenState : public BurgerTimeStateMachine
 
     int currentText;
     std::shared_ptr<sf::Text> text;
+};
+
+class EnterHighscoreState : public BurgerTimeStateMachine
+{
+public:
+    static void setHighScore(uint32_t newHighScore);
+
+private:
+    void entry() override;
+    void react(const ExecuteEvent &) override;
+
+    static constexpr auto ENTER_NAME_STR = "ENTER YOUR NAME";
+    static uint32_t newHighscore;
+    std::shared_ptr<sf::Text> newHighScoreText;
+    std::shared_ptr<sf::Text> helpText;
+    int charPosition = 0;
 };
 
 class FinishedState : public BurgerTimeStateMachine

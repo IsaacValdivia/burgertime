@@ -30,6 +30,7 @@ BurgerTimeController &BurgerTimeController::get()
 void BurgerTimeController::startup()
 {
     BurgerTimeStateMachine::start();
+    window.setKeyRepeatEnabled(false);
 }
 
 void BurgerTimeController::run()
@@ -44,13 +45,26 @@ void BurgerTimeController::run()
 
     sf::Event event;
 
+    bool isTextEntered = false;
+    char charEntered;
     while (window.isOpen() && !hasGameFinished())
     {
         while (window.pollEvent(event)) 
         {
             if (event.type == sf::Event::Closed) 
             {
-                window.close();
+                window.setSize(sf::Vector2u(2 * WINDOW_WIDTH, 2 * WINDOW_HEIGHT));
+                // window.close();
+            }
+            else if (event.type == sf::Event::TextEntered)
+            {
+                if ((event.text.unicode >= 'a' && event.text.unicode <= 'z') || 
+                    (event.text.unicode >= 'A' && event.text.unicode <= 'Z') || 
+                    (event.text.unicode >= '0' && event.text.unicode <= '9'))
+                {
+                    charEntered = static_cast<char>(event.text.unicode);
+                    isTextEntered = true;
+                }
             }
         }
         auto currentTime = clock.getElapsedTime();
@@ -58,7 +72,15 @@ void BurgerTimeController::run()
         if (currentTime >= nextTime)
         {
             nextTime += logicDeltaTime;
-            update();
+            if (isTextEntered)
+            {
+                update(charEntered);
+                isTextEntered = false;
+            }
+            else
+            {
+                update();
+            }
             draw();
         }
         else
@@ -77,6 +99,12 @@ void BurgerTimeController::run()
 void BurgerTimeController::update()
 {
     InputSystem::update();
+    BurgerTimeStateMachine::dispatch(ExecuteEvent());
+}
+
+void BurgerTimeController::update(char charEntered)
+{
+    InputSystem::update(charEntered);
     BurgerTimeStateMachine::dispatch(ExecuteEvent());
 }
 

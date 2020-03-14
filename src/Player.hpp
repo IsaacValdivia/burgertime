@@ -2,11 +2,12 @@
 
 #include "BT_sprites.hpp"
 
+#include "Actor.hpp"
+
 // TODO: REPETIR CUANDO HAYA ALGO DECIDIDO?
 
-class Player {
-public:
-    static const int NUM_PLAYER_ACTIONS = 8;
+class Player : public Actor {
+private:
     enum Action {
         NONE,
         LEFT,
@@ -15,23 +16,18 @@ public:
         DOWN,
         PEPPER,
         DROP,
-        CELEBRATE
+        CELEBRATE,
+        NUM_ACTIONS
     };
-private:
-    static const BT_sprites::Sprite sprite_state_machine[][NUM_PLAYER_ACTIONS];
 
-    static const int sprite_scale = 4;
-    static const int step_size = 10;
-
-    BT_sprites::Sprite current_sprite;
-
-    sf::Sprite player_sprite;
+    static const BT_sprites::Sprite sprite_state_machine[][NUM_ACTIONS];
 
     Action last_direction; // LEFT, RIGHT, UP or DOWN only.
+
+    Action last_action;
+
 public:
-    Player();
+    Player(const sf::Vector2f &init_pos);
 
-    void update(Action pa);
-
-    sf::Sprite get_sprite() const;
+    void update(float delta_t) override;
 };

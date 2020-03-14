@@ -22,6 +22,7 @@ private:
 
     void startup();
 
+    void update(char charEntered);
     void update();
 
     void draw();
@@ -37,4 +38,6 @@ private:
     friend class BurgerTimeStateMachine;
     friend class MainScreenStateMachine;
     friend class GameOverScreenState;
+    friend class EnterHighscoreState;
+    friend class PlayingStateMachine;
 };
