@@ -1,8 +1,9 @@
 #include "Player.hpp"
 #include "InputSystem.hpp"
 
-const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
+const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
     // PLAYER_DOWNSTAIRS_1
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -14,6 +15,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_STILL_FRONT
+    0,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -25,6 +27,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_DOWNSTAIRS_2
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -36,6 +39,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_LEFT_1
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_2, // LEFT
@@ -47,6 +51,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_LEFT_2
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_3, // LEFT
@@ -58,6 +63,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_LEFT_3
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -69,6 +75,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_UPSTAIRS_1
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -80,6 +87,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_STILL_BACK
+    0,
     {
         BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -91,6 +99,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_UPSTAIRS_2
+    walking_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -102,6 +111,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_PEPPER_FRONT
+    peppering_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -113,6 +123,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_PEPPER_LEFT
+    peppering_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -124,6 +135,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_PEPPER_BACK
+    peppering_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -135,6 +147,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_CELEBRATING
+    end_game_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -146,6 +159,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_STILL_FRONT  // CELEBRATE
     },
     // PLAYER_DROP_1
+    end_game_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_DROP_2, // NONE
         BT_sprites::Sprite::PLAYER_DROP_2, // LEFT
@@ -157,6 +171,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_DROP_2  // CELEBRATE
     },
     // PLAYER_DROP_2
+    end_game_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_DROP_3, // NONE
         BT_sprites::Sprite::PLAYER_DROP_3, // LEFT
@@ -168,6 +183,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_DROP_3  // CELEBRATE
     },
     // PLAYER_DROP_3
+    end_game_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_DROP_4, // NONE
         BT_sprites::Sprite::PLAYER_DROP_4, // LEFT
@@ -179,6 +195,7 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_DROP_4  // CELEBRATE
     },
     // PLAYER_DROP_4
+    end_game_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_DROP_5, // NONE
         BT_sprites::Sprite::PLAYER_DROP_5, // LEFT
@@ -190,68 +207,114 @@ const BT_sprites::Sprite Player::sprite_state_machine[][NUM_ACTIONS] = {
         BT_sprites::Sprite::PLAYER_DROP_5  // CELEBRATE
     },
     // PLAYER_DROP_5
+    end_game_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_DROP_5, // NONE
-        BT_sprites::Sprite::PLAYER_DROP_5, // LEFT
-        BT_sprites::Sprite::PLAYER_DROP_5, // RIGHT
-        BT_sprites::Sprite::PLAYER_DROP_5, // UP
-        BT_sprites::Sprite::PLAYER_DROP_5, // DOWN
-        BT_sprites::Sprite::PLAYER_DROP_5, // PEPPER
-        BT_sprites::Sprite::PLAYER_DROP_5, // DROP
-        BT_sprites::Sprite::PLAYER_DROP_5  // CELEBRATE
-    },
+        BT_sprites::Sprite::PLAYER_DROP_4, // NONE
+        BT_sprites::Sprite::PLAYER_DROP_4, // LEFT
+        BT_sprites::Sprite::PLAYER_DROP_4, // RIGHT
+        BT_sprites::Sprite::PLAYER_DROP_4, // UP
+        BT_sprites::Sprite::PLAYER_DROP_4, // DOWN
+        BT_sprites::Sprite::PLAYER_DROP_4, // PEPPER
+        BT_sprites::Sprite::PLAYER_DROP_4, // DROP
+        BT_sprites::Sprite::PLAYER_DROP_4  // CELEBRATE
+    }
 };
 
-Player::Player(const sf::Vector2f &init_pos) 
-: Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT) {
+Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<MapView> mapView)
+    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT), mapView(mapView), won(false) {
+
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
+
     last_direction = LEFT;
     last_action = NONE;
 };
 
+bool Player::has_won() {
+    return won;
+}
+
+void Player::win() {
+    won = true;
+}
+
 void Player::update(float delta_t) {
-    static float t = 0;
-    t += delta_t;
+    acc_delta_t += delta_t;
+
+    float animation_duration = sprite_state_machine[current_sprite].sprite_duration;
 
     // New action
 
     Action new_last_direction = last_direction;
     Action new_action = NONE;
 
-    InputSystem::Input inputToProcess = InputSystem::getLastInput();
+    if (!is_alive()) {
+        new_action = DROP;
+    }
+    else if (has_won()) {
+        new_action = CELEBRATE;
+    }
+    else {
+        InputSystem::Input inputToProcess = InputSystem::getLastInput();
 
-    if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
-        new_action = PEPPER;
-        // PEPEREAR
-    }
-    else if (inputToProcess == InputSystem::Input::RIGHT && !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
-        new_action = new_last_direction = RIGHT;
-        this->move(velocity * delta_t, 0);
-    }
-    else if (inputToProcess == InputSystem::Input::LEFT && !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
-        new_action = new_last_direction = LEFT;
-        this->move(-velocity * delta_t, 0);
-    }
-    else if (inputToProcess == InputSystem::Input::UP && !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
-        new_action = new_last_direction = UP;
-        this->move(0, -velocity / 1.72 * delta_t);
-    }
-    else if (inputToProcess == InputSystem::Input::DOWN && !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
-        new_action = new_last_direction = DOWN;
-        this->move(0, velocity / 1.72 * delta_t);
+        float move_x = 0;
+        float move_y = 0;
+
+        // If Peter is peppering he can not move.
+        if (last_action == PEPPER && acc_delta_t < animation_duration) {
+            return;
+        }
+
+        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
+            new_action = PEPPER;
+            // PEPEREAR
+        }
+        else if (inputToProcess == InputSystem::Input::RIGHT &&
+                 !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
+
+            new_action = new_last_direction = RIGHT;
+            move_x = x_walking_speed * delta_t;
+        }
+        else if (inputToProcess == InputSystem::Input::LEFT &&
+                 !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
+
+            new_action = new_last_direction = LEFT;
+            move_x = -x_walking_speed * delta_t;
+        }
+        else if (inputToProcess == InputSystem::Input::UP &&
+                 !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
+
+            new_action = new_last_direction = UP;
+            move_y = -y_walking_speed * delta_t;
+        }
+        else if (inputToProcess == InputSystem::Input::DOWN &&
+                 !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
+
+            new_action = new_last_direction = DOWN;
+            move_y = y_walking_speed * delta_t;
+        }
+
+        //this->move(move_x, move_y);
+
+        if ((move_x != 0 || move_y != 0) &&
+        mapView->player_can_move(move_x, move_y, *static_cast<sf::Sprite *>(this))) {
+
+            this->move(move_x, move_y);
+        }
     }
 
-    // TODO MORIR
-    // TODO GANAR
+    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite].sprite_state_machine[new_action];
 
-    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite][new_action];
+    if (new_sprite != current_sprite && (acc_delta_t > animation_duration || 
+        new_action != last_action)) {
 
-    if ((new_sprite != current_sprite && t > 1.5) || last_action != new_action) {
-        t = 0;
+        // Reset accumulated delta.
+        acc_delta_t = 0;
+
         // Mirror sprite.
         if ((new_action == RIGHT && last_direction != RIGHT) ||
-            ((new_action == LEFT || new_action == DOWN || new_action == UP) 
-            && last_direction == RIGHT)) {
+                ((new_action == LEFT || new_action == DOWN || new_action == UP)
+                 && last_direction == RIGHT)) {
+
             this->scale(-1, 1); // Mirror.
         }
 
@@ -270,4 +333,3 @@ void Player::update(float delta_t) {
 
     last_action = new_action;
 }
-

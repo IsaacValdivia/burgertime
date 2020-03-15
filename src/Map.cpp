@@ -33,7 +33,6 @@ Map::Map(const string &filename) {
             f.getline(row_aux, MAX_COLS + 1);
             row = row_aux;
             int s = row.size();
-            printf("cols %d\n", s);
             if (s != MAX_COLS) {
                 throw runtime_error("Rows can only have " + to_string(MAX_COLS) + " tiles");
             }
@@ -46,4 +45,3 @@ Map::Map(const string &filename) {
         throw runtime_error("File " + filename + " could not be found");
     }
 }
-

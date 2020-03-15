@@ -42,6 +42,7 @@ void BurgerTimeController::run()
 
     sf::Clock clock;
     auto nextTime = clock.getElapsedTime();
+    auto lastTime = clock.getElapsedTime();
 
     sf::Event event;
 
@@ -71,17 +72,19 @@ void BurgerTimeController::run()
 
         if (currentTime >= nextTime)
         {
+            float deltaT = (currentTime - lastTime).asSeconds();
             nextTime += logicDeltaTime;
             if (isTextEntered)
             {
-                update(charEntered);
+                update(deltaT, charEntered);
                 isTextEntered = false;
             }
             else
             {
-                update();
+                update(deltaT);
             }
             draw();
+            lastTime = currentTime;
         }
         else
         {
@@ -96,16 +99,16 @@ void BurgerTimeController::run()
     }
 }
 
-void BurgerTimeController::update()
+void BurgerTimeController::update(float deltaT)
 {
     InputSystem::update();
-    BurgerTimeStateMachine::dispatch(ExecuteEvent());
+    BurgerTimeStateMachine::dispatch(ExecuteEvent(deltaT));
 }
 
-void BurgerTimeController::update(char charEntered)
+void BurgerTimeController::update(float deltaT, char charEntered)
 {
     InputSystem::update(charEntered);
-    BurgerTimeStateMachine::dispatch(ExecuteEvent());
+    BurgerTimeStateMachine::dispatch(ExecuteEvent(deltaT));
 }
 
 void BurgerTimeController::draw()

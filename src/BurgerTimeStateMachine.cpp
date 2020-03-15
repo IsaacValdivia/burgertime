@@ -44,14 +44,14 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
     burgerTimeText->setScale(0.70, 0.70);
     burgerTimeText->setFont(controller.font);
     burgerTimeText->setString("BURGER TIME");
-    burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
+    burgerTimeText->setPosition(28 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
 
     auto bestFivePlayersText = std::make_shared<sf::Text>();
     bestFivePlayersText->setFillColor(sf::Color::White);
     bestFivePlayersText->setScale(0.70, 0.70);
     bestFivePlayersText->setFont(controller.font);
     bestFivePlayersText->setString("BEST FIVE PLAYERS");
-    bestFivePlayersText->setPosition(22 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
+    bestFivePlayersText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
 
     HighScores highScores("welp.hscores");
     auto hScores = highScores.getHighScores();
@@ -71,7 +71,7 @@ void BurgerTimeStateMachine::highscoreDisplayScreenStateEntry()
         hScoreText->setScale(0.70, 0.70);
         hScoreText->setFont(controller.font);
         hScoreText->setString(std::to_string(i + 1) + " " + hScores[i].first.data() + whiteSpace + scoreStr + " PTS");
-        hScoreText->setPosition(22 * WINDOW_WIDTH / 100, (45 + i * 10) * WINDOW_HEIGHT / 100);
+        hScoreText->setPosition(18 * WINDOW_WIDTH / 100, (45 + i * 10) * WINDOW_HEIGHT / 100);
         controller.drawablesOnScreen.push_back(hScoreText);
     }
 
@@ -105,14 +105,14 @@ void BurgerTimeStateMachine::itemPointsScreenStateEntry()
     burgerTimeText->setScale(0.70, 0.70);
     burgerTimeText->setFont(controller.font);
     burgerTimeText->setString("BURGER TIME");
-    burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
+    burgerTimeText->setPosition(28 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
 
     auto scoreText = std::make_shared<sf::Text>();
     scoreText->setFillColor(sf::Color::White);
     scoreText->setScale(0.70, 0.70);
     scoreText->setFont(controller.font);
     scoreText->setString("-SCORE-");
-    scoreText->setPosition(39 * WINDOW_WIDTH / 100, 23 * WINDOW_HEIGHT / 100);
+    scoreText->setPosition(34 * WINDOW_WIDTH / 100, 23 * WINDOW_HEIGHT / 100);
 
 
     auto topBun1 = std::make_shared<sf::Sprite>();
@@ -260,7 +260,7 @@ void BurgerTimeStateMachine::itemPointsScreenStateEntry()
     fiftyPtsText->setScale(0.70, 0.70);
     fiftyPtsText->setFont(controller.font);
     fiftyPtsText->setString("50 PTS");
-    fiftyPtsText->setPosition(64 * WINDOW_WIDTH / 100, 41 * WINDOW_HEIGHT / 100);
+    fiftyPtsText->setPosition(67 * WINDOW_WIDTH / 100, 41 * WINDOW_HEIGHT / 100);
 
     auto iceCream = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*iceCream, BT_sprites::Sprite::ICE_CREAM);
@@ -301,19 +301,19 @@ void BurgerTimeStateMachine::itemPointsScreenStateEntry()
 
     auto pepper = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*pepper, BT_sprites::Sprite::PEPPER);
-    pepper->setPosition(77 * WINDOW_WIDTH / 100, 58 * WINDOW_HEIGHT / 100);
+    pepper->setPosition(80 * WINDOW_WIDTH / 100, 58 * WINDOW_HEIGHT / 100);
     pepper->setScale(2, 2);
 
     auto bonusLifeText = std::make_shared<sf::Text>();
     bonusLifeText->setFillColor(sf::Color::White);
     bonusLifeText->setScale(0.70, 0.70);
     bonusLifeText->setFont(controller.font);
-    bonusLifeText->setString("BONUS   FOR EVERY 20000PTS");
-    bonusLifeText->setPosition(7 * WINDOW_WIDTH / 100, 80 * WINDOW_HEIGHT / 100);
+    bonusLifeText->setString("BONUS  FOR EVERY 20000PTS");
+    bonusLifeText->setPosition(3 * WINDOW_WIDTH / 100, 80 * WINDOW_HEIGHT / 100);
 
     auto chef = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*chef, BT_sprites::Sprite::PLAYER_STILL_FRONT);
-    chef->setPosition(24 * WINDOW_WIDTH / 100, 78 * WINDOW_HEIGHT / 100);
+    chef->setPosition(22 * WINDOW_WIDTH / 100, 78 * WINDOW_HEIGHT / 100);
     chef->setScale(2, 2);
 
     controller.drawablesOnScreen.push_back(burgerTimeText);
@@ -511,9 +511,9 @@ void MainScreenState::entry()
     MainScreenStateMachine::start();
 }
 
-void MainScreenState::react(const ExecuteEvent &)
+void MainScreenState::react(const ExecuteEvent &event)
 {
-    MainScreenStateMachine::dispatch(ExecuteEvent());
+    MainScreenStateMachine::dispatch(event);
 
     if (MainScreenStateMachine::is_in_state<FinishedStartState>())
     {
@@ -536,7 +536,7 @@ void BurgerTimeStateMachine::gameReadyScreenState()
     text->setFont(controller.font);
     text->setString("GAME READY");
     text->setScale(0.8, 0.8);
-    text->setPosition(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2);
+    text->setPosition(30 * WINDOW_WIDTH / 100 , WINDOW_HEIGHT / 2);
 
     controller.drawablesOnScreen.push_back(text);
     controller.logicClock.restart();
@@ -564,9 +564,9 @@ void PlayingState::entry()
     PlayingStateMachine::start();
 }
 
-void PlayingState::react(const ExecuteEvent &)
+void PlayingState::react(const ExecuteEvent &event)
 {
-    PlayingStateMachine::dispatch(ExecuteEvent());
+    PlayingStateMachine::dispatch(event);
 
     // if (MainScreenStateMachine::is_in_state<FinishedStartState>())
     // {
@@ -591,7 +591,7 @@ void GameOverScreenState::entry()
     text->setFont(controller.font);
     text->setString(DIFFERENT_TEXTS[0]);
     text->setScale(0.8, 0.8);
-    text->setPosition(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2);
+    text->setPosition(30 * WINDOW_WIDTH / 100 , WINDOW_HEIGHT / 2);
 
     controller.drawablesOnScreen.push_back(text);
     currentText = 1;
@@ -633,14 +633,14 @@ void EnterHighscoreState::entry()
     burgerTimeText->setScale(0.70, 0.70);
     burgerTimeText->setFont(controller.font);
     burgerTimeText->setString("BURGER TIME");
-    burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
+    burgerTimeText->setPosition(28 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
 
     helpText = std::make_shared<sf::Text>();
     helpText->setFillColor(sf::Color::White);
     helpText->setScale(0.70, 0.70);
     helpText->setFont(controller.font);
     helpText->setString(ENTER_NAME_STR);
-    helpText->setPosition(24 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
+    helpText->setPosition(22 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
 
     HighScores highScores("welp.hscores");
     auto hScores = highScores.getHighScores();
@@ -684,7 +684,7 @@ void EnterHighscoreState::entry()
         hScoreText->setScale(0.70, 0.70);
         hScoreText->setFont(controller.font);
         hScoreText->setString(std::to_string(i + 1) + " " + playerName + whiteSpace + scoreStr + " PTS");
-        hScoreText->setPosition(22 * WINDOW_WIDTH / 100, (45 + i * 10) * WINDOW_HEIGHT / 100);
+        hScoreText->setPosition(18 * WINDOW_WIDTH / 100, (45 + i * 10) * WINDOW_HEIGHT / 100);
         controller.drawablesOnScreen.push_back(hScoreText);
     }
 
@@ -720,6 +720,7 @@ void EnterHighscoreState::react(const ExecuteEvent &)
     if (charPosition == HighScores::PLAYER_NAME_SIZE - 1)
     {
         helpText->setString("CONFIRM? (PEPPER)");
+        helpText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER))
         {
             // TODO: save new highscores etc etc
@@ -729,6 +730,7 @@ void EnterHighscoreState::react(const ExecuteEvent &)
     else
     {
         helpText->setString(ENTER_NAME_STR);
+        helpText->setPosition(22 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
     }
     
 

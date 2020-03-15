@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Map.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -12,7 +14,7 @@ private:
     static constexpr float TILE_HEIGHT = 16.0;
 
     const unsigned int UPPER_MARGIN = 5 * TILE_HEIGHT;
-    const unsigned int SIDE_MARGINS = 35;
+    const unsigned int SIDE_MARGINS = 65;
 
     static sf::Texture floor_texture;
     static sf::Texture go_up_texture;
@@ -29,6 +31,8 @@ private:
     static sf::RectangleShape stairs_left;
     static sf::RectangleShape stairs_right;
 
+    std::vector<Tile> player_on_tiles(const sf::Vector2f position, const sf::Vector2f scale) const;
+
 public:
 
     Map* map;
@@ -36,5 +40,6 @@ public:
     MapView(Map* _map);
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    bool player_can_move(float &x, float &y, const sf::Sprite& player) const;
     
 };

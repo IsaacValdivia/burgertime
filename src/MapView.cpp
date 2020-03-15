@@ -105,3 +105,87 @@ void MapView::draw(sf::RenderTarget &target, sf::RenderStates states) const
         ++i;
     }
 }
+
+std::vector<Tile> MapView::player_on_tiles(const sf::Vector2f position, const sf::Vector2f scale) const {
+    std::vector<Tile> tiles;
+
+    float left_edge = position.x;
+    float right_edge = position.x + scale.x;
+    float upper_edge = position.y;
+    float lower_edge = position.y + scale.y;
+
+    // Check left_edge
+    unsigned short horizontal_tile_1 = (left_edge - SIDE_MARGINS) / TILE_WIDTH;
+
+    // Check right_edge
+    unsigned short horizontal_tile_2 = (right_edge - SIDE_MARGINS) / TILE_WIDTH;
+
+    // Check upper_edge
+    unsigned short vertical_tile_1 = (upper_edge - UPPER_MARGIN) / TILE_HEIGHT;
+
+    // Check lower_edge
+    unsigned short vertical_tile_2 = (lower_edge - UPPER_MARGIN) / TILE_HEIGHT;
+    
+    tiles.push_back(map->data[horizontal_tile_1][vertical_tile_1]);
+    bool c1, c2;
+
+    if (horizontal_tile_1 != horizontal_tile_2) {
+        tiles.push_back(map->data[horizontal_tile_2][vertical_tile_1]);
+        c1 = true;
+    }
+
+    if (vertical_tile_1 != vertical_tile_2) {
+        tiles.push_back(map->data[horizontal_tile_1][vertical_tile_2]);
+        c2 = true;
+    }
+
+    if (c1 && c2) {
+        tiles.push_back(map->data[horizontal_tile_2][vertical_tile_2]);
+    }
+
+    return tiles;
+}
+
+bool MapView::player_can_move(float &x, float &y, const sf::Sprite& player) const {
+    sf::Vector2f cur_pos = player.getPosition();
+    sf::Vector2f player_size = player.getScale();
+
+    std::vector<Tile> tiles_of_player = player_on_tiles(cur_pos, player_size);
+
+    bool horizontal_mov = x != 0;
+    bool up, right;
+
+    if (horizontal_mov) {
+        right = x > 0;
+    }
+    else {
+        up = x < 0;
+    }
+
+    bool can_move = false;
+    unsigned int i = 0;
+    while (!can_move && i < tiles_of_player.size()) {
+        Tile &t = tiles_of_player[i];
+        uint8_t row = t.row, col = t.col;
+        if (t.isFloor()) {
+            if (horizontal_mov) {
+                if (right) {
+                    // Player tries to go right
+                    can_move = col < (Map::MAX_COLS - 1) && map->data[row][col+1].isSteppableHor();
+                }
+                else {
+                    // Player tries to go left
+                    can_move = col > 0 && map->data[row][col-1].isSteppableHor();
+                }
+            }
+            else {
+                // Vertical movement is not possible on floor
+            }
+        }
+        // TO_DO: RESTO DE TIPOS DE TILE
+
+        ++i;
+    }
+
+    return can_move;
+}

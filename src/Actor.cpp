@@ -1,7 +1,7 @@
 #include "Actor.hpp"
 
 Actor::Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite)
-    : alive(false), acc_delta_t(0)
+    : alive(true), acc_delta_t(0)
 {
     BT_sprites::set_initial_sprite(*static_cast<sf::Sprite*>(this), BT_sprites::Sprite::PLAYER_STILL_FRONT);
     this->setScale(sf::Vector2f(actor_scale, actor_scale));
@@ -13,6 +13,10 @@ Actor::Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite)
     this->setPosition(init_pos);
 }
 
-bool  Actor::is_alive() {
+bool Actor::is_alive() {
     return this->alive;
+}
+
+void Actor::die() {
+    alive = false;
 }

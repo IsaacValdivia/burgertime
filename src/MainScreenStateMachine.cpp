@@ -15,25 +15,25 @@ void MainScreenStateMachine::enterStateEntry()
     burgerTimeText->setScale(0.70, 0.70);
     burgerTimeText->setFont(controller.font);
     burgerTimeText->setString("BURGER TIME");
-    burgerTimeText->setPosition(32 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
+    burgerTimeText->setPosition(28 * WINDOW_WIDTH / 100, 15 * WINDOW_HEIGHT / 100);
 
     auto startText = std::make_shared<sf::Text>();
     startText->setFont(controller.font);
     startText->setString("START");
     startText->setScale(0.8, 0.8);
-    startText->setPosition(4 * WINDOW_WIDTH / 10, 3 * WINDOW_HEIGHT / 10);
+    startText->setPosition(32 * WINDOW_WIDTH / 100, 3 * WINDOW_HEIGHT / 10);
 
-    auto bindingsText = std::make_shared<sf::Text>();
-    bindingsText->setFont(controller.font);
-    bindingsText->setString("BINDINGS");
-    bindingsText->setScale(0.8, 0.8);
-    bindingsText->setPosition(4 * WINDOW_WIDTH / 10, 4 * WINDOW_HEIGHT / 10);
+    auto optionsText = std::make_shared<sf::Text>();
+    optionsText->setFont(controller.font);
+    optionsText->setString("OPTIONS");
+    optionsText->setScale(0.8, 0.8);
+    optionsText->setPosition(32 * WINDOW_WIDTH / 100, 4 * WINDOW_HEIGHT / 10);
 
     auto exitText = std::make_shared<sf::Text>();
     exitText->setFont(controller.font);
     exitText->setString("EXIT");
     exitText->setScale(0.8, 0.8);
-    exitText->setPosition(4 * WINDOW_WIDTH / 10, 5 * WINDOW_HEIGHT / 10);
+    exitText->setPosition(32 * WINDOW_WIDTH / 100, 5 * WINDOW_HEIGHT / 10);
 
     selectionTriangle = std::make_shared<sf::CircleShape>(10, 3);
     selectionTriangle->setFillColor(sf::Color::White);
@@ -41,7 +41,7 @@ void MainScreenStateMachine::enterStateEntry()
 
     controller.drawablesOnScreen.push_back(burgerTimeText);
     controller.drawablesOnScreen.push_back(startText);
-    controller.drawablesOnScreen.push_back(bindingsText);
+    controller.drawablesOnScreen.push_back(optionsText);
     controller.drawablesOnScreen.push_back(exitText);
     controller.drawablesOnScreen.push_back(selectionTriangle);
 }

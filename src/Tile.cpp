@@ -38,3 +38,7 @@ bool Tile::isConnector() {
 bool Tile::isStairs() {
 	return content == STAIRS;
 }
+
+bool Tile::isSteppableHor() {
+	return this->isFloor() || this->isConnector();
+}

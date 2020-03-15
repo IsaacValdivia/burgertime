@@ -9,9 +9,9 @@ void PlayingStateMachine::enterStateEntry()
 {
     controller.drawablesOnScreen.clear();
 
-    Map *map = new Map("maps/map1.map");
+    Map *map = new Map("maps/only_floor.map");
     mapView = std::make_shared<MapView>(map);
-    player = std::make_shared<Player>(Vector2f(10, 10));
+    player = std::make_shared<Player>(Vector2f(70, 90), mapView);
 
     controller.drawablesOnScreen.push_back(mapView);
     controller.drawablesOnScreen.push_back(player);
@@ -22,8 +22,9 @@ void EnterStatePlaying::entry()
     PlayingStateMachine::enterStateEntry();
 }
 
-void EnterStatePlaying::react(const ExecuteEvent &)
+void EnterStatePlaying::react(const ExecuteEvent &event)
 {
-    player->update(0.2);
+    player->update(event.deltaT);
+    // player->win();
     // transit<StartOptionState>();
 }

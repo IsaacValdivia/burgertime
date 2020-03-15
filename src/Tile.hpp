@@ -33,4 +33,5 @@ public:
     bool isGoBoth();
     bool isConnector();
     bool isStairs();
+    bool isSteppableHor();
 };

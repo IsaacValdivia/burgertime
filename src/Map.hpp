@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Tile.hpp"
 #include <string>
 #include <vector>
@@ -13,10 +15,11 @@ class Map {
 private:
     void fill_tiles(const vector<string> &map_data);
 
-    static const int MAX_ROWS = 30;
-    static const int MAX_COLS = 26;
     static const int MAX_ENEMY_ENTRIES = 10;
 public:
+
+    static const int MAX_ROWS = 30;
+    static const int MAX_COLS = 26;
 
     unsigned int num_rows;
     unsigned int num_cols;
