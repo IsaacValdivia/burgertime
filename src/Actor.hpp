@@ -8,11 +8,6 @@ private:
     static constexpr auto actor_scale = 2;
 
 protected:
-    static constexpr float x_walking_speed = 80;
-    static constexpr float y_walking_speed = x_walking_speed / 1.72;
-
-    static constexpr float walking_sprite_duration = 0.1;
-
     float acc_delta_t;
 
     bool alive;

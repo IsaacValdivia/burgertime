@@ -15,7 +15,7 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_STILL_FRONT
-    0,
+    end_game_sprite_duration,
     {
         BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
         BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
@@ -242,50 +242,60 @@ void Player::update(float delta_t) {
 
     float animation_duration = sprite_state_machine[current_sprite].sprite_duration;
 
-    // New action
+    // Get new action
 
     Action new_last_direction = last_direction;
     Action new_action = NONE;
 
-    if (!is_alive()) {
-        new_action = DROP;
-    }
-    else if (has_won()) {
+    bool update_sprite = true;
+
+    // WIN
+    if (has_won()) {
         new_action = CELEBRATE;
     }
+    // LOSE
+    else if (!is_alive()) {
+        new_action = DROP;
+    }
+    // MOVEMENT/PEPPER
     else {
-        InputSystem::Input inputToProcess = InputSystem::getLastInput();
-
-        float move_x = 0;
-        float move_y = 0;
-
         // If Peter is peppering he can not move.
         if (last_action == PEPPER && acc_delta_t < animation_duration) {
             return;
         }
 
+        float move_x = 0;
+        float move_y = 0;
+
+        InputSystem::Input inputToProcess = InputSystem::getLastInput();
+
+        // PEPPER
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
             new_action = PEPPER;
             // PEPEREAR
         }
+        // RIGHT
         else if (inputToProcess == InputSystem::Input::RIGHT &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
 
             new_action = new_last_direction = RIGHT;
             move_x = x_walking_speed * delta_t;
         }
+        // LEFT
         else if (inputToProcess == InputSystem::Input::LEFT &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
 
             new_action = new_last_direction = LEFT;
             move_x = -x_walking_speed * delta_t;
         }
+        // UP
         else if (inputToProcess == InputSystem::Input::UP &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
 
             new_action = new_last_direction = UP;
             move_y = -y_walking_speed * delta_t;
         }
+        // DOWN
         else if (inputToProcess == InputSystem::Input::DOWN &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
 
@@ -293,19 +303,30 @@ void Player::update(float delta_t) {
             move_y = y_walking_speed * delta_t;
         }
 
-        //this->move(move_x, move_y);
+        // Want to move.
+        if (move_x != 0.0 || move_y != 0.0) {
+            // Want to move and can.
+            if (mapView->player_can_move(move_x, move_y, *static_cast<sf::Sprite *>(this))) {
+                this->move(move_x, move_y);
+            }
+            // Want to move but can't.
+            else {
+                new_last_direction = last_direction;
+                new_action = last_action;
 
-        if ((move_x != 0 || move_y != 0) &&
-        mapView->player_can_move(move_x, move_y, *static_cast<sf::Sprite *>(this))) {
-
-            this->move(move_x, move_y);
+                update_sprite = false;
+            }
         }
     }
 
-    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite].sprite_state_machine[new_action];
+    // Set new sprite.
+    BT_sprites::Sprite new_sprite = update_sprite ?
+                                    sprite_state_machine[current_sprite].sprite_state_machine[new_action]
+                                    :
+                                    current_sprite;
 
-    if (new_sprite != current_sprite && (acc_delta_t > animation_duration || 
-        new_action != last_action)) {
+    if (new_sprite != current_sprite &&
+            (acc_delta_t > animation_duration || new_action != last_action)) {
 
         // Reset accumulated delta.
         acc_delta_t = 0;
@@ -318,7 +339,7 @@ void Player::update(float delta_t) {
             this->scale(-1, 1); // Mirror.
         }
 
-        // Special state machine case.
+        // Special state machine case (PEPPER_FRONT).
         if (new_sprite == BT_sprites::Sprite::PLAYER_PEPPER_LEFT
                 && last_direction == DOWN) {
 
@@ -327,9 +348,8 @@ void Player::update(float delta_t) {
 
         current_sprite = new_sprite;
         BT_sprites::update_sprite(*static_cast<sf::Sprite *>(this), current_sprite);
-
-        last_direction = new_last_direction;
     }
 
+    last_direction = new_last_direction;
     last_action = new_action;
 }
