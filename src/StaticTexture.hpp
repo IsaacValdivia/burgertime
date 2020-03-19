@@ -5,5 +5,5 @@
 class StaticTexture {
 public:
     sf::Texture tex;
-    StaticTexture(std::string path);
+    StaticTexture(const std::string &path);
 };

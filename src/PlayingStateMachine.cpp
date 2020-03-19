@@ -9,11 +9,10 @@ void PlayingStateMachine::enterStateEntry()
 {
     controller.drawablesOnScreen.clear();
 
-    Map *map = new Map("maps/only_floor.map");
-    mapView = std::make_shared<MapView>(map);
-    player = std::make_shared<Player>(Vector2f(70, 90), mapView);
+    map = std::make_shared<Map>("maps/map1.map");
+    player = std::make_shared<Player>(map->data[0][4].shape.getPosition(), map);
 
-    controller.drawablesOnScreen.push_back(mapView);
+    controller.drawablesOnScreen.push_back(map);
     controller.drawablesOnScreen.push_back(player);
 }
 

@@ -6,7 +6,7 @@
 #include "BT_sprites.hpp"
 
 #include "Actor.hpp"
-#include "MapView.hpp"
+#include "Map.hpp"
 
 class Player : public Actor {
 private:
@@ -40,16 +40,18 @@ private:
 
     Action last_action;
 
-    std::shared_ptr<MapView> mapView;
+    std::shared_ptr<Map> map;
 
     bool won;
 
 public:
-    Player(const sf::Vector2f &init_pos, std::shared_ptr<MapView> mapview);
+    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map);
 
     void update(float delta_t) override;
 
-    bool has_won();
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
+    bool has_won() const;
 
     void win();
 };

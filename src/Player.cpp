@@ -220,8 +220,8 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
     }
 };
 
-Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<MapView> mapView)
-    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT), mapView(mapView), won(false) {
+Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map)
+    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT), map(map), won(false) {
 
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
 
@@ -229,12 +229,23 @@ Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<MapView> mapView)
     last_action = NONE;
 };
 
-bool Player::has_won() {
+bool Player::has_won() const {
     return won;
 }
 
 void Player::win() {
     won = true;
+}
+
+void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+    target.draw(sprite, states);
+
+    // sf::RectangleShape testRect(sf::Vector2f(sprite.getGlobalBounds().width - 20, sprite.getGlobalBounds().height));
+    // testRect.setFillColor(sf::Color::Transparent);
+    // testRect.setOutlineThickness(1.5);
+    // testRect.setOutlineColor(sf::Color::Red);
+    // testRect.setPosition(sprite.getGlobalBounds().left + 10, sprite.getGlobalBounds().top);
+    // target.draw(testRect, states);
 }
 
 void Player::update(float delta_t) {
@@ -306,8 +317,8 @@ void Player::update(float delta_t) {
         // Want to move.
         if (move_x != 0.0 || move_y != 0.0) {
             // Want to move and can.
-            if (mapView->player_can_move(move_x, move_y, *static_cast<sf::Sprite *>(this))) {
-                this->move(move_x, move_y);
+            if (map->player_can_move(move_x, move_y, sprite)) {
+                sprite.move(move_x, move_y);
             }
             // Want to move but can't.
             else {
@@ -336,7 +347,7 @@ void Player::update(float delta_t) {
                 ((new_action == LEFT || new_action == DOWN || new_action == UP)
                  && last_direction == RIGHT)) {
 
-            this->scale(-1, 1); // Mirror.
+            sprite.scale(-1, 1); // Mirror.
         }
 
         // Special state machine case (PEPPER_FRONT).
@@ -347,7 +358,7 @@ void Player::update(float delta_t) {
         }
 
         current_sprite = new_sprite;
-        BT_sprites::update_sprite(*static_cast<sf::Sprite *>(this), current_sprite);
+        BT_sprites::update_sprite(sprite, current_sprite);
     }
 
     last_direction = new_last_direction;

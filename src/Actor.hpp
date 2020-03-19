@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "BT_sprites.hpp"
 
-class Actor : public sf::Sprite {
+class Actor : public sf::Drawable {
 private:
     static constexpr auto actor_scale = 2;
 
@@ -14,10 +14,12 @@ protected:
 
     BT_sprites::Sprite current_sprite;
 
+    sf::Sprite sprite;
+
 public:
     Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite);
 
-    bool is_alive();
+    bool is_alive() const;
 
     void die();
 

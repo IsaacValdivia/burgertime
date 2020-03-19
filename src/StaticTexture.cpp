@@ -1,6 +1,5 @@
 #include "StaticTexture.hpp"
 
-StaticTexture::StaticTexture(std::string path) {
-    sf::Texture tex;
+StaticTexture::StaticTexture(const std::string &path) {
     tex.loadFromFile(path);
 }

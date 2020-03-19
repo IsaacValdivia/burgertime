@@ -9,30 +9,54 @@ Tile::Tile() : col(0), row(0), content(EMPTY) {
 	shape.setPosition(0.0, 0.0);
 };
 
-Tile::Tile(float _x, float _y, uint8_t _col, uint8_t _row, char _content) : col(_col), row(_row), content(_content) {
+Tile::Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _left) : col(_col), row(_row), content(_content), shape(sf::Vector2f(TILE_WIDTH, TILE_HEIGHT)) {
 	shape.setPosition(_x, _y);
 	if (this->isFloor()) {
 		shape.setTexture(&floor_tex.tex);
 	} 
 	else if (this->isGoUp() || this->isGoBoth()) {
 		shape.setTexture(&go_up_both_tex.tex);
+        if (_left) {
+            shape.setTextureRect(sf::IntRect(0, 0, TILE_WIDTH, TILE_HEIGHT));
+        }
+        else {
+            shape.setTextureRect(sf::IntRect(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT));
+        }
 	} 
 	else if (this->isGoDown()) {
 		shape.setTexture(&go_down_tex.tex);
 	} 
 	else if (this->isStairs()) {
 		shape.setTexture(&stairs_tex.tex);
-	}
+        if (_left) {
+            shape.setTextureRect(sf::IntRect(0, 0, TILE_WIDTH, TILE_HEIGHT));
+        }
+        else {
+            shape.setTextureRect(sf::IntRect(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT));
+        }
+	} else {
+        shape.setFillColor(sf::Color::Black);
+    }
 };
+
+Tile::Tile(const Tile &other) {
+    row = other.row;
+	col = other.col;
+	content = other.content;
+    shape = other.shape;
+}
 
 void Tile::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 	target.draw(shape, states);
 }
 
-void Tile::operator=(const Tile& other) {
+Tile& Tile::operator=(const Tile& other) {
 	row = other.row;
 	col = other.col;
 	content = other.content;
+    shape = other.shape;
+
+    return *this;
 }
 
 bool Tile::isEmpty() const {
@@ -65,4 +89,8 @@ bool Tile::isStairs() const {
 
 bool Tile::isSteppableHor() const {
 	return this->isFloor() || this->isConnector();
+}
+
+bool Tile::isSteppableVert() const {
+	return this->isStairs() || this->isConnector();
 }

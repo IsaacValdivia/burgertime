@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include "Constants.hpp"
 #include "BurgerTimeController.hpp"
-#include "MapView.hpp"
 #include "Player.hpp"
 
 class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine>
@@ -18,7 +17,7 @@ public:
     void enterStateEntry();
 
 protected:
-    std::shared_ptr<MapView> mapView;
+    std::shared_ptr<Map> map;
     std::shared_ptr<Player> player;
     static BurgerTimeController &controller;
 };

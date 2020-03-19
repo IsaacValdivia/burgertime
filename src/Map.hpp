@@ -18,17 +18,21 @@ private:
 
     static const int MAX_ENEMY_ENTRIES = 10;
 
-    static constexpr float TILE_WIDTH = 16.0;
-    static constexpr float TILE_HEIGHT = 16.0;
     static constexpr float HOR_COLL_LOOKAHEAD_CORR = 5; //Actor::x_walking_speed; // TO_DO: AJUSTAR
     static constexpr float VERT_COLL_LOOKAHEAD_CORR = 5; //Actor::y_walking_speed;
 
-    const unsigned int UPPER_MARGIN = 5 * TILE_HEIGHT;
+    const unsigned int UPPER_MARGIN = 5 * Tile::TILE_HEIGHT;
     const unsigned int SIDE_MARGINS = 65;
 
-    std::vector<Tile> player_on_tiles(const float left_edge, const float right_edge, const float upper_edge, const float lower_edge) const;
+    std::vector<Tile> player_on_tiles(const float bot_left_x, const float bot_right_x, const float bot_y) const;
 
     bool can_move_right(const Tile& t, float right_edge) const;
+
+    bool can_move_left(const Tile& t, float left_edge) const;
+
+    bool can_move_up(const Tile& t, float top_edge) const;
+
+    bool can_move_down(const Tile& t, float bot_edge) const;
 
 public:
 
