@@ -8,7 +8,7 @@ const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
 };
 
 Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, PlayingStateMachine &psm)
-: Entity(init_pos, initial_sprite[type]), type(type), psm(psm) {
+    : Entity(init_pos, initial_sprite[type]), type(type), psm(psm) {
     current_sprite = initial_sprite[type];
 
     sprite.setScale(sf::Vector2f(scale, scale));

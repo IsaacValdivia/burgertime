@@ -12,8 +12,9 @@ protected:
 
     Direction last_direction;
 
+    const BT_sprites::Sprite first_bt_sprites_idx;
 public:
-    Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite);
+    Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite, BT_sprites::Sprite first_bt_sprites_idx);
 
     bool is_alive() const;
 

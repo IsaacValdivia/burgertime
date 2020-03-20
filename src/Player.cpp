@@ -222,8 +222,7 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
 };
 
 Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm)
-    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT), map(map), won(false), psm(psm)
-{
+    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, (BT_sprites::Sprite)0), map(map), won(false), psm(psm) {
 
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
 
@@ -241,7 +240,7 @@ void Player::win() {
 void Player::update(float delta_t) {
     acc_delta_t += delta_t;
 
-    float animation_duration = sprite_state_machine[current_sprite].sprite_duration;
+    float animation_duration = sprite_state_machine[current_sprite - first_bt_sprites_idx].sprite_duration;
 
     // Get new action
 
@@ -326,7 +325,7 @@ void Player::update(float delta_t) {
 
     // Set new sprite.
     BT_sprites::Sprite new_sprite = update_sprite ?
-                                    sprite_state_machine[current_sprite].sprite_state_machine[new_action]
+                                    sprite_state_machine[current_sprite - first_bt_sprites_idx].sprite_state_machine[new_action]
                                     :
                                     current_sprite;
 

@@ -1,7 +1,7 @@
 #include "Entity.hpp"
 
 Entity::Entity(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite)
-    : acc_delta_t(0) {
+    : acc_delta_t(0), current_sprite(init_sprite) {
 
     BT_sprites::set_initial_sprite(sprite, init_sprite);
 
