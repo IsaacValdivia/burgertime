@@ -12,3 +12,7 @@ Entity::Entity(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite)
     sprite.setPosition(init_pos);
 }
 
+void Entity::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+    target.draw(sprite, states);
+}
+

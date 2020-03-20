@@ -3,8 +3,6 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 
-#include "BT_sprites.hpp"
-
 #include "Actor.hpp"
 #include "Map.hpp"
 

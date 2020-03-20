@@ -237,17 +237,6 @@ void Player::win() {
     won = true;
 }
 
-void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-    target.draw(sprite, states);
-
-    // sf::RectangleShape testRect(sf::Vector2f(sprite.getGlobalBounds().width - 20, sprite.getGlobalBounds().height));
-    // testRect.setFillColor(sf::Color::Transparent);
-    // testRect.setOutlineThickness(1.5);
-    // testRect.setOutlineColor(sf::Color::Red);
-    // testRect.setPosition(sprite.getGlobalBounds().left + 10, sprite.getGlobalBounds().top);
-    // target.draw(testRect, states);
-}
-
 void Player::update(float delta_t) {
     acc_delta_t += delta_t;
 

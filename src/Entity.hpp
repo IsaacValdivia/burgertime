@@ -14,5 +14,7 @@ protected:
 public:
     Entity(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite);
 
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
     virtual void update(float delta_t) = 0;
 };
