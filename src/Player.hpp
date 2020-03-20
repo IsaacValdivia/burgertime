@@ -37,9 +37,9 @@ private:
 
     static const Sprite_state_machine_node sprite_state_machine[];
 
-    Action last_action;
+    static const BT_sprites::Sprite pepper_sprite_state_machine[NUM_DIRECTIONS];
 
-    Direction last_movement_key;
+    Action last_action;
 
     std::shared_ptr<Map> map;
 

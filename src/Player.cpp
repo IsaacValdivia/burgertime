@@ -6,158 +6,158 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
     // PLAYER_DOWNSTAIRS_1
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_2, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_STILL_FRONT
     end_game_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_2, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_DOWNSTAIRS_2
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_FRONT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_LEFT_1
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_2, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_2, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_2,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_2,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_LEFT_2
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_3, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_3, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_3,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_3,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_LEFT_3
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_UPSTAIRS_1
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_2, // UP
+        BT_sprites::Sprite::PLAYER_STILL_BACK,   // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_2,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_BACK, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_STILL_BACK
     0,
     {
-        BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_BACK,   // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_BACK, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_UPSTAIRS_2
     walking_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_BACK,   // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_BACK, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_PEPPER_FRONT
     peppering_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_FRONT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_PEPPER_LEFT
     peppering_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_PEPPER_BACK
     peppering_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_BACK, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_BACK,   // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_BACK, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_CELEBRATING, // DROP
         BT_sprites::Sprite::PLAYER_CELEBRATING  // CELEBRATE
     },
     // PLAYER_CELEBRATING
     end_game_sprite_duration,
     {
-        BT_sprites::Sprite::PLAYER_STILL_FRONT, // NONE
-        BT_sprites::Sprite::PLAYER_LEFT_1, // LEFT
-        BT_sprites::Sprite::PLAYER_LEFT_1, // RIGHT
-        BT_sprites::Sprite::PLAYER_UPSTAIRS_1, // UP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT,  // NONE
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // LEFT
+        BT_sprites::Sprite::PLAYER_LEFT_1,       // RIGHT
+        BT_sprites::Sprite::PLAYER_UPSTAIRS_1,   // UP
         BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, // DOWN
-        BT_sprites::Sprite::PLAYER_PEPPER_LEFT, // PEPPER
-        BT_sprites::Sprite::PLAYER_DROP_1, // DROP
-        BT_sprites::Sprite::PLAYER_STILL_FRONT  // CELEBRATE
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
+        BT_sprites::Sprite::PLAYER_DROP_1,     // DROP
+        BT_sprites::Sprite::PLAYER_STILL_FRONT // CELEBRATE
     },
     // PLAYER_DROP_1
     end_game_sprite_duration,
@@ -167,7 +167,7 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
         BT_sprites::Sprite::PLAYER_DROP_2, // RIGHT
         BT_sprites::Sprite::PLAYER_DROP_2, // UP
         BT_sprites::Sprite::PLAYER_DROP_2, // DOWN
-        BT_sprites::Sprite::PLAYER_DROP_2, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_DROP_2, // DROP
         BT_sprites::Sprite::PLAYER_DROP_2  // CELEBRATE
     },
@@ -179,7 +179,7 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
         BT_sprites::Sprite::PLAYER_DROP_3, // RIGHT
         BT_sprites::Sprite::PLAYER_DROP_3, // UP
         BT_sprites::Sprite::PLAYER_DROP_3, // DOWN
-        BT_sprites::Sprite::PLAYER_DROP_3, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_DROP_3, // DROP
         BT_sprites::Sprite::PLAYER_DROP_3  // CELEBRATE
     },
@@ -191,7 +191,7 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
         BT_sprites::Sprite::PLAYER_DROP_4, // RIGHT
         BT_sprites::Sprite::PLAYER_DROP_4, // UP
         BT_sprites::Sprite::PLAYER_DROP_4, // DOWN
-        BT_sprites::Sprite::PLAYER_DROP_4, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_DROP_4, // DROP
         BT_sprites::Sprite::PLAYER_DROP_4  // CELEBRATE
     },
@@ -203,7 +203,7 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
         BT_sprites::Sprite::PLAYER_DROP_5, // RIGHT
         BT_sprites::Sprite::PLAYER_DROP_5, // UP
         BT_sprites::Sprite::PLAYER_DROP_5, // DOWN
-        BT_sprites::Sprite::PLAYER_DROP_5, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_DROP_5, // DROP
         BT_sprites::Sprite::PLAYER_DROP_5  // CELEBRATE
     },
@@ -215,18 +215,26 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
         BT_sprites::Sprite::PLAYER_DROP_4, // RIGHT
         BT_sprites::Sprite::PLAYER_DROP_4, // UP
         BT_sprites::Sprite::PLAYER_DROP_4, // DOWN
-        BT_sprites::Sprite::PLAYER_DROP_4, // PEPPER
+        BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
         BT_sprites::Sprite::PLAYER_DROP_4, // DROP
         BT_sprites::Sprite::PLAYER_DROP_4  // CELEBRATE
-    }
+    }};
+
+const BT_sprites::Sprite Player::pepper_sprite_state_machine[NUM_DIRECTIONS] = {
+    // LEFT
+    BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
+    // RIGHT
+    BT_sprites::Sprite::PLAYER_PEPPER_LEFT,
+    // UP
+    BT_sprites::Sprite::PLAYER_PEPPER_BACK,
+    // DOWN
+    BT_sprites::Sprite::PLAYER_PEPPER_FRONT,
 };
 
 Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm)
     : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, (BT_sprites::Sprite)0), map(map), won(false), psm(psm) {
 
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
-
-    last_movement_key = Direction::LEFT;
 
     last_action = NONE;
 };
@@ -248,6 +256,7 @@ void Player::update(float delta_t) {
 
     Direction new_last_direction = last_direction;
     Action new_action = NONE;
+    
 
     // WIN
     if (has_won()) {
@@ -268,14 +277,14 @@ void Player::update(float delta_t) {
         // PEPPER
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
             new_action = PEPPER;
-            psm.addPepper(sf::Vector2f(30, 30), last_movement_key);
+            psm.addPepper(sf::Vector2f(30, 30), last_direction);
         }
         // RIGHT
         else if (inputToProcess == InputSystem::Input::RIGHT &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
 
             new_action = RIGHT;
-            new_last_direction = last_movement_key = Direction::RIGHT;
+            new_last_direction = Direction::RIGHT;
             move_x = x_walking_speed * delta_t;
         }
         // LEFT
@@ -283,7 +292,7 @@ void Player::update(float delta_t) {
                  !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
 
             new_action = LEFT;
-            new_last_direction = last_movement_key = Direction::LEFT;
+            new_last_direction = Direction::LEFT;
             move_x = -x_walking_speed * delta_t;
         }
         // UP
@@ -291,7 +300,7 @@ void Player::update(float delta_t) {
                  !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
 
             new_action = UP;
-            new_last_direction = last_movement_key = Direction::UP;
+            new_last_direction = Direction::UP;
             move_y = -y_walking_speed * delta_t;
         }
         // DOWN
@@ -299,7 +308,7 @@ void Player::update(float delta_t) {
                  !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
 
             new_action = DOWN;
-            new_last_direction = last_movement_key = Direction::DOWN;
+            new_last_direction = Direction::DOWN;
             move_y = y_walking_speed * delta_t;
         }
 
@@ -320,7 +329,10 @@ void Player::update(float delta_t) {
     }
 
     // Set new sprite.
-    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite - first_bt_sprites_idx].sprite_state_machine[new_action];
+    BT_sprites::Sprite new_sprite = new_action == PEPPER ? 
+    pepper_sprite_state_machine[last_direction]
+    :
+    sprite_state_machine[current_sprite - first_bt_sprites_idx].sprite_state_machine[new_action];
 
     if (new_sprite != current_sprite &&
             (acc_delta_t > animation_duration || new_action != last_action)) {
@@ -329,18 +341,11 @@ void Player::update(float delta_t) {
         acc_delta_t = 0;
 
         // Mirror sprite.
-        if ((new_action == RIGHT && last_direction != Direction::RIGHT) ||
-                ((new_action == LEFT || new_action == DOWN || new_action == UP)
+        if ((new_last_direction == Direction::RIGHT && last_direction != Direction::RIGHT) ||
+                ((new_last_direction == Direction::LEFT || new_last_direction == Direction::DOWN || new_last_direction == Direction::UP)
                  && last_direction == Direction::RIGHT)) {
 
             sprite.scale(-1, 1); // Mirror.
-        }
-
-        // Special state machine case (PEPPER_FRONT).
-        if (new_sprite == BT_sprites::Sprite::PLAYER_PEPPER_LEFT
-                && last_direction == Direction::DOWN) {
-
-            new_sprite = BT_sprites::Sprite::PLAYER_PEPPER_FRONT;
         }
 
         current_sprite = new_sprite;
