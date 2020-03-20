@@ -9,17 +9,34 @@
 #include "BurgerTimeStateMachine.hpp"
 
 BurgerTimeController::BurgerTimeController() : 
-    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close)
+    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close), gui(GUI::get())
 {
-    if (!font.loadFromFile(FONT_FILE))
-    {
-        // TODO: error
-    }
 }
 
 BurgerTimeController::~BurgerTimeController()
 {
 }
+
+void BurgerTimeController::clearScreen()
+{
+    drawablesOnScreen.clear();
+}
+
+void BurgerTimeController::addDrawable(std::weak_ptr<sf::Drawable> newDrawable)
+{
+    drawablesOnScreen.push_back(newDrawable);
+}
+
+void BurgerTimeController::restartTimer()
+{
+    logicClock.restart();
+}
+
+sf::Time BurgerTimeController::getElapsedTime()
+{
+    return logicClock.getElapsedTime();
+}
+
 
 BurgerTimeController &BurgerTimeController::get()
 {
@@ -115,9 +132,16 @@ void BurgerTimeController::draw()
 {
     window.clear();
 
-    for (const auto &obj : drawablesOnScreen)
+    for (auto objWeakIt = drawablesOnScreen.begin(); objWeakIt != drawablesOnScreen.end(); ++objWeakIt)
     {
-        window.draw(*obj);
+        if (auto obj = objWeakIt->lock())
+        {
+            window.draw(*obj);
+        }
+        else
+        {
+            drawablesOnScreen.erase(objWeakIt++);
+        }
     }
 
     window.display();

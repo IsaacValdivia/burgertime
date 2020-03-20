@@ -5,6 +5,7 @@
 
 #include "Actor.hpp"
 #include "Map.hpp"
+#include "Constants.hpp"
 
 class PlayingStateMachine;
 
@@ -37,6 +38,8 @@ private:
     static const Sprite_state_machine_node sprite_state_machine[];
 
     Action last_action;
+
+    Direction last_movement_key;
 
     std::shared_ptr<Map> map;
 

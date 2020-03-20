@@ -1,4 +1,5 @@
 #include "Pepper.hpp"
+#include "PlayingStateMachine.hpp"
 
 const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
     BT_sprites::Sprite::PEPPER_LEFT_1,
@@ -31,6 +32,7 @@ void Pepper::update(float delta_t) {
     // BORRAR CUANDO TERMINADO para evaitar esto.
 
     if (current_sprite == initial_sprite[type] + NUM_SPRITES - 1) {
+        psm.deletePepper();
         return;
     }
 

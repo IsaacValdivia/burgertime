@@ -15,10 +15,6 @@ public:
 
     virtual void react(const ExecuteEvent &){};
 
-    void enterStateEntry();
-    void startOptionStateEntry();
-    void bindingsOptionStateEntry();
-    void exitOptionStateEntry();
 
 protected:
     static constexpr auto START_SELECTION_POSITION = std::make_pair(32 * WINDOW_WIDTH / 100 - 13, 3 * WINDOW_HEIGHT / 10);
@@ -27,6 +23,7 @@ protected:
 
     static std::shared_ptr<sf::CircleShape> selectionTriangle;
     static BurgerTimeController &controller;
+    static GUI &gui;
 };
 
 class EnterStateMainScreen : public MainScreenStateMachine

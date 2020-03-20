@@ -3,6 +3,8 @@
 #include <tinyfsm.hpp>
 #include "Constants.hpp"
 #include "BurgerTimeController.hpp"
+#include "GUI.hpp"
+#include "HighScores.hpp"
 
 class BurgerTimeStateMachine : public tinyfsm::MooreMachine<BurgerTimeStateMachine>
 {
@@ -15,17 +17,9 @@ public:
 
     bool timedStateReact();
 
-    void highscoreDisplayScreenStateEntry();
-    void itemPointsScreenStateEntry();
-    void characterScreenStateEntry();
-    void firstTutorialVidScreenStateEntry();
-    void secondTutorialVidScreenStateEntry();
-    void tutorialScreenStateEntry();
-    void thirdTutorialVidScreenStateEntry();
-    void gameReadyScreenState();
-
 protected:
     static BurgerTimeController &controller;
+    static GUI &gui;
 };
 
 class HighscoreDisplayScreenState : public BurgerTimeStateMachine
@@ -42,6 +36,21 @@ class ItemPointsScreenState : public BurgerTimeStateMachine
     void react(const ExecuteEvent &) override;
 
     int getWaitTime() const override { return 500; }
+
+    std::array<std::shared_ptr<sf::Sprite>, 4> topBun;
+    std::array<std::shared_ptr<sf::Sprite>, 4> lettuce;
+    std::array<std::shared_ptr<sf::Sprite>, 4> cheese;
+    std::array<std::shared_ptr<sf::Sprite>, 4> burger;
+    std::array<std::shared_ptr<sf::Sprite>, 4> tomato;
+    std::array<std::shared_ptr<sf::Sprite>, 4> botBun;
+    std::shared_ptr<sf::Sprite> iceCream;
+    std::shared_ptr<sf::Sprite> pt500;
+    std::shared_ptr<sf::Sprite> coffee;
+    std::shared_ptr<sf::Sprite> pt1000;
+    std::shared_ptr<sf::Sprite> fries;
+    std::shared_ptr<sf::Sprite> pt1500;
+    std::shared_ptr<sf::Sprite> pepper;
+    std::shared_ptr<sf::Sprite> chef;
 };
 
 class CharacterScreenState : public BurgerTimeStateMachine
@@ -123,7 +132,6 @@ class GameOverScreenState : public BurgerTimeStateMachine
     };
 
     int currentText;
-    std::shared_ptr<sf::Text> text;
 };
 
 class EnterHighscoreState : public BurgerTimeStateMachine
@@ -137,8 +145,6 @@ private:
 
     static constexpr auto ENTER_NAME_STR = "ENTER YOUR NAME";
     static uint32_t newHighscore;
-    std::shared_ptr<sf::Text> newHighScoreText;
-    std::shared_ptr<sf::Text> helpText;
     int charPosition = 0;
 };
 

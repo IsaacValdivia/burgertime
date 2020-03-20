@@ -226,6 +226,8 @@ Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingSt
 
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
 
+    last_movement_key = Direction::LEFT;
+
     last_action = NONE;
 };
 
@@ -247,8 +249,6 @@ void Player::update(float delta_t) {
     Direction new_last_direction = last_direction;
     Action new_action = NONE;
 
-    bool update_sprite = true;
-
     // WIN
     if (has_won()) {
         new_action = CELEBRATE;
@@ -259,10 +259,6 @@ void Player::update(float delta_t) {
     }
     // MOVEMENT/PEPPER
     else {
-        // If Peter is peppering he can not move.
-        if (last_action == PEPPER && acc_delta_t < animation_duration) {
-            return;
-        }
 
         float move_x = 0;
         float move_y = 0;
@@ -272,14 +268,14 @@ void Player::update(float delta_t) {
         // PEPPER
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
             new_action = PEPPER;
-            psm.addPepper(sf::Vector2f(30, 30), last_direction);
+            psm.addPepper(sf::Vector2f(30, 30), last_movement_key);
         }
         // RIGHT
         else if (inputToProcess == InputSystem::Input::RIGHT &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
 
             new_action = RIGHT;
-            new_last_direction = Direction::RIGHT;
+            new_last_direction = last_movement_key = Direction::RIGHT;
             move_x = x_walking_speed * delta_t;
         }
         // LEFT
@@ -287,7 +283,7 @@ void Player::update(float delta_t) {
                  !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
 
             new_action = LEFT;
-            new_last_direction = Direction::LEFT;
+            new_last_direction = last_movement_key = Direction::LEFT;
             move_x = -x_walking_speed * delta_t;
         }
         // UP
@@ -295,7 +291,7 @@ void Player::update(float delta_t) {
                  !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
 
             new_action = UP;
-            new_last_direction = Direction::UP;
+            new_last_direction = last_movement_key = Direction::UP;
             move_y = -y_walking_speed * delta_t;
         }
         // DOWN
@@ -303,7 +299,7 @@ void Player::update(float delta_t) {
                  !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
 
             new_action = DOWN;
-            new_last_direction = Direction::DOWN;
+            new_last_direction = last_movement_key = Direction::DOWN;
             move_y = y_walking_speed * delta_t;
         }
 
@@ -318,16 +314,13 @@ void Player::update(float delta_t) {
                 new_last_direction = last_direction;
                 new_action = last_action;
 
-                update_sprite = false;
+                return;
             }
         }
     }
 
     // Set new sprite.
-    BT_sprites::Sprite new_sprite = update_sprite ?
-                                    sprite_state_machine[current_sprite - first_bt_sprites_idx].sprite_state_machine[new_action]
-                                    :
-                                    current_sprite;
+    BT_sprites::Sprite new_sprite = sprite_state_machine[current_sprite - first_bt_sprites_idx].sprite_state_machine[new_action];
 
     if (new_sprite != current_sprite &&
             (acc_delta_t > animation_duration || new_action != last_action)) {

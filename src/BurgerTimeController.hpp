@@ -1,8 +1,9 @@
 #pragma once
 
-#include <vector>
+#include <list>
 #include <memory>
 #include <SFML/Graphics.hpp>
+#include "GUI.hpp"
 
 class BurgerTimeController
 {
@@ -12,6 +13,15 @@ public:
     void run();
 
     ~BurgerTimeController();
+
+    void clearScreen();
+
+    void addDrawable(std::weak_ptr<sf::Drawable> newDrawable);
+
+    void restartTimer();
+
+    sf::Time getElapsedTime();
+
 
 private:
     BurgerTimeController();
@@ -29,15 +39,10 @@ private:
 
     bool hasGameFinished() const;
 
-    sf::Font font;
+    GUI &gui;
+
     sf::RenderWindow window;
 
-    std::vector<std::shared_ptr<sf::Drawable>> drawablesOnScreen;
+    std::list<std::weak_ptr<sf::Drawable>> drawablesOnScreen;
     sf::Clock logicClock;
-
-    friend class BurgerTimeStateMachine;
-    friend class MainScreenStateMachine;
-    friend class GameOverScreenState;
-    friend class EnterHighscoreState;
-    friend class PlayingStateMachine;
 };
