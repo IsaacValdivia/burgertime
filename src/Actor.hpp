@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.hpp"
+#include "Constants.hpp"
 
 class Actor : public Entity {
 private:
@@ -8,6 +9,8 @@ private:
 
 protected:
     bool alive;
+
+    Direction last_direction;
 
 public:
     Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite);

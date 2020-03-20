@@ -6,6 +6,8 @@
 #include "Actor.hpp"
 #include "Map.hpp"
 
+class PlayingStateMachine;
+
 class Player : public Actor {
 private:
     enum Action {
@@ -34,20 +36,18 @@ private:
 
     static const Sprite_state_machine_node sprite_state_machine[];
 
-    Action last_direction; // LEFT, RIGHT, UP or DOWN only.
-
     Action last_action;
 
     std::shared_ptr<Map> map;
 
+    PlayingStateMachine &psm;
+
     bool won;
 
 public:
-    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map);
+    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm);
 
     void update(float delta_t) override;
-
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
     bool has_won() const;
 

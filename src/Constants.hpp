@@ -11,6 +11,14 @@ static constexpr auto ASPECT_RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HE
 static constexpr auto WINDOW_TITLE = "Burger Time!";
 static constexpr auto FONT_FILE = "resources/PressStart2P-vaV7.ttf";
 
+enum Direction {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    NUM_DIRECTIONS
+};
+
 struct ExecuteEvent : tinyfsm::Event 
 {
     ExecuteEvent() = delete;

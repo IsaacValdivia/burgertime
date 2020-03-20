@@ -1,7 +1,7 @@
 #include "Actor.hpp"
 
 Actor::Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite)
-    : alive(true), Entity(init_pos, init_sprite) {
+    : alive(true), Entity(init_pos, init_sprite), last_direction(LEFT) {
 
     sprite.setScale(sf::Vector2f(actor_scale, actor_scale));
 }

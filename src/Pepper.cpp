@@ -1,29 +1,21 @@
 #include "Pepper.hpp"
 
-const BT_sprites::Sprite Pepper::initial_sprite[NUM_TYPES] = {
+const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
+    BT_sprites::Sprite::PEPPER_LEFT_1,
+    BT_sprites::Sprite::PEPPER_LEFT_1,
     BT_sprites::Sprite::PEPPER_BACK_1,
     BT_sprites::Sprite::PEPPER_FRONT_1,
-    BT_sprites::Sprite::PEPPER_LEFT_1,
-    BT_sprites::Sprite::PEPPER_LEFT_1
 };
 
-Pepper::Pepper(const Type _type) : type(_type), acc_delta_t(0) {
+Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, PlayingStateMachine &psm)
+: Entity(init_pos, initial_sprite[type]), type(type), psm(psm) {
     current_sprite = initial_sprite[type];
 
-    BT_sprites::set_initial_sprite(*static_cast<sf::Sprite *>(this), current_sprite);
+    sprite.setScale(sf::Vector2f(scale, scale));
 
-    this->setScale(sf::Vector2f(sprite_scale, sprite_scale));
-
-    // Set origin in the center of the sprite.
-    this->setOrigin({this->getLocalBounds().width / 2,
-                     this->getLocalBounds().height / 2});
-
-    if (type == RIGHT) {
-        this->scale(-1, 1); // Mirror.
+    if (type == Direction::RIGHT) {
+        sprite.scale(-1, 1); // Mirror.
     }
-
-    // TODO: BORRAR
-    this->setPosition(200, 200);
 };
 
 void Pepper::update(float delta_t) {
@@ -44,6 +36,6 @@ void Pepper::update(float delta_t) {
 
     current_sprite = (BT_sprites::Sprite)(current_sprite + 1);
 
-    BT_sprites::update_sprite(*static_cast<sf::Sprite *>(this), current_sprite);
+    BT_sprites::update_sprite(sprite, current_sprite);
 
 }

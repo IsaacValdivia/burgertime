@@ -1,5 +1,6 @@
 #include "Player.hpp"
 #include "InputSystem.hpp"
+#include "PlayingStateMachine.hpp"
 
 const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
     // PLAYER_DOWNSTAIRS_1
@@ -220,12 +221,12 @@ const Player::Sprite_state_machine_node Player::sprite_state_machine[] = {
     }
 };
 
-Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map)
-    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT), map(map), won(false) {
+Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm)
+    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT), map(map), won(false), psm(psm)
+{
 
     current_sprite = BT_sprites::Sprite::PLAYER_STILL_FRONT;
 
-    last_direction = LEFT;
     last_action = NONE;
 };
 
@@ -244,7 +245,7 @@ void Player::update(float delta_t) {
 
     // Get new action
 
-    Action new_last_direction = last_direction;
+    Direction new_last_direction = last_direction;
     Action new_action = NONE;
 
     bool update_sprite = true;
@@ -272,34 +273,38 @@ void Player::update(float delta_t) {
         // PEPPER
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
             new_action = PEPPER;
-            // PEPEREAR
+            psm.addPepper(sf::Vector2f(30, 30), last_direction);
         }
         // RIGHT
         else if (inputToProcess == InputSystem::Input::RIGHT &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::LEFT)) {
 
-            new_action = new_last_direction = RIGHT;
+            new_action = RIGHT;
+            new_last_direction = Direction::RIGHT;
             move_x = x_walking_speed * delta_t;
         }
         // LEFT
         else if (inputToProcess == InputSystem::Input::LEFT &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::RIGHT)) {
 
-            new_action = new_last_direction = LEFT;
+            new_action = LEFT;
+            new_last_direction = Direction::LEFT;
             move_x = -x_walking_speed * delta_t;
         }
         // UP
         else if (inputToProcess == InputSystem::Input::UP &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::DOWN)) {
 
-            new_action = new_last_direction = UP;
+            new_action = UP;
+            new_last_direction = Direction::UP;
             move_y = -y_walking_speed * delta_t;
         }
         // DOWN
         else if (inputToProcess == InputSystem::Input::DOWN &&
                  !InputSystem::isSingleInputActive(InputSystem::Input::UP)) {
 
-            new_action = new_last_direction = DOWN;
+            new_action = DOWN;
+            new_last_direction = Direction::DOWN;
             move_y = y_walking_speed * delta_t;
         }
 
@@ -332,16 +337,16 @@ void Player::update(float delta_t) {
         acc_delta_t = 0;
 
         // Mirror sprite.
-        if ((new_action == RIGHT && last_direction != RIGHT) ||
+        if ((new_action == RIGHT && last_direction != Direction::RIGHT) ||
                 ((new_action == LEFT || new_action == DOWN || new_action == UP)
-                 && last_direction == RIGHT)) {
+                 && last_direction == Direction::RIGHT)) {
 
             sprite.scale(-1, 1); // Mirror.
         }
 
         // Special state machine case (PEPPER_FRONT).
         if (new_sprite == BT_sprites::Sprite::PLAYER_PEPPER_LEFT
-                && last_direction == DOWN) {
+                && last_direction == Direction::DOWN) {
 
             new_sprite = BT_sprites::Sprite::PLAYER_PEPPER_FRONT;
         }
