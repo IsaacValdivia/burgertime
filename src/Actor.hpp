@@ -5,16 +5,19 @@
 
 class Actor : public Entity {
 private:
-    static constexpr auto actor_scale = 2;
+    static constexpr auto sprite_scale = 2;
 
 protected:
     bool alive;
 
-    Direction last_direction;
+    Direction direction;
+    Direction mirror_state;
 
-    const BT_sprites::Sprite first_bt_sprites_idx;
+    const BT_sprites::Sprite first_sprite;
+
+    void mirror();
 public:
-    Actor(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite, BT_sprites::Sprite first_bt_sprites_idx);
+    Actor(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const BT_sprites::Sprite first_sprite);
 
     bool is_alive() const;
 

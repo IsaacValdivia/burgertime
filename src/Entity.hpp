@@ -10,7 +10,6 @@ protected:
     BT_sprites::Sprite current_sprite;
 
     sf::Sprite sprite;
-
 public:
     Entity(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite);
 

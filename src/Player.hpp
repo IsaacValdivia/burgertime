@@ -27,18 +27,18 @@ private:
     static constexpr float y_walking_speed = x_walking_speed / 1.72;
 
     static constexpr float walking_sprite_duration = 0.1;
-    static constexpr float peppering_sprite_duration = 0.2;
+    static constexpr float peppering_sprite_duration = 0.1;
     static constexpr float end_game_sprite_duration = 0.2;
 
-    struct Sprite_state_machine_node {
+    struct Sprite_state_machine {
         float sprite_duration;
-        BT_sprites::Sprite sprite_state_machine[NUM_ACTIONS];
+        BT_sprites::Sprite sprites[NUM_ACTIONS];
     };
 
-    static const Sprite_state_machine_node sprite_state_machine[];
+    static const Sprite_state_machine sprite_state_machine[];
+    static const BT_sprites::Sprite pepper_sprite_state_machine[]; // Special case.
 
-    static const BT_sprites::Sprite pepper_sprite_state_machine[NUM_DIRECTIONS];
-
+    Action new_action;
     Action last_action;
 
     std::shared_ptr<Map> map;

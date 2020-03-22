@@ -10,15 +10,13 @@
 
 class PlayingStateMachine;
 
-class Pepper : public Entity{
+class Pepper : public Entity {
 private:
-    static constexpr int NUM_SPRITES = 4;
+    static constexpr int NUM_SPRITES_ANIMATION = 4;
 
-    static constexpr float animation_duration = 0.2;
+    static constexpr float animation_duration = 0.1;
 
-    static constexpr float scale = 2;
-
-    float acc_delta_t;
+    static constexpr float sprite_scale = 2;
 
     static const BT_sprites::Sprite initial_sprite[Direction::NUM_DIRECTIONS];
 
@@ -31,5 +29,5 @@ private:
 public:
     Pepper(const sf::Vector2f &init_pos, const Direction type, PlayingStateMachine &psm);
 
-    void update(float delta_t); // TODO: Cambiar Actor por otra clase mas generica?
+    void update(float delta_t) override;
 };

@@ -9,10 +9,12 @@ const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
 };
 
 Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, PlayingStateMachine &psm)
-    : Entity(init_pos, initial_sprite[type]), type(type), psm(psm) {
-    current_sprite = initial_sprite[type];
+    : Entity(init_pos, initial_sprite[type]),
+      type(type),
+      psm(psm),
+      current_sprite(initial_sprite[type]) {
 
-    sprite.setScale(sf::Vector2f(scale, scale));
+    sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
 
     if (type == Direction::RIGHT) {
         sprite.scale(-1, 1); // Mirror.
@@ -26,12 +28,10 @@ void Pepper::update(float delta_t) {
         return;
     }
 
-    // Reset accumulated delta.
     acc_delta_t = 0;
 
-    // BORRAR CUANDO TERMINADO para evaitar esto.
-
-    if (current_sprite == initial_sprite[type] + NUM_SPRITES - 1) {
+    // Delete pepper.
+    if (current_sprite == initial_sprite[type] + NUM_SPRITES_ANIMATION - 1) {
         psm.deletePepper();
         return;
     }
@@ -39,5 +39,4 @@ void Pepper::update(float delta_t) {
     current_sprite = (BT_sprites::Sprite)(current_sprite + 1);
 
     BT_sprites::update_sprite(sprite, current_sprite);
-
 }
