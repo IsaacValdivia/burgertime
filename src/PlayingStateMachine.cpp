@@ -41,9 +41,11 @@ void EnterStatePlaying::entry()
     // currentScoreText->setPosition( * WINDOW_WIDTH / 100 , 2 * WINDOW_HEIGHT / 100);
 
     map = std::make_shared<Map>("maps/map1.map");
+    ingmap = std::make_shared<IngredientMap>("maps/map1.ingmap");
     player = std::make_shared<Player>(map->data[0][4].shape.getPosition(), map, *this);
 
     controller.addDrawable(map);
+    controller.addDrawable(ingmap);
     controller.addDrawable(player);
     controller.addDrawable(pepperText);
     controller.addDrawable(oneUpText);

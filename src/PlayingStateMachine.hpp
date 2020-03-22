@@ -7,6 +7,7 @@
 #include "BurgerTimeController.hpp"
 #include "Player.hpp"
 #include "Pepper.hpp"
+#include "IngredientMap.hpp"
 
 class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine>
 {
@@ -21,6 +22,7 @@ public:
 
 protected:
     std::shared_ptr<Map> map;
+    std::shared_ptr<IngredientMap> ingmap;
     std::shared_ptr<Player> player;
     std::shared_ptr<Pepper> pepper;
 
