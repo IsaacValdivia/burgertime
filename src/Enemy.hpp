@@ -32,7 +32,7 @@ private:
 
     static constexpr float walking_sprite_duration = 0.1;
     static constexpr float dying_sprite_duration = 0.1;
-    static constexpr float pepper_sprite_animation = 0.2;
+    static constexpr float pepper_sprite_animation = 0.27;
 
     static constexpr float pepper_duration = 2;
 
@@ -45,6 +45,8 @@ private:
 
 public:
     Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[]);
+
+    void pepper();
 
     void update(float delta_t) override;
 };

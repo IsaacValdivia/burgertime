@@ -1,5 +1,6 @@
 #include "PlayingStateMachine.hpp"
 #include "InputSystem.hpp"
+#include "Enemy.hpp"
 
 FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
 
@@ -43,6 +44,9 @@ void EnterStatePlaying::entry()
     map = std::make_shared<Map>("maps/map1.map");
     player = std::make_shared<Player>(map->data[0][4].shape.getPosition(), map, *this);
 
+    egg = std::make_shared<Enemy>(map->data[0][6].shape.getPosition(), Enemy::sausage_sprite_state_machine);
+
+    controller.addDrawable(egg);
     controller.addDrawable(map);
     controller.addDrawable(player);
     controller.addDrawable(pepperText);
@@ -54,8 +58,10 @@ void EnterStatePlaying::entry()
 void EnterStatePlaying::react(const ExecuteEvent &event)
 {
     player->update(event.deltaT);
+    egg->update(event.deltaT);
     if (pepper)
     {
+        egg->pepper();
         pepper->update(event.deltaT);
     }
     // player->win();

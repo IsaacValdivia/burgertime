@@ -412,6 +412,11 @@ Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_sta
       last_action(NONE),
       acc_delta_t_pepper(0) {};
 
+void Enemy::pepper() {
+    acc_delta_t_pepper = 0;
+    last_action = PEPPER;
+}
+
 void Enemy::update(float delta_t) {
     acc_delta_t += delta_t;
     acc_delta_t_pepper += delta_t;
@@ -434,6 +439,8 @@ void Enemy::update(float delta_t) {
     // A*/MOVE
     else {
         acc_delta_t_pepper = 0;
+
+        new_action = LEFT;
 
         // A* TODO
     }
