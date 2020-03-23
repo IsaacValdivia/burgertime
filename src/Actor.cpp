@@ -1,11 +1,13 @@
 #include "Actor.hpp"
+#include "Map.hpp"
 
-Actor::Actor(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const BT_sprites::Sprite first_sprite)
+Actor::Actor(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const BT_sprites::Sprite first_sprite, std::shared_ptr<Map> map)
     : alive(true), Entity(init_pos, init_sprite),
       direction(LEFT),
       first_sprite(first_sprite),
-      mirror_state(LEFT) {
-
+      mirror_state(LEFT),
+      map(map)
+{
     sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
 }
 

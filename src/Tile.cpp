@@ -46,6 +46,14 @@ Tile::Tile(const Tile &other) {
     shape = other.shape;
 }
 
+bool Tile::operator<(const Tile& other) const {
+	return col < other.col && row < other.row;
+}
+
+bool Tile::operator==(const Tile& other) const {
+	return col == other.col && row == other.row;
+}
+
 void Tile::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 	target.draw(shape, states);
 }

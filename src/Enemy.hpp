@@ -2,7 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "memory"
 #include "Actor.hpp"
+#include "IA.hpp"
 
 class Enemy : public Actor {
 public:
@@ -43,8 +45,9 @@ private:
     Action new_action;
     Action last_action;
 
+    IA ia;
 public:
-    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[]);
+    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia);
 
     void pepper();
 

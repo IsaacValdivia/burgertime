@@ -16,15 +16,18 @@ class Map : public sf::Drawable {
 private:
     void fill_tiles(const vector<string> &map_data);
 
-    static const int MAX_ENEMY_ENTRIES = 10;
+    static constexpr unsigned int UPPER_MARGIN = 5 * Tile::TILE_HEIGHT;
+    static constexpr unsigned int SIDE_MARGINS = 65;
 
-    static constexpr float HOR_COLL_LOOKAHEAD_CORR = 5; //Actor::x_walking_speed; // TO_DO: AJUSTAR
-    static constexpr float VERT_COLL_LOOKAHEAD_CORR = 5; //Actor::y_walking_speed;
-
-    const unsigned int UPPER_MARGIN = 5 * Tile::TILE_HEIGHT;
-    const unsigned int SIDE_MARGINS = 65;
+    static constexpr int MAX_ROWS = 30;
+    static constexpr int MAX_COLS = 26;
 
     std::vector<Tile> player_on_tiles(const float bot_left_x, const float bot_right_x, const float bot_y) const;
+
+    bool can_move_right(const Tile &t) const;
+    bool can_move_left(const Tile &t) const;
+    bool can_move_up(const Tile &t) const;
+    bool can_move_down(const Tile &t) const;
 
     bool can_move_right(const Tile& t, float right_edge) const;
 
@@ -34,10 +37,9 @@ private:
 
     bool can_move_down(const Tile& t, float bot_edge) const;
 
+
 public:
 
-    static const int MAX_ROWS = 30;
-    static const int MAX_COLS = 26;
 
     //unsigned int num_rows;
     //unsigned int num_cols;
@@ -46,6 +48,7 @@ public:
     //const Tile enemy_entries[MAX_ENEMY_ENTRIES];
     //const Tile chef_spawn;
 
+    // TODO: cambiar a privado y hacer funciones para acceder a const Tile &
     Tile data[MAX_ROWS][MAX_COLS];
 
     /**
@@ -57,6 +60,8 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    bool player_can_move(float &x, float &y, const sf::Sprite& player) const;
+    bool can_actor_move(float &x, float &y, const sf::Sprite& player) const;
+
+    std::vector<const Tile*> availableFrom(const Tile &current) const;
 
 };

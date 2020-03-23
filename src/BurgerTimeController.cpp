@@ -71,6 +71,7 @@ void BurgerTimeController::run()
         {
             if (event.type == sf::Event::Closed) 
             {
+                // TODO: change
                 window.setSize(sf::Vector2u(2 * WINDOW_WIDTH, 2 * WINDOW_HEIGHT));
                 // window.close();
             }
@@ -90,6 +91,11 @@ void BurgerTimeController::run()
         if (currentTime >= nextTime)
         {
             float deltaT = (currentTime - lastTime).asSeconds();
+            if (deltaT > 1.3 * LOGIC_UPDATE_FREQ)
+            {
+                std::cerr << "Error, logica va muy lenta" << std::endl;
+            }
+
             nextTime += logicDeltaTime;
             if (isTextEntered)
             {

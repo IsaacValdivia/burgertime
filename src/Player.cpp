@@ -233,8 +233,7 @@ const BT_sprites::Sprite Player::pepper_sprite_state_machine[] = {
 };
 
 Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm)
-    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1),
-      map(map),
+    : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, map),
       won(false),
       psm(psm),
       last_action(NONE) {};
@@ -337,7 +336,7 @@ void Player::update(float delta_t) {
         // Want to move.
         if (move_x != 0.0 || move_y != 0.0) {
             // Want to move and can.
-            if (map->player_can_move(move_x, move_y, sprite)) {
+            if (map->can_actor_move(move_x, move_y, sprite)) {
                 sprite.move(move_x, move_y);
             }
             // Want to move but can't.

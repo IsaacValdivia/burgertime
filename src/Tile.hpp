@@ -43,6 +43,10 @@ public:
 
     Tile& operator=(const Tile& other);
 
+    bool operator<(const Tile& other) const;
+
+    bool operator==(const Tile &other) const;
+
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
     bool isEmpty() const;

@@ -405,12 +405,13 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
-Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[])
+Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia)
     : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
-            sprite_state_machine[0].sprites[NONE]),
+            sprite_state_machine[0].sprites[NONE], map),
       sprite_state_machine(sprite_state_machine),
       last_action(NONE),
-      acc_delta_t_pepper(0) {};
+      acc_delta_t_pepper(0),
+      ia(ia) {};
 
 void Enemy::pepper() {
     acc_delta_t_pepper = 0;
@@ -440,9 +441,53 @@ void Enemy::update(float delta_t) {
     else {
         acc_delta_t_pepper = 0;
 
-        new_action = LEFT;
+        Direction next_move = ia.getNextMove(map->data[0][10], map->data[0][17]); // TODO;
 
-        // A* TODO
+        float move_x = 0;
+        float move_y = 0;
+
+        switch (next_move) {
+            case Direction::LEFT:
+
+                new_action = LEFT;
+                direction = Direction::LEFT;
+                move_x = -x_walking_speed * delta_t;
+
+                break;
+            case Direction::RIGHT:
+
+                new_action = RIGHT;
+                direction = Direction::RIGHT;
+                move_x = x_walking_speed * delta_t;
+
+                break;
+            case Direction::UP:
+
+                new_action = UP;
+                direction = Direction::UP;
+                move_y = -y_walking_speed * delta_t;
+
+                break;
+            case Direction::DOWN:
+
+                new_action = DOWN;
+                direction = Direction::DOWN;
+                move_y = y_walking_speed * delta_t;
+
+                break;
+            default:
+                break;
+        }
+        // Want to move and can.
+        if (map->can_actor_move(move_x, move_y, sprite)) {
+            sprite.move(move_x, move_y);
+        }
+        // Want to move but can't.
+        else {
+            new_action = last_action;
+
+            return;
+        }
     }
 
     float animation_duration = sprite_state_machine[current_sprite - first_sprite].sprite_duration;

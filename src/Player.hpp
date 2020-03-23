@@ -41,8 +41,6 @@ private:
     Action new_action;
     Action last_action;
 
-    std::shared_ptr<Map> map;
-
     PlayingStateMachine &psm;
 
     bool won;

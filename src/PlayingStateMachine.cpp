@@ -42,9 +42,9 @@ void EnterStatePlaying::entry()
     // currentScoreText->setPosition( * WINDOW_WIDTH / 100 , 2 * WINDOW_HEIGHT / 100);
 
     map = std::make_shared<Map>("maps/map1.map");
-    player = std::make_shared<Player>(map->data[0][4].shape.getPosition(), map, *this);
+    player = std::make_shared<Player>(map->data[0][17].shape.getPosition(), map, *this);
 
-    egg = std::make_shared<Enemy>(map->data[0][6].shape.getPosition(), Enemy::sausage_sprite_state_machine);
+    egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, IA(map));
 
     controller.addDrawable(egg);
     controller.addDrawable(map);

@@ -79,6 +79,51 @@ std::vector<Tile> Map::player_on_tiles(const float bot_left_x, const float bot_r
     return tiles;
 }
 
+bool Map::can_move_right(const Tile &t) const {
+    // check if platform allows the movement
+    if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
+        // if next tile also allows hor movement, true
+        if (t.col < (MAX_COLS - 1) && data[t.row][t.col+1].isSteppableHor()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Map::can_move_left(const Tile &t) const {
+    // check if platform allows the movement
+    if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
+        // if next tile also allows hor movement, true
+        if (t.col > 0 && data[t.row][t.col-1].isSteppableHor()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Map::can_move_up(const Tile &t) const {
+    // check if platform allows the movement
+    if (t.isStairs() || t.isGoUp() || t.isGoBoth() || t.isGoDown()) {
+        // if next tile also allows hor movement, true
+        if (t.row > 0 && data[t.row-1][t.col].isSteppableVert()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Map::can_move_down(const Tile &t) const {
+    // check if platform allows the movement
+    if (t.isStairs() || t.isGoDown() || t.isGoBoth() || t.isGoUp()) {
+        // if next tile also allows hor movement, true
+        if (t.row < (MAX_ROWS - 1) && data[t.row+1][t.col].isSteppableVert()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 bool Map::can_move_right(const Tile& t, float right_edge) const {
     // check if platform allows the movement
     if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
@@ -167,7 +212,7 @@ bool Map::can_move_down(const Tile& t, float bot_edge) const {
         return stairs_center - chef_center;
 }*/
 
-bool Map::player_can_move(float &x, float &y, const sf::Sprite& player) const {
+bool Map::can_actor_move(float &x, float &y, const sf::Sprite& player) const {
     // float left_edge = player.getTransform().transformPoint(Vector2f(0, 0)).x;
     // float right_edge = player.getTransform().transformPoint(Vector2f(player.getSize().x, 0)).x;
     // float upper_edge = player.getTransform().transformPoint(Vector2f(0, 0)).y;
@@ -252,4 +297,27 @@ bool Map::player_can_move(float &x, float &y, const sf::Sprite& player) const {
     // }
 
     return false;
+}
+
+std::vector<const Tile*> Map::availableFrom(const Tile &current) const
+{
+    std::vector<const Tile*> availablePaths;
+
+    if (can_move_right(current)) {
+        availablePaths.push_back(&data[current.row][current.col + 1]);
+    }
+
+    if (can_move_down(current)) {
+        availablePaths.push_back(&data[current.row + 1][current.col]);
+    }
+
+    if (can_move_left(current)) {
+        availablePaths.push_back(&data[current.row][current.col - 1]);
+    }
+
+    if (can_move_up(current)) {
+        availablePaths.push_back(&data[current.row - 1][current.col]);
+    }
+    
+    return availablePaths;
 }

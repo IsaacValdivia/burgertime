@@ -2,23 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-class BT_sprites {
-private:
-    static const int DIMENSIONS = 4;
-
-    static const int padding_x_idx = 0;
-    static const int padding_y_idx = 1;
-    static const int x_idx = 2;
-    static const int y_idx = 3;
-
-    static const int containers[][DIMENSIONS];
-
-    static const int sprite_size = 16; // x 16
-    static const int small_sprite_size = sprite_size / 2;
-    static const int pepper_text_sprite_size_x = 24;
-
-    static sf::Texture char_and_obj_sprites;
-public:
+namespace BT_sprites {
     enum Sprite {
         /*
          * Regular size sprites.
@@ -177,8 +161,7 @@ public:
         PEPPER_BACK_4,
     };
 
-    static void set_initial_sprite(sf::Sprite &sp, const Sprite new_sprite);
+    void set_initial_sprite(sf::Sprite &sp, const Sprite new_sprite);
 
-    static void update_sprite(sf::Sprite &sp, const Sprite new_sprite);
+    void update_sprite(sf::Sprite &sp, const Sprite new_sprite);
 };
-
