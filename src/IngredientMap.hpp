@@ -1,37 +1,40 @@
-// #include "Ingredient.hpp"
-// #include "Map.hpp"
-// #include <string>
-// #include <vector>
-// #include <array>
+#pragma once
 
-// using namespace std;
+#include <string>
+#include <vector>
+#include <array>
+#include <memory>
 
-// /**
-//  * Class Map: stores a matrix of tiles, obtained from an encoded vector of strings,
-//  * corresponding the rows of the map to generate"
-//  */
-// class IngredientMap {
-// private:
-//     void fill_tiles(const vector<string> &map_data);
+#include "Ingredient.hpp"
+#include "Map.hpp"
+#include "Tile.hpp"
 
-//     static const int MAX_ENEMY_ENTRIES = 10;
-// public:
-//     Map* associated_map;
+/**
+ * Class Map: stores a matrix of tiles, obtained from an encoded vector of strings,
+ * corresponding the rows of the map to generate"
+ */
+class IngredientMap : public sf::Drawable {
+private:
+    const unsigned int UPPER_MARGIN = 5 * Tile::TILE_HEIGHT;
+    const unsigned int SIDE_MARGINS = 65;
 
-//     unsigned int num_rows;
-//     unsigned int num_cols;
-//     unsigned int num_burgers;
+    void fill_ingredients(const vector<string> &map_data);
 
-//     const Tile enemy_entries[MAX_ENEMY_ENTRIES];
-//     const Tile chef_spawn;
+public:
+    static const int MAX_ROWS = Map::MAX_ROWS;
+    static const int MAX_COLS = Map::MAX_COLS;
 
-//     Ingredient std::vector<std::pair<>>;
+    unsigned int num_burgers;
 
-//     /**
-//      * Constructor, takes map coded as a vector of strings
-//      */
-//     Map(Map* _associated_map, const vector<string> &map_data);
+    std::shared_ptr<Ingredient> data[MAX_ROWS][MAX_COLS];
 
-//     Map(const string &file_name);
+    /**
+     * Constructor, takes map coded as a vector of strings
+     */
+    IngredientMap(const vector<string> &map_data);
 
-// };
+    IngredientMap(const string &file_name);
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+};

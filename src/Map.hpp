@@ -19,9 +19,6 @@ private:
     static constexpr unsigned int UPPER_MARGIN = 5 * Tile::TILE_HEIGHT;
     static constexpr unsigned int SIDE_MARGINS = 65;
 
-    static constexpr int MAX_ROWS = 30;
-    static constexpr int MAX_COLS = 26;
-
     std::vector<Tile> player_on_tiles(const float bot_left_x, const float bot_right_x, const float bot_y) const;
 
     bool can_move_right(const Tile &t) const;
@@ -41,6 +38,8 @@ private:
 public:
 
 
+    static constexpr int MAX_ROWS = 30;
+    static constexpr int MAX_COLS = 26;
     //unsigned int num_rows;
     //unsigned int num_cols;
     //unsigned int num_burgers;

@@ -42,12 +42,14 @@ void EnterStatePlaying::entry()
     // currentScoreText->setPosition( * WINDOW_WIDTH / 100 , 2 * WINDOW_HEIGHT / 100);
 
     map = std::make_shared<Map>("maps/map1.map");
+    ingmap = std::make_shared<IngredientMap>("maps/map1.ingmap");
     player = std::make_shared<Player>(map->data[0][17].shape.getPosition(), map, *this);
 
     egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, IA(map));
 
     controller.addDrawable(egg);
     controller.addDrawable(map);
+    controller.addDrawable(ingmap);
     controller.addDrawable(player);
     controller.addDrawable(pepperText);
     controller.addDrawable(oneUpText);
