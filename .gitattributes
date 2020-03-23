@@ -25,4 +25,4 @@
 *.png binary
 *.z binary
 *.zip binary
-*.wav
+*.wav binary
