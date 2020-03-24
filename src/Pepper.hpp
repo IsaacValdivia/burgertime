@@ -1,14 +1,13 @@
 #pragma once
 
-#include "BT_sprites.hpp"
-
-#include "Entity.hpp"
-
+#include <functional>
 #include <SFML/Graphics.hpp>
 #include "BT_sprites.hpp"
+#include "nod.hpp"
+#include "Entity.hpp"
+
 #include "Constants.hpp"
 
-class PlayingStateMachine;
 
 class Pepper : public Entity {
 private:
@@ -22,12 +21,12 @@ private:
 
     const Direction type;
 
-    PlayingStateMachine &psm;
-
     BT_sprites::Sprite current_sprite;
 
+    nod::unsafe_signal<void()> pepper_finished;
+
 public:
-    Pepper(const sf::Vector2f &init_pos, const Direction type, PlayingStateMachine &psm);
+    Pepper(const sf::Vector2f &init_pos, const Direction type, const std::function<void()> &pepper_finished_func);
 
     void update(float delta_t) override;
 };

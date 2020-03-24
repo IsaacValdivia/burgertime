@@ -17,7 +17,7 @@ public:
 
     virtual void react(const ExecuteEvent &){};
 
-    void addPepper(sf::Vector2f launchPosition, Direction direction);
+    void addPepper(const sf::Vector2f &launchPosition, Direction direction);
 
     void deletePepper();
 

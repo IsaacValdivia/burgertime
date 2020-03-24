@@ -7,10 +7,10 @@ FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
 BurgerTimeController &PlayingStateMachine::controller = BurgerTimeController::get();
 GUI &PlayingStateMachine::gui = GUI::get();
 
-void PlayingStateMachine::addPepper(sf::Vector2f launchPosition, Direction direction)
+void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Direction direction)
 {
     deletePepper();
-    pepper = std::make_shared<Pepper>(launchPosition, direction, *this);
+    pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
     controller.addDrawable(pepper);
 }
 
@@ -43,7 +43,7 @@ void EnterStatePlaying::entry()
 
     map = std::make_shared<Map>("maps/map1.map");
     ingmap = std::make_shared<IngredientMap>("maps/map1.ingmap");
-    player = std::make_shared<Player>(map->data[0][17].shape.getPosition(), map, *this);
+    player = std::make_shared<Player>(map->data[0][17].shape.getPosition(), map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
 
     egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, IA(map));
 

@@ -1,5 +1,4 @@
 #include "Pepper.hpp"
-#include "PlayingStateMachine.hpp"
 
 const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
     BT_sprites::Sprite::PEPPER_LEFT_1,
@@ -8,11 +7,12 @@ const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
     BT_sprites::Sprite::PEPPER_FRONT_1,
 };
 
-Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, PlayingStateMachine &psm)
+Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, const std::function<void()> &pepper_finished_func)
     : Entity(init_pos, initial_sprite[type]),
       type(type),
-      psm(psm),
       current_sprite(initial_sprite[type]) {
+    
+    pepper_finished.connect(pepper_finished_func);
 
     sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
 
@@ -32,7 +32,7 @@ void Pepper::update(float delta_t) {
 
     // Delete pepper.
     if (current_sprite == initial_sprite[type] + NUM_SPRITES_ANIMATION - 1) {
-        psm.deletePepper();
+        pepper_finished();
         return;
     }
 

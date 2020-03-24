@@ -1,6 +1,5 @@
 #include "Player.hpp"
 #include "InputSystem.hpp"
-#include "PlayingStateMachine.hpp"
 
 const Player::Sprite_state_machine Player::sprite_state_machine[] = {
     // PLAYER_DOWNSTAIRS_1
@@ -232,11 +231,13 @@ const BT_sprites::Sprite Player::pepper_sprite_state_machine[] = {
     BT_sprites::Sprite::PLAYER_PEPPER_FRONT,
 };
 
-Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm)
+Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func)
     : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, map),
       won(false),
-      psm(psm),
-      last_action(NONE) {};
+      last_action(NONE) 
+{
+    pepper_spawned.connect(pepper_spawned_func);
+}
 
 bool Player::has_won() const {
     return won;
@@ -298,7 +299,7 @@ void Player::update(float delta_t) {
                     break;
             }
 
-            psm.addPepper(sf::Vector2f(pepper_pos.x, pepper_pos.y), direction);
+            pepper_spawned(sf::Vector2f(pepper_pos.x, pepper_pos.y), direction);
         }
         // RIGHT
         else if (inputToProcess == InputSystem::Input::RIGHT &&

@@ -1,13 +1,13 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <SFML/Graphics.hpp>
 
+#include "nod.hpp"
 #include "Actor.hpp"
 #include "Map.hpp"
 #include "Constants.hpp"
-
-class PlayingStateMachine;
 
 class Player : public Actor {
 private:
@@ -41,12 +41,12 @@ private:
     Action new_action;
     Action last_action;
 
-    PlayingStateMachine &psm;
-
     bool won;
 
+    nod::unsafe_signal<void(const sf::Vector2f&, Direction)> pepper_spawned;
+
 public:
-    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, PlayingStateMachine &psm);
+    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func);
 
     void update(float delta_t) override;
 
