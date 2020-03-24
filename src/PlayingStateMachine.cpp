@@ -45,7 +45,8 @@ void EnterStatePlaying::entry()
     ingmap = std::make_shared<IngredientMap>("maps/map1.ingmap");
     player = std::make_shared<Player>(map->data[0][17].shape.getPosition(), map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
 
-    egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, IA(map));
+    auto egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, IA(map));
+    enemies.push_back(egg);
 
     controller.addDrawable(egg);
     controller.addDrawable(map);
@@ -60,10 +61,14 @@ void EnterStatePlaying::entry()
 void EnterStatePlaying::react(const ExecuteEvent &event)
 {
     player->update(event.deltaT);
-    egg->update(event.deltaT);
+
+    for (const auto &enemy : enemies)
+    {
+        enemy->update(event.deltaT);
+    }
+
     if (pepper)
     {
-        egg->pepper();
         pepper->update(event.deltaT);
     }
     // player->win();

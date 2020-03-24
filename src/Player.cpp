@@ -234,9 +234,9 @@ const BT_sprites::Sprite Player::pepper_sprite_state_machine[] = {
 Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func)
     : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, map),
       won(false),
-      last_action(NONE) 
+      last_action(NONE),
+      pepper_spawned_func(pepper_spawned_func)
 {
-    pepper_spawned.connect(pepper_spawned_func);
 }
 
 bool Player::has_won() const {
@@ -299,7 +299,7 @@ void Player::update(float delta_t) {
                     break;
             }
 
-            pepper_spawned(sf::Vector2f(pepper_pos.x, pepper_pos.y), direction);
+            pepper_spawned_func(sf::Vector2f(pepper_pos.x, pepper_pos.y), direction);
         }
         // RIGHT
         else if (inputToProcess == InputSystem::Input::RIGHT &&

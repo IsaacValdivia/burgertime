@@ -27,7 +27,7 @@ protected:
     std::shared_ptr<Player> player;
     std::shared_ptr<Pepper> pepper;
 
-    std::shared_ptr<Enemy> egg;
+    std::vector<std::shared_ptr<Enemy>> enemies;
 
 
     std::shared_ptr<sf::Sprite> pepperText;

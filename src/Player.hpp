@@ -43,7 +43,7 @@ private:
 
     bool won;
 
-    nod::unsafe_signal<void(const sf::Vector2f&, Direction)> pepper_spawned;
+    std::function<void(const sf::Vector2f&, Direction)> pepper_spawned_func;
 
 public:
     Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func);

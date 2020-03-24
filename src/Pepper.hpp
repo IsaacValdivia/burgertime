@@ -23,7 +23,7 @@ private:
 
     BT_sprites::Sprite current_sprite;
 
-    nod::unsafe_signal<void()> pepper_finished;
+    std::function<void()> pepper_finished_func;
 
 public:
     Pepper(const sf::Vector2f &init_pos, const Direction type, const std::function<void()> &pepper_finished_func);
