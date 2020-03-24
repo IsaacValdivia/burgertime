@@ -15,10 +15,24 @@
  */
 class IngredientMap : public sf::Drawable {
 private:
+    static const char SAUSAGE = 'S';
+    static const char PICKLE = 'P';
+    static const char EGG = 'E';
+
+    static const char ICE_CREAM = 'I';
+    static const char COFFEE = 'C';
+    static const char FRIES = 'F';
+
+    static const char CHEF = '0';
+
     const unsigned int UPPER_MARGIN = 5 * Tile::TILE_HEIGHT;
     const unsigned int SIDE_MARGINS = 65;
 
     void fill_ingredients(const vector<string> &map_data);
+
+    static bool isEnemy(const char c);
+    static bool isItem(const char c);
+    static bool isChef(const char c);
 
 public:
     static const int MAX_ROWS = Map::MAX_ROWS;
@@ -27,6 +41,10 @@ public:
     unsigned int num_burgers;
 
     std::shared_ptr<Ingredient> data[MAX_ROWS][MAX_COLS];
+
+    std::vector<std::pair<const char, const sf::Vector2u>> enemy_spawns;
+    std::pair<char, sf::Vector2u> item_spawn;
+    sf::Vector2u chef_spawn;
 
     /**
      * Constructor, takes map coded as a vector of strings
