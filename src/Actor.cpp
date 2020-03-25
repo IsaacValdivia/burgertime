@@ -27,6 +27,14 @@ void Actor::mirror() {
     }
 }
 
+sf::FloatRect Actor::getCollisionShape() const {
+    sf::FloatRect collisionShape = sprite.getGlobalBounds();
+
+    collisionShape.left += 10;
+    collisionShape.width -= 20;
+    return collisionShape;
+}
+
 bool Actor::is_alive() const {
     return this->alive;
 }

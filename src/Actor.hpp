@@ -25,6 +25,8 @@ protected:
 public:
     Actor(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const BT_sprites::Sprite first_sprite, std::shared_ptr<Map> map);
 
+    sf::FloatRect getCollisionShape() const override;
+
     bool is_alive() const;
 
     void die();
