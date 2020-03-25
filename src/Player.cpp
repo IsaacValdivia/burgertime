@@ -337,8 +337,9 @@ void Player::update(float delta_t) {
         // Want to move.
         if (move_x != 0.0 || move_y != 0.0) {
             // Want to move and can.
-            if (map->can_actor_move(move_x, move_y, sprite)) {
+            if (map->can_actor_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
+                player_moved(*map->actorOnTiles(*this)[0]);
             }
             // Want to move but can't.
             else {
@@ -367,4 +368,9 @@ void Player::update(float delta_t) {
         BT_sprites::update_sprite(sprite, current_sprite);
     }
     last_action = new_action;
+}
+
+void Player::connect_player_moved(const std::function<void(const Tile&)> &player_moved_func)
+{
+    player_moved.connect(player_moved_func);
 }

@@ -5,17 +5,22 @@
 #include <cmath>
 #include <iostream>
 
-IA::IA(const std::shared_ptr<Map> map) : map(map)
+
+IA::IA(const std::shared_ptr<Map> map, const Tile &newGoalTile) : map(map), goalTile(&newGoalTile)
 {}
+
+void IA::setGoalTile(const Tile &newGoalTile)
+{
+    goalTile = &newGoalTile;
+}
 
 float IA::h(const Tile& from, const Tile& to) const
 {
-    // eclidean distance = sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
 
-    int x = to.col - from.col;
-    int y = to.row - from.row;
+    int x = abs(to.col - from.col);
+    int y = abs(to.row - from.row);
 
-    return sqrt(x * x + y * y);
+    return (x + y);
 }
 
 Direction IA::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFrom, const Tile& current) const
@@ -29,39 +34,37 @@ Direction IA::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFr
         previous = currentPtr;
         currentPtr = cameFrom.at(currentPtr);
     }
+    std::cout << std::endl;
 
-    // std::cout << "previous " << (int)previous->col << " " << (int)previous->row << std::endl;
 
-
-    if (previous->col > currentPtr->col)
+    sf::Vector2i direction(currentPtr->col - previous->col, currentPtr->row - previous->row);
+    if (abs(direction.x) > abs(direction.y))
     {
-        return RIGHT;
-    }
-    else if (previous->col < currentPtr->col)
-    {
-        std::cout << "nooo" << std::endl;
-        return LEFT;
-    }
-    else
-    {
-        if (previous->row > currentPtr->row)
+        if (direction.x < 0)
         {
-            return DOWN;
-        }
-        else if (previous->row < currentPtr->row)
-        {
-            return UP;
+            std::cout << direction.x << " " << direction.y << std::endl;
+            return RIGHT;
         }
         else
         {
-            // TODO: throw exception
             return LEFT;
+        }
+    }
+    else
+    {
+        if (direction.y < 0)
+        {
+            return DOWN;
+        }
+        else
+        {
+            return UP;
         }
     }
 }
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
-Direction IA::getNextMove(const Tile &startTile, const Tile &goalTile) const
+Direction IA::getNextMove(const Tile &startTile) const
 {
     // For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
     // to n currently known.
@@ -94,7 +97,7 @@ Direction IA::getNextMove(const Tile &startTile, const Tile &goalTile) const
 
         return scoreVal;
     };
-    fScore[&startTile] = h(startTile, goalTile);
+    fScore[&startTile] = h(startTile, *goalTile);
 
     // The set of discovered nodes that may need to be (re-)expanded.
     // Initially, only the start node is known.
@@ -113,7 +116,7 @@ Direction IA::getNextMove(const Tile &startTile, const Tile &goalTile) const
         // This operation can occur in O(1) time if openMinHeap is a min-heap or a priority queue
         // current := the node in openMinHeap having the lowest fScore[] value
         auto current = openMinHeap.top();
-        if (*current == goalTile)
+        if (*current == *goalTile)
         {
             return nextMoveDirection(cameFrom, *current);
         }
@@ -128,7 +131,7 @@ Direction IA::getNextMove(const Tile &startTile, const Tile &goalTile) const
                 // This path to neighbor is better than any previous one. Record it!
                 cameFrom[neighbor] = current;
                 gScore[neighbor] = tentativeGscore;
-                fScore[neighbor] = getGscore(neighbor) + h(*neighbor, goalTile);
+                fScore[neighbor] = getGscore(neighbor) + h(*neighbor, *goalTile);
                 if (openSet.find(neighbor) == openSet.end())
                 {
                     openMinHeap.push(neighbor);

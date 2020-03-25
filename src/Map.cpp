@@ -59,9 +59,13 @@ void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     }
 }
 
-std::vector<Tile> Map::player_on_tiles(const float bot_left_x, const float bot_right_x, const float bot_y) const
+std::vector<const Tile *> Map::actorOnTiles(const sf::FloatRect& collisionShape) const
 {
-    std::vector<Tile> tiles;
+    float bot_left_x = collisionShape.left;
+    float bot_right_x = collisionShape.left + collisionShape.width;
+    float bot_y = collisionShape.top + collisionShape.height;
+
+    std::vector<const Tile *> tiles;
 
     // Check left_edge
     size_t horizontal_tile_1 = (bot_left_x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH;
@@ -73,62 +77,71 @@ std::vector<Tile> Map::player_on_tiles(const float bot_left_x, const float bot_r
     size_t vertical_tile = (bot_y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT;
 
     for (int h_i = horizontal_tile_1; h_i < horizontal_tile_2 + 1; ++h_i) {
-        tiles.push_back(data[vertical_tile][h_i]);
+        if (data[vertical_tile][h_i].content != Tile::EMPTY) {
+            tiles.push_back(&data[vertical_tile][h_i]);
+        }
     }
 
     return tiles;
 }
 
+
+std::vector<const Tile *> Map::actorOnTiles(const Actor &actor) const
+{
+    auto collisionShape = actor.getCollisionShape();
+
+    return actorOnTiles(collisionShape);
+}
+
+bool Map::horizontal_platform_check(const Tile &t) const {
+    return t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth();
+}
+
+bool Map::vertical_platform_check(const Tile &t) const {
+    return t.isStairs() || t.isGoUp() || t.isGoDown() || t.isGoBoth();
+}
+
+bool Map::right_platform_check(const Tile &t) const {
+    return t.col < (MAX_COLS - 1) && data[t.row][t.col+1].isSteppableHor();
+}
+
+bool Map::left_platform_check(const Tile &t) const {
+    return t.col > 0 && data[t.row][t.col-1].isSteppableHor();
+}
+
+bool Map::up_platform_check(const Tile &t) const {
+    return t.row > 0 && data[t.row-1][t.col].isSteppableVert();
+}
+
+bool Map::down_platform_check(const Tile &t) const {
+    return t.row < (MAX_ROWS - 1) && data[t.row+1][t.col].isSteppableVert();
+}
+
 bool Map::can_move_right(const Tile &t) const {
-    // check if platform allows the movement
-    if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
-        // if next tile also allows hor movement, true
-        if (t.col < (MAX_COLS - 1) && data[t.row][t.col+1].isSteppableHor()) {
-            return true;
-        }
-    }
-    return false;
+    // check if platform allows the movement, and also right platform
+    return horizontal_platform_check(t) && right_platform_check(t);
 }
 
 bool Map::can_move_left(const Tile &t) const {
-    // check if platform allows the movement
-    if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
-        // if next tile also allows hor movement, true
-        if (t.col > 0 && data[t.row][t.col-1].isSteppableHor()) {
-            return true;
-        }
-    }
-    return false;
+    // check if platform allows the movement, and also left platform
+    return horizontal_platform_check(t) && left_platform_check(t);
 }
 
 bool Map::can_move_up(const Tile &t) const {
-    // check if platform allows the movement
-    if (t.isStairs() || t.isGoUp() || t.isGoBoth() || t.isGoDown()) {
-        // if next tile also allows hor movement, true
-        if (t.row > 0 && data[t.row-1][t.col].isSteppableVert()) {
-            return true;
-        }
-    }
-    return false;
+    // check if platform allows the movement, and also top platform
+    return vertical_platform_check(t) && up_platform_check(t);
 }
 
 bool Map::can_move_down(const Tile &t) const {
-    // check if platform allows the movement
-    if (t.isStairs() || t.isGoDown() || t.isGoBoth() || t.isGoUp()) {
-        // if next tile also allows hor movement, true
-        if (t.row < (MAX_ROWS - 1) && data[t.row+1][t.col].isSteppableVert()) {
-            return true;
-        }
-    }
-    return false;
+    // check if platform allows the movement, and also bottom platform
+    return vertical_platform_check(t) && down_platform_check(t);
 }
-
 
 bool Map::can_move_right(const Tile& t, float right_edge) const {
     // check if platform allows the movement
-    if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
+    if (horizontal_platform_check(t)) {
         // if next tile also allows hor movement, true
-        if (t.col < (MAX_COLS - 1) && data[t.row][t.col+1].isSteppableHor()) {
+        if (right_platform_check(t)) {
             return true;
         }
         // if end of tile has not been reached, true
@@ -147,9 +160,9 @@ bool Map::can_move_right(const Tile& t, float right_edge) const {
 
 bool Map::can_move_left(const Tile& t, float left_edge) const {
     // check if platform allows the movement
-    if (t.isFloor() || t.isGoUp() || t.isGoDown() || t.isGoBoth()) {
+    if (horizontal_platform_check(t)) {
         // if next tile also allows hor movement, true
-        if (t.col > 0 && data[t.row][t.col-1].isSteppableHor()) {
+        if (left_platform_check(t)) {
             return true;
         }
         // if end of tile has not been reached, true
@@ -168,9 +181,9 @@ bool Map::can_move_left(const Tile& t, float left_edge) const {
 
 bool Map::can_move_up(const Tile& t, float top_edge) const {
     // check if platform allows the movement
-    if (t.isStairs() || t.isGoUp() || t.isGoBoth() || t.isGoDown()) {
+    if (vertical_platform_check(t)) {
         // if next tile also allows hor movement, true
-        if (t.row > 0 && data[t.row-1][t.col].isSteppableVert()) {
+        if (up_platform_check(t)) {
             return true;
         }
         // if end of tile has not been reached, true
@@ -189,9 +202,9 @@ bool Map::can_move_up(const Tile& t, float top_edge) const {
 
 bool Map::can_move_down(const Tile& t, float bot_edge) const {
     // check if platform allows the movement
-    if (t.isStairs() || t.isGoDown() || t.isGoBoth() || t.isGoUp()) {
+    if (vertical_platform_check(t)) {
         // if next tile also allows hor movement, true
-        if (t.row < (MAX_ROWS - 1) && data[t.row+1][t.col].isSteppableVert()) {
+        if (down_platform_check(t)) {
             return true;
         }
         // if end of tile has not been reached, true
@@ -208,28 +221,13 @@ bool Map::can_move_down(const Tile& t, float bot_edge) const {
     }
 }
 
-/* float fix_x(float chef_center, float stairs_center) {
-        return stairs_center - chef_center;
-}*/
+bool Map::can_actor_move(float &x, float &y, const sf::FloatRect& collisionShape) const {
+    float bot_left_x = collisionShape.left;
+    float bot_right_x = collisionShape.left + collisionShape.width;
 
-bool Map::can_actor_move(float &x, float &y, const sf::Sprite& player) const {
-    // float left_edge = player.getTransform().transformPoint(Vector2f(0, 0)).x;
-    // float right_edge = player.getTransform().transformPoint(Vector2f(player.getSize().x, 0)).x;
-    // float upper_edge = player.getTransform().transformPoint(Vector2f(0, 0)).y;
-    // float lower_edge = player.getTransform().transformPoint(Vector2f(player.getSize().x, player.getSize().y)).y;
+    float bot_y = collisionShape.top + collisionShape.height;
 
-
-    float bot_left_x = player.getGlobalBounds().left + 10;
-    float bot_right_x = player.getGlobalBounds().left + player.getGlobalBounds().width - 10;
-    // float upper_edge = player.getGlobalBounds().top;
-    float bot_y = player.getGlobalBounds().top + player.getGlobalBounds().height;
-
-    // float left_edge = cur_pos.x - player_size.x / 2.0;
-    // float right_edge = cur_pos.x + player_size.x / 2.0;
-    // float upper_edge = cur_pos.y - player_size.y / 2.0;
-    // float lower_edge = cur_pos.y + player_size.y / 2.0;
-
-    std::vector<Tile> tiles_of_player = player_on_tiles(bot_left_x, bot_right_x, bot_y);
+    std::vector<const Tile *> tiles_of_player = actorOnTiles(collisionShape);
 
     bool horizontal_mov = x != 0;
     bool up = false, right = false;
@@ -240,25 +238,26 @@ bool Map::can_actor_move(float &x, float &y, const sf::Sprite& player) const {
     else {
         up = y < 0;
     }
-    if (horizontal_mov && right && can_move_right(tiles_of_player.back(), bot_right_x)) {
-        y = ((tiles_of_player[0].shape.getPosition().y + Tile::TILE_HEIGHT) - 3) - bot_y;
+
+    if (horizontal_mov && right && can_move_right(*tiles_of_player.back(), bot_right_x)) {
+        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - 3) - bot_y;
         return true;
-    } else if (horizontal_mov && !right && can_move_left(tiles_of_player.front(), bot_left_x)) {
-        y = ((tiles_of_player[0].shape.getPosition().y + Tile::TILE_HEIGHT) - 3) - bot_y;
+    } else if (horizontal_mov && !right && can_move_left(*tiles_of_player.front(), bot_left_x)) {
+        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - 3) - bot_y;
         return true;
     } else {
         short up_bot_count = 0;
         bool first_time = true;
         for (const auto &tile : tiles_of_player) {
-            if (!horizontal_mov && up && can_move_up(tile, bot_y)) {
+            if (!horizontal_mov && up && can_move_up(*tile, bot_y)) {
                 if (first_time) {
-                    x = (tile.shape.getPosition().x + Tile::TILE_WIDTH) - ((bot_right_x + bot_left_x) / 2.0);
+                    x = (tile->shape.getPosition().x + Tile::TILE_WIDTH) - ((bot_right_x + bot_left_x) / 2.0);
                     first_time = false;
                 }
                 ++up_bot_count;
-            } else if (!horizontal_mov && !up && can_move_down(tile, bot_y)) {
+            } else if (!horizontal_mov && !up && can_move_down(*tile, bot_y)) {
                 if (first_time) {
-                    x = (tile.shape.getPosition().x + Tile::TILE_WIDTH) - ((bot_right_x + bot_left_x) / 2.0);
+                    x = (tile->shape.getPosition().x + Tile::TILE_WIDTH) - ((bot_right_x + bot_left_x) / 2.0);
                     first_time = false;
                 }
                 ++up_bot_count;
@@ -270,53 +269,34 @@ bool Map::can_actor_move(float &x, float &y, const sf::Sprite& player) const {
         }
     }
 
-    // etc
-
-    // bool can_move = false;
-    // unsigned int i = 0;
-    // while (!can_move && i < tiles_of_player.size()) {
-    //     Tile &t = tiles_of_player[i];
-    //     uint8_t row = t.row, col = t.col;
-    //     if (t.isFloor()) {
-    //         if (horizontal_mov) {
-    //             if (right) {
-    //                 // Player tries to go right
-    //                 can_move = can_move_right(t, bot_right_x);
-    //             }
-    //             else {
-    //                 // Player tries to go left
-    //                 can_move = col > 0 && data[row][col-1].isSteppableHor();
-    //             }
-    //         }
-    //         else {
-    //             // Vertical movement is not possible on floor
-    //         }
-    //     }
-    //     // TO_DO: RESTO DE TIPOS DE TILE
-    //     ++i;
-    // }
-
     return false;
+}
+
+
+bool Map::can_actor_move(float &x, float &y, const Actor& actor) const {
+    auto collisionShape = actor.getCollisionShape();
+
+    return can_actor_move(x, y, collisionShape);
 }
 
 std::vector<const Tile*> Map::availableFrom(const Tile &current) const
 {
     std::vector<const Tile*> availablePaths;
 
-    if (can_move_right(current)) {
-        availablePaths.push_back(&data[current.row][current.col + 1]);
+    if (can_move_up(current)) {
+        availablePaths.push_back(&data[current.row - 1][current.col]);
     }
 
     if (can_move_down(current)) {
         availablePaths.push_back(&data[current.row + 1][current.col]);
     }
 
-    if (can_move_left(current)) {
-        availablePaths.push_back(&data[current.row][current.col - 1]);
+    if (can_move_right(current)) {
+        availablePaths.push_back(&data[current.row][current.col + 1]);
     }
 
-    if (can_move_up(current)) {
-        availablePaths.push_back(&data[current.row - 1][current.col]);
+    if (can_move_left(current)) {
+        availablePaths.push_back(&data[current.row][current.col - 1]);
     }
     
     return availablePaths;

@@ -7,9 +7,11 @@
 class IA
 {
 public:
-    IA(const std::shared_ptr<Map> map);
+    IA(const std::shared_ptr<Map> map, const Tile &newGoalTile);
 
-    Direction getNextMove(const Tile &startTile, const Tile &goalTile) const;
+    Direction getNextMove(const Tile &startTile) const;
+
+    void setGoalTile(const Tile &newGoalTile);
 
 private:
     float h(const Tile& from, const Tile& to) const;
@@ -17,4 +19,6 @@ private:
     Direction nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFrom, const Tile& current) const;
 
     std::shared_ptr<Map> map;
+    
+    const Tile *goalTile;
 };

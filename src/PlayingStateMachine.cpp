@@ -1,6 +1,7 @@
 #include "PlayingStateMachine.hpp"
 #include "InputSystem.hpp"
 #include "Enemy.hpp"
+#include <iostream>
 
 FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
 
@@ -45,12 +46,16 @@ void EnterStatePlaying::entry()
     ingmap = std::make_shared<IngredientMap>("maps/map1.ingmap");
     player = std::make_shared<Player>(map->data[0][17].shape.getPosition(), map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
 
-    auto egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, IA(map));
+    static auto ia = IA(map, map->data[0][17]);
+
+    player->connect_player_moved(std::bind(&IA::setGoalTile, &ia, std::placeholders::_1));
+
+    auto egg = std::make_shared<Enemy>(map->data[0][10].shape.getPosition(), Enemy::sausage_sprite_state_machine, map, ia);
     enemies.push_back(egg);
 
-    controller.addDrawable(egg);
     controller.addDrawable(map);
     controller.addDrawable(ingmap);
+    controller.addDrawable(egg);
     controller.addDrawable(player);
     controller.addDrawable(pepperText);
     controller.addDrawable(oneUpText);
@@ -60,17 +65,32 @@ void EnterStatePlaying::entry()
 
 void EnterStatePlaying::react(const ExecuteEvent &event)
 {
-    player->update(event.deltaT);
-
     for (const auto &enemy : enemies)
     {
-        enemy->update(event.deltaT);
+        if (player->getCollisionShape().intersects(enemy->getCollisionShape())) {
+            // TODO: tachan
+            // std::cout << "intersects" << std::endl;
+        }
     }
 
     if (pepper)
     {
+        for (const auto &enemy : enemies)
+        {
+            if (pepper->getCollisionShape().intersects(enemy->getCollisionShape())) {
+                // TODO: algo?
+                enemy->pepper();
+            }
+        }
+    }
+
+    player->update(event.deltaT);
+    for (const auto &enemy : enemies)
+    {
+        enemy->update(event.deltaT);
+    }
+    if (pepper)
+    {
         pepper->update(event.deltaT);
     }
-    // player->win();
-    // transit<StartOptionState>();
 }
