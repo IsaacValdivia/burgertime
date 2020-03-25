@@ -34,13 +34,17 @@ private:
     static bool isItem(const char c);
     static bool isChef(const char c);
 
-public:
     static const int MAX_ROWS = Map::MAX_ROWS;
     static const int MAX_COLS = Map::MAX_COLS;
 
-    unsigned int num_burgers;
-
+    bool ingredient_mask[MAX_ROWS][MAX_COLS] = {false};
     std::shared_ptr<Ingredient> data[MAX_ROWS][MAX_COLS];
+
+    sf::Vector2u retrieve_coords(const sf::Vector2f &position) const;
+    std::shared_ptr<Ingredient> retrieve_ing(const unsigned int x, const unsigned int y) const;
+
+public:
+    unsigned int num_burgers;
 
     std::vector<std::pair<const char, const sf::Vector2u>> enemy_spawns;
     std::pair<char, sf::Vector2u> item_spawn;
@@ -55,4 +59,5 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
+    void check_step(const sf::Vector2f &position);
 };
