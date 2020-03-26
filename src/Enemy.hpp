@@ -29,10 +29,10 @@ public:
     static const Sprite_state_machine pickle_sprite_state_machine[];
 
 private:
-    static constexpr float x_walking_speed = 80;
+    static constexpr float x_walking_speed = 60;
     static constexpr float y_walking_speed = x_walking_speed / 1.72;
 
-    static constexpr float walking_sprite_duration = 0.1;
+    static constexpr float walking_sprite_duration = 0.08;
     static constexpr float dying_sprite_duration = 0.1;
     static constexpr float pepper_sprite_animation = 0.27;
 
@@ -42,6 +42,11 @@ private:
 
     float acc_delta_t_pepper;
 
+    const Tile* aStarTile;
+    Direction aStarDirection;
+
+    Direction initial_direction;
+
     Action new_action;
     Action last_action;
 
@@ -49,7 +54,7 @@ private:
 
     void move(float &move_x, float &move_y, float delta_t);
 public:
-    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia);
+    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia, const Direction initial_direction);
 
     void pepper();
 

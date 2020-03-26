@@ -56,6 +56,7 @@ public:
 
     bool can_actor_move(float &x, float &y, const Actor& actor) const;
 
-    std::vector<const Tile*> availableFrom(const Tile &current) const;
+    bool outOfMap(const Actor &actor);
 
+    std::vector<const Tile *> availableFrom(const Tile &current) const;
 };

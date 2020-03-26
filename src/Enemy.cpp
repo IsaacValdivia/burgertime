@@ -279,7 +279,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
         BT_sprites::Sprite::EGG_LEFT_1, // LEFT
         BT_sprites::Sprite::EGG_LEFT_1, // RIGHT
         BT_sprites::Sprite::EGG_UPSTAIRS_1, // UP
-        BT_sprites::Sprite::EGG_DOWNSTAIRS_1, // DOWN
+        BT_sprites::Sprite::EGG_DOWNSTAIRS_2, // DOWN
         BT_sprites::Sprite::EGG_PEPPER_1, // PEPPER
         BT_sprites::Sprite::EGG_CRUSHED_1, // DIE
     },
@@ -290,7 +290,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
         BT_sprites::Sprite::EGG_LEFT_1, // LEFT
         BT_sprites::Sprite::EGG_LEFT_1, // RIGHT
         BT_sprites::Sprite::EGG_UPSTAIRS_1, // UP
-        BT_sprites::Sprite::EGG_DOWNSTAIRS_2, // DOWN
+        BT_sprites::Sprite::EGG_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::EGG_PEPPER_1, // PEPPER
         BT_sprites::Sprite::EGG_CRUSHED_1, // DIE
     },
@@ -406,20 +406,27 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
-Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia)
+Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia, const Direction initial_direction)
     : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
             sprite_state_machine[0].sprites[NONE], map),
       sprite_state_machine(sprite_state_machine),
       last_action(NONE),
       acc_delta_t_pepper(0),
-      ia(ia) {};
+      ia(ia),
+      initial_direction(initial_direction),
+      aStarDirection(Direction::LEFT),
+      aStarTile(nullptr){};
 
-void Enemy::pepper() {
+void Enemy::pepper()
+{
     acc_delta_t_pepper = 0;
     last_action = PEPPER;
 }
 
 void Enemy::move(float &move_x, float &move_y, float delta_t) {
+    move_x = 0;
+    move_y = 0;
+
     switch (direction) {
     case Direction::LEFT:
 
@@ -473,45 +480,75 @@ void Enemy::update(float delta_t) {
     else {
         acc_delta_t_pepper = 0;
 
-        Direction backup_dir = direction;
+        float move_x;
+        float move_y;
 
-        //fprintf(stderr, "Dir antes = %d\n", direction);
-
-        const Tile &t = *map->actorOnTiles(*this)[0];
-
-        if (t.isConnector()) {
-            direction = ia.getNextMove(t);
-        }
-
-        //fprintf(stderr, "Dir despues = %d\n", direction);
-
-        float move_x = 0;
-        float move_y = 0;
-
-        move(move_x, move_y, delta_t);
-
-        // Want to move and can.
-        if (map->can_actor_move(move_x, move_y, *this)) {
-            sprite.move(move_x, move_y);
-        }
-        // Want to move but can't.
-        else {
-            direction = backup_dir;
-
-            move_x = 0;
-            move_y = 0;
+        if (map->outOfMap(*this)) {
+            direction = initial_direction;
 
             move(move_x, move_y, delta_t);
+            sprite.move(move_x, move_y);
+        }
+        else {
+            Direction backup_dir = direction;
 
-            if (map->can_actor_move(move_x, move_y, *this)) {
-                //fprintf(stderr, "WANT TO MOVE BUT CANT\n");
-                sprite.move(move_x, move_y);
+            std::vector<const Tile *> actorOnTiles = map->actorOnTiles(*this);
+
+            const Tile &t = *actorOnTiles[0];
+
+            bool aStartCalled = false;
+
+            for (auto tile : actorOnTiles) {
+                if (tile == aStarTile) {
+                    aStartCalled = true;
+
+                    break;
+                }
+            }
+
+            if (!aStartCalled && t.isConnector()) {
+                direction = ia.getNextMove(t);
+                fprintf(stderr, "ASTAR\n");
+                aStarDirection = direction;
+                aStarTile = &t; 
             }
             else {
-                // NO DEBERIA PASAR
-                // TODO: EXCEPTION.
-                //fprintf(stderr, "This should not happen x2\n");
-                return;
+                direction = aStarDirection;
+            }
+
+            move(move_x, move_y, delta_t);
+            // Want to move and can.
+            if (map->can_actor_move(move_x, move_y, *this)) {
+                sprite.move(move_x, move_y);
+            }
+            // Want to move but can't.
+            else {
+                direction = backup_dir;
+
+                move(move_x, move_y, delta_t);
+
+                if (map->can_actor_move(move_x, move_y, *this)) {
+                    //fprintf(stderr, "WANT TO MOVE BUT CANT\n");
+                    sprite.move(move_x, move_y);
+                }
+                else {
+                    if (direction == Direction::LEFT) {
+                        direction = Direction::RIGHT;
+                    }
+                    else {
+                        direction = Direction::LEFT;
+                    }
+
+                    move(move_x, move_y, delta_t);
+
+                    if (map->can_actor_move(move_x, move_y, *this)) {
+                        fprintf(stderr, "direction = %d\n", direction);
+                        sprite.move(move_x, move_y);
+                    }
+                    else {
+                        fprintf(stderr, "AHORA SI QUE HAY ALGO REALMENTE MAL\n");
+                    }
+                }
             }
         }
     }

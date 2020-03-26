@@ -8,6 +8,7 @@ private:
     bool falling;
     
 public:
+    bool stepped;
     uint8_t row;
     uint8_t col;
 
@@ -16,5 +17,7 @@ public:
 
     void update(float delta_t) override;
 
+    void step();
     void drop();
+    void land();
 };

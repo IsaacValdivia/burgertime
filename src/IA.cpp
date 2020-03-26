@@ -34,15 +34,12 @@ Direction IA::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFr
         previous = currentPtr;
         currentPtr = cameFrom.at(currentPtr);
     }
-    std::cout << std::endl;
-
 
     sf::Vector2i direction(currentPtr->col - previous->col, currentPtr->row - previous->row);
     if (abs(direction.x) > abs(direction.y))
     {
         if (direction.x < 0)
         {
-            std::cout << direction.x << " " << direction.y << std::endl;
             return RIGHT;
         }
         else

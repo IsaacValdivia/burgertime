@@ -35,4 +35,5 @@ public:
     void update(float delta_t) override;
     
     void drop();
+    void land();
 };

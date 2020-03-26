@@ -12,7 +12,7 @@ void Map::fill_tiles(const vector<string> &map_data) {
         for (auto& content : row) {
             float x = SIDE_MARGINS + j * Tile::TILE_WIDTH;
             float y = UPPER_MARGIN + i * Tile::TILE_HEIGHT;
-            if (content == Tile::STAIRS || content == Tile::GO_UP || content == Tile::GO_BOTH) {
+            if (content == Tile::STAIRS || content == Tile::GO_UP || content == Tile::GO_BOTH || content == Tile::BASKET_EDGE) {
                 double_placed = !double_placed;
             }
             data[i][j] = Tile(x, y, i, j, content, double_placed);
@@ -272,6 +272,25 @@ bool Map::can_actor_move(float &x, float &y, const sf::FloatRect& collisionShape
     return false;
 }
 
+bool Map::outOfMap(const Actor &actor) {
+    auto collisionShape = actor.getCollisionShape();
+
+    float bot_left_x = collisionShape.left;
+    float bot_right_x = collisionShape.left + collisionShape.width;
+
+    // Check left_edge
+    float horizontal_tile_1 = (bot_left_x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH;
+
+    // Check right_edge
+    float horizontal_tile_2 = (bot_right_x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH;
+
+    if (horizontal_tile_1 < 0.0 || horizontal_tile_2 >= MAX_COLS)
+    {
+        return true;
+    }
+
+    return false;
+}
 
 bool Map::can_actor_move(float &x, float &y, const Actor& actor) const {
     auto collisionShape = actor.getCollisionShape();
@@ -291,13 +310,14 @@ std::vector<const Tile*> Map::availableFrom(const Tile &current) const
         availablePaths.push_back(&data[current.row + 1][current.col]);
     }
 
+    if (can_move_left(current)) {
+        availablePaths.push_back(&data[current.row][current.col - 1]);
+    }
+
     if (can_move_right(current)) {
         availablePaths.push_back(&data[current.row][current.col + 1]);
     }
 
-    if (can_move_left(current)) {
-        availablePaths.push_back(&data[current.row][current.col - 1]);
-    }
     
     return availablePaths;
 }

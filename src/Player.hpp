@@ -23,10 +23,10 @@ private:
         NUM_ACTIONS
     };
 
-    static constexpr float x_walking_speed = 80;
+    static constexpr float x_walking_speed = 90;
     static constexpr float y_walking_speed = x_walking_speed / 1.72;
 
-    static constexpr float walking_sprite_duration = 0.1;
+    static constexpr float walking_sprite_duration = 0.08;
     static constexpr float peppering_sprite_duration = 0.1;
     static constexpr float end_game_sprite_duration = 0.2;
 

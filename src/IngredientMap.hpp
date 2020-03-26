@@ -15,10 +15,6 @@
  */
 class IngredientMap : public sf::Drawable {
 private:
-    static const char SAUSAGE = 'S';
-    static const char PICKLE = 'P';
-    static const char EGG = 'E';
-
     static const char ICE_CREAM = 'I';
     static const char COFFEE = 'C';
     static const char FRIES = 'F';
@@ -44,6 +40,10 @@ private:
     std::shared_ptr<Ingredient> retrieve_ing(const unsigned int x, const unsigned int y) const;
 
 public:
+    static const char SAUSAGE = 'S';
+    static const char PICKLE = 'P';
+    static const char EGG = 'E';
+
     unsigned int num_burgers;
 
     std::vector<std::pair<const char, const sf::Vector2u>> enemy_spawns;

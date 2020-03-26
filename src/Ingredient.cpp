@@ -70,7 +70,17 @@ void Ingredient::update(float delta_t) {
 			piece->update(delta_t);
 		}
 	} else {
-		// TO_DO? : Se ha pisado, etc?
+		// COUNT NUMBER OF STEPS
+		unsigned int step_num = 0;
+		for (auto &piece : pieces) {
+			if (piece->stepped) {
+				++step_num;
+			}
+		}
+		// FALLING TO TRUE IF 4
+		if (step_num >= 4) {
+			drop();
+		}
 	}
 }
 
@@ -78,5 +88,12 @@ void Ingredient::drop() {
 	falling = true;
 	for (auto piece : pieces) {
 		piece->drop();
+	}
+}
+
+void Ingredient::land() {
+	falling = false;
+	for (auto piece : pieces) {
+		piece->land();
 	}
 }
