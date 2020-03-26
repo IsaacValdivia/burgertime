@@ -4,6 +4,9 @@ StaticTexture Tile::floor_tex(FLOOR_PATH);
 StaticTexture Tile::go_up_both_tex(GO_UP_BOTH_PATH);
 StaticTexture Tile::go_down_tex(GO_DOWN_PATH);
 StaticTexture Tile::stairs_tex(STAIRS_PATH);
+StaticTexture Tile::left_basket_tex(LEFT_BASKET_PATH);
+StaticTexture Tile::mid_basket_tex(MID_BASKET_PATH);
+StaticTexture Tile::right_basket_tex(RIGHT_BASKET_PATH);
 
 Tile::Tile() : col(0), row(0), content(EMPTY) {
 	shape.setPosition(0.0, 0.0);
@@ -34,7 +37,19 @@ Tile::Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _
         else {
             shape.setTextureRect(sf::IntRect(TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT));
         }
-	} else {
+	}
+	else if (this->isBasket()) {
+		shape.setTexture(&mid_basket_tex.tex);
+	}
+	else if (this->isBasketEdge()) {
+		if (_left) {
+			shape.setTexture(&left_basket_tex.tex);
+		}
+		else {
+			shape.setTexture(&right_basket_tex.tex);
+		}
+	}
+	else {
         shape.setFillColor(sf::Color::Black);
     }
 };
@@ -93,6 +108,14 @@ bool Tile::isConnector() const {
 
 bool Tile::isStairs() const {
 	return content == STAIRS;
+}
+
+bool Tile::isBasket() const {
+	return content == BASKET;
+}
+
+bool Tile::isBasketEdge() const {
+	return content == BASKET_EDGE;
 }
 
 bool Tile::isSteppableHor() const {

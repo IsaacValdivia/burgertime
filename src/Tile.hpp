@@ -11,6 +11,9 @@ private:
     static constexpr auto GO_UP_BOTH_PATH = "img/go_up.png";
     static constexpr auto GO_DOWN_PATH = "img/go_down.png";
     static constexpr auto STAIRS_PATH = "img/stairs.png";
+    static constexpr auto LEFT_BASKET_PATH = "img/left_basket.png";
+    static constexpr auto MID_BASKET_PATH = "img/mid_basket.png";
+    static constexpr auto RIGHT_BASKET_PATH = "img/right_basket.png";
 
 public:    
     // Tile codes for regular, inner tiles
@@ -19,6 +22,8 @@ public:
     static const char GO_DOWN = 'v';
     static const char GO_BOTH = '|';
     static const char STAIRS = '#';
+    static const char BASKET_EDGE = '-';
+    static const char BASKET = 'u';
     // Empty tile (background)
     static const char EMPTY = ' ';
 
@@ -29,9 +34,10 @@ public:
     static StaticTexture go_up_both_tex;
     static StaticTexture go_down_tex;
     static StaticTexture stairs_tex;
+    static StaticTexture left_basket_tex;
+    static StaticTexture mid_basket_tex;
+    static StaticTexture right_basket_tex;
 
-    //unsigned int x;
-    //unsigned int y;
     uint8_t col;
     uint8_t row;
     char content;
@@ -56,6 +62,8 @@ public:
     bool isGoBoth() const;
     bool isConnector() const;
     bool isStairs() const;
+    bool isBasketEdge() const;
+    bool isBasket() const;
     bool isSteppableHor() const;
     bool isSteppableVert() const;
 };
