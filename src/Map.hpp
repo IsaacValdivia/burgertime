@@ -37,8 +37,10 @@ private:
     bool can_move_down(const Tile& t, float bot_edge) const;
 
 public:
-    static constexpr int MAX_ROWS = 30;
+    static constexpr int MAX_ROWS = 24;
     static constexpr int MAX_COLS = 26;
+
+    static constexpr int Y_PADDING = 3;
 
     Tile data[MAX_ROWS][MAX_COLS];
 

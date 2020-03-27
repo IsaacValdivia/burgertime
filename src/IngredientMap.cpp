@@ -25,21 +25,22 @@ void IngredientMap::fill_ingredients(const vector<string> &map_data) {
         for (auto& content : row) {
             if (content != Ingredient::NOT_ING) {
                 if (isEnemy(content)) {
-                    enemy_spawns.push_back(std::make_pair(content, sf::Vector2u(i,j)));
+                    enemy_spawns.push_front(std::make_pair(content, sf::Vector2u(i,j)));
                 } else if (isItem(content)) {
                     item_spawn.first = content;
                     item_spawn.second = sf::Vector2u(i,j);
                 } else if (isChef(content)) {
                     chef_spawn = sf::Vector2u(i,j);
                 } else {
-                    ingredient_mask[i][j] = true;
+                    //ingredient_mask[i][j] = true;
                     if (ing_found <= 0) {
                         if (content == Ingredient::TOP_BUN) {
                             ++num_burgers;
                         }
                         float x = SIDE_MARGINS + j * Tile::TILE_WIDTH;
                         float y = UPPER_MARGIN + i * Tile::TILE_HEIGHT;
-                        data[i][j] = std::make_shared<Ingredient>(x, y, i, j, content);
+                        data.push_back(Ingredient(x, y, i, j, content));
+                        //data[i][j] = std::make_shared<Ingredient>(x, y, i, j, content);
                     }
                     ing_found = (ing_found + 1) % 4;
                 }
@@ -80,40 +81,36 @@ IngredientMap::IngredientMap(const string &filename) : num_burgers(0) {
 }
 
 void IngredientMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (auto &row : data) {
-        for (auto &ing : row) {
-            if (ing) {
-                target.draw(*ing, states);
-            }
-        }
+    for (auto &ing : data) {
+        target.draw(ing, states);
     }
 }
 
-sf::Vector2u IngredientMap::retrieve_coords(const sf::Vector2f &position) const {
-    return sf::Vector2u((position.x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH, (position.y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT);
-}
+// sf::Vector2u IngredientMap::retrieve_coords(const sf::Vector2f &position) const {
+//     return sf::Vector2u((position.x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH, (position.y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT);
+// }
 
-std::shared_ptr<Ingredient> IngredientMap::retrieve_ing(const unsigned int x, const unsigned int y) const {
-    if (data[x][y]) {
-        return data[x][y];
-    }
-    else if (data[x-1][y]) {
-        return data[x-1][y];
-    }
-    else if (data[x-2][y]) {
-        return data[x-2][y];
-    }
-    else {
-        return data[x-3][y];
-    }
-}
+// std::shared_ptr<Ingredient> IngredientMap::retrieve_ing(const unsigned int x, const unsigned int y) const {
+//     if (data[x][y]) {
+//         return data[x][y];
+//     }
+//     else if (data[x-1][y]) {
+//         return data[x-1][y];
+//     }
+//     else if (data[x-2][y]) {
+//         return data[x-2][y];
+//     }
+//     else {
+//         return data[x-3][y];
+//     }
+// }
 
-void IngredientMap::check_step(const sf::Vector2f &position) {
-    // A partir de x e y, ver si hay que actualizar ingrediente
-    const sf::Vector2u step_coords = retrieve_coords(position);
-    // Si si, actualizar ingrediente
-    if (ingredient_mask[step_coords.x][step_coords.y]) {
-        std::shared_ptr<Ingredient> ing = retrieve_ing(step_coords.x, step_coords.y);
-        //ing->update();
-    }
-}
+// void IngredientMap::check_step(const sf::Vector2f &position) {
+//     // A partir de x e y, ver si hay que actualizar ingrediente
+//     const sf::Vector2u step_coords = retrieve_coords(position);
+//     // Si si, actualizar ingrediente
+//     if (ingredient_mask[step_coords.x][step_coords.y]) {
+//         std::shared_ptr<Ingredient> ing = retrieve_ing(step_coords.x, step_coords.y);
+//         //ing->update();
+//     }
+// }

@@ -1,11 +1,11 @@
 # Set the compiler.
-CC=g++
+CC=g++-8
 
 CFLAGS+=-MD -MP # Autogenerate dependencies.
-CFLAGS+=-O0 -ggdb -std=c++11
+CFLAGS+=-O0 -ggdb -std=c++17
 CFLAGS+=-Iinclude
 
-LIBS=-lsfml-graphics -lsfml-window -lsfml-system
+LIBS=-lsfml-graphics -lsfml-window -lsfml-system -lstdc++fs
 
 # Directories.
 BINDIR=bin

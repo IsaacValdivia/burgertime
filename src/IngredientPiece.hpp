@@ -6,6 +6,8 @@
 class IngredientPiece : public Entity {
 private:
     bool falling;
+
+    static constexpr auto y_movement = 1.2;
     
 public:
     bool stepped;
@@ -17,7 +19,9 @@ public:
 
     void update(float delta_t) override;
 
+    bool isStepped();
     void step();
+    void move();
     void drop();
     void land();
 };

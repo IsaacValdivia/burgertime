@@ -11,6 +11,10 @@ static constexpr auto ASPECT_RATIO = WINDOW_WIDTH / static_cast<float>(WINDOW_HE
 static constexpr auto WINDOW_TITLE = "Burger Time!";
 static constexpr auto FONT_FILE = "resources/PressStart2P-vaV7.ttf";
 static constexpr auto SPRITES_FILE = "img/burger_time_characters_and_objects_sprites.png";
+static constexpr auto MAPS_FOLDER = "maps";
+static constexpr auto MAP_EXTENSION = ".map";
+static constexpr auto INGMAP_EXTENSION = ".ingmap";
+
 
 enum Direction {
     LEFT,

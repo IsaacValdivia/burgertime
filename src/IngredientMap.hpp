@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <array>
 #include <memory>
 
@@ -16,7 +17,7 @@
 class IngredientMap : public sf::Drawable {
 private:
     static const char ICE_CREAM = 'I';
-    static const char COFFEE = 'C';
+    static const char COFFEE = 'D';
     static const char FRIES = 'F';
 
     static const char CHEF = '0';
@@ -33,11 +34,10 @@ private:
     static const int MAX_ROWS = Map::MAX_ROWS;
     static const int MAX_COLS = Map::MAX_COLS;
 
-    bool ingredient_mask[MAX_ROWS][MAX_COLS] = {false};
-    std::shared_ptr<Ingredient> data[MAX_ROWS][MAX_COLS];
+    //bool ingredient_mask[MAX_ROWS][MAX_COLS] = {false};
 
-    sf::Vector2u retrieve_coords(const sf::Vector2f &position) const;
-    std::shared_ptr<Ingredient> retrieve_ing(const unsigned int x, const unsigned int y) const;
+    // sf::Vector2u retrieve_coords(const sf::Vector2f &position) const;
+    // std::shared_ptr<Ingredient> retrieve_ing(const unsigned int x, const unsigned int y) const;
 
 public:
     static const char SAUSAGE = 'S';
@@ -46,7 +46,10 @@ public:
 
     unsigned int num_burgers;
 
-    std::vector<std::pair<const char, const sf::Vector2u>> enemy_spawns;
+    std::shared_ptr<Map> my_map;
+    std::vector<Ingredient> data;
+
+    std::list<std::pair<const char, const sf::Vector2u>> enemy_spawns;
     std::pair<char, sf::Vector2u> item_spawn;
     sf::Vector2u chef_spawn;
 
@@ -59,5 +62,5 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    void check_step(const sf::Vector2f &position);
+    // void check_step(const sf::Vector2f &position);
 };

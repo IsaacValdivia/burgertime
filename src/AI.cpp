@@ -1,4 +1,4 @@
-#include "IA.hpp"
+#include "AI.hpp"
 #include <set>
 #include <queue>
 #include <map>
@@ -6,15 +6,15 @@
 #include <iostream>
 
 
-IA::IA(const std::shared_ptr<Map> map, const Tile &newGoalTile) : map(map), goalTile(&newGoalTile)
+AI::AI(const std::shared_ptr<Map> map, const Tile &newGoalTile) : map(map), goalTile(&newGoalTile)
 {}
 
-void IA::setGoalTile(const Tile &newGoalTile)
+void AI::setGoalTile(const Tile &newGoalTile)
 {
     goalTile = &newGoalTile;
 }
 
-float IA::h(const Tile& from, const Tile& to) const
+float AI::h(const Tile& from, const Tile& to) const
 {
 
     int x = abs(to.col - from.col);
@@ -23,7 +23,7 @@ float IA::h(const Tile& from, const Tile& to) const
     return (x + y);
 }
 
-Direction IA::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFrom, const Tile& current) const
+Direction AI::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFrom, const Tile& current) const
 {
     const Tile *previous;
     const Tile *currentPtr = &current;
@@ -36,18 +36,7 @@ Direction IA::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFr
     }
 
     sf::Vector2i direction(currentPtr->col - previous->col, currentPtr->row - previous->row);
-    if (abs(direction.x) > abs(direction.y))
-    {
-        if (direction.x < 0)
-        {
-            return RIGHT;
-        }
-        else
-        {
-            return LEFT;
-        }
-    }
-    else
+    if (abs(direction.x) < abs(direction.y))
     {
         if (direction.y < 0)
         {
@@ -58,10 +47,21 @@ Direction IA::nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFr
             return UP;
         }
     }
+    else
+    {
+        if (direction.x < 0)
+        {
+            return RIGHT;
+        }
+        else
+        {
+            return LEFT;
+        }
+    }
 }
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
-Direction IA::getNextMove(const Tile &startTile) const
+Direction AI::getNextMove(const Tile &startTile) const
 {
     // For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
     // to n currently known.

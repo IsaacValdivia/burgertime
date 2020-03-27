@@ -2,30 +2,14 @@
 #include "InputSystem.hpp"
 #include "Enemy.hpp"
 #include <iostream>
+#include <filesystem>
 
-
+namespace fs = std::filesystem;
 
 FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
 
 BurgerTimeController &PlayingStateMachine::controller = BurgerTimeController::get();
 GUI &PlayingStateMachine::gui = GUI::get();
-
-// struct GameInfo
-// {
-//     std::shared_ptr<Map> map;
-//     std::shared_ptr<IngredientMap> ingmap;
-//     std::shared_ptr<Player> player;
-//     std::shared_ptr<Pepper> pepper;
-
-//     std::vector<std::shared_ptr<Enemy>> enemies;
-
-
-//     std::shared_ptr<sf::Sprite> pepperText;
-
-//     uint32_t currentScore;
-// };
-
-// std::unique_ptr<GameInfo> gameInfo;
 
 void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Direction direction)
 {
@@ -55,6 +39,7 @@ void EnterStatePlaying::entry()
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
     // TODO: change
+    gameInfo->currentMap = 5;
     gameInfo->currentScore = 0;
     controller.clearScreen();
 
@@ -83,22 +68,49 @@ void EnterStatePlaying::entry()
     // currentScoreText->setScale(0.5, 0.5);
     // currentScoreText->setPosition( * WINDOW_WIDTH / 100 , 2 * WINDOW_HEIGHT / 100);
 
-    gameInfo->map = std::make_shared<Map>("maps/map1.map");
-    gameInfo->ingmap = std::make_shared<IngredientMap>("maps/map1.ingmap");
-    auto playerSpawnTile = gameInfo->map->data[gameInfo->ingmap->chef_spawn.x][gameInfo->ingmap->chef_spawn.y];
-    gameInfo->player = std::make_shared<Player>(playerSpawnTile.shape.getPosition(), gameInfo->map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
+    std::vector<fs::path> paths;
+    for (const auto &mapFile : fs::directory_iterator(MAPS_FOLDER))
+    {
+        if (mapFile.is_regular_file())
+        {
+            paths.push_back(mapFile.path());
+        }
+    }
+    //std::greater<string>();
+    std::sort(paths.begin(), paths.end());
 
-    static auto ia = IA(gameInfo->map, playerSpawnTile);
+    for (const auto &mapPath : paths)
+    { 
+        if (mapPath.extension().string() == MAP_EXTENSION)
+        {
+            gameInfo->maps.push_back(std::make_shared<Map>(mapPath.string()));
+        }
+        else if (mapPath.extension().string() == INGMAP_EXTENSION)
+        {
+            gameInfo->ingMaps.push_back(std::make_shared<IngredientMap>(mapPath.string()));
+        }
+    }
+
+    auto &map = gameInfo->maps[gameInfo->currentMap];
+    auto &ingMap = gameInfo->ingMaps[gameInfo->currentMap];
+
+    const auto &playerSpawnTile = map->data[ingMap->chef_spawn.x][ingMap->chef_spawn.y];
+
+    sf::Vector2f initPos = playerSpawnTile.shape.getPosition();
+    initPos.y -= Map::Y_PADDING;
+    gameInfo->player = std::make_shared<Player>(initPos, map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
+
+    static auto ia = AI(map, playerSpawnTile);
 
     // TODO: cambiar
     float offset = 1;
-    for (const auto &enemySpawn : gameInfo->ingmap->enemy_spawns)
+    for (const auto &enemySpawn : ingMap->enemy_spawns)
     {
-        // gameInfo->ias.emplace_back(gameInfo->map, gameInfo->map->data[0][17]);
+        // gameInfo->ias.emplace_back(map, map->data[0][17]);
 
         // ias.push_back(ia);
-        gameInfo->player->connect_player_moved(std::bind(&IA::setGoalTile, &ia, std::placeholders::_1));
-        // gameInfo->player->connect_player_moved(std::bind(&IA::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
+        gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &ia, std::placeholders::_1));
+        // gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
         const Enemy::Sprite_state_machine *enemySprites;
         switch (enemySpawn.first)
         {
@@ -113,7 +125,7 @@ void EnterStatePlaying::entry()
                 break;
         }
 
-        auto initialPos = gameInfo->map->data[enemySpawn.second.x][enemySpawn.second.y].shape.getPosition();
+        auto initialPos = map->data[enemySpawn.second.x][enemySpawn.second.y].shape.getPosition();
         Direction initialDir;
         if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
         {
@@ -125,16 +137,18 @@ void EnterStatePlaying::entry()
             initialDir = Direction::LEFT;
             initialPos.x += offset * 5 * Tile::TILE_WIDTH;
         }
+        initialPos.y -= Map::Y_PADDING;
+
         // sf::Vector2
 
         offset += 1.2;
 
-        gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, gameInfo->map, ia, initialDir));
-        // gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, gameInfo->map, gameInfo->ias.back(), initialDir));
+        gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, ia, initialDir));
+        // gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, gameInfo->ias.back(), initialDir));
     }
 
-    controller.addDrawable(gameInfo->map);
-    controller.addDrawable(gameInfo->ingmap);
+    controller.addDrawable(map);
+    controller.addDrawable(ingMap);
     for (const auto &enemy : gameInfo->enemies)
     {
         controller.addDrawable(enemy);
@@ -164,6 +178,11 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
         }
     }
 
+    for (const auto &ingredient : gameInfo->ingMaps[gameInfo->currentMap]->data)
+    {
+        ingredient.stepped(gameInfo->player->getCollisionShape());
+    }
+
     if (gameInfo->pepper)
     {
         for (const auto &enemy : gameInfo->enemies)
@@ -176,10 +195,17 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
     }
 
     gameInfo->player->update(event.deltaT);
+
     for (const auto &enemy : gameInfo->enemies)
     {
         enemy->update(event.deltaT);
     }
+
+    for (auto &ingredient : gameInfo->ingMaps[gameInfo->currentMap]->data)
+    {
+        ingredient.update(event.deltaT);
+    }
+
     if (gameInfo->pepper)
     {
         gameInfo->pepper->update(event.deltaT);

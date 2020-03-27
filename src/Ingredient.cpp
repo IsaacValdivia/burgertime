@@ -97,3 +97,33 @@ void Ingredient::land() {
 		piece->land();
 	}
 }
+
+void Ingredient::stepped(const sf::FloatRect &rectangle) const {
+	for (int i = 0; i < ING_LENGTH; ++i) {
+		if (pieces[i]->getCollisionShape().intersects(rectangle) && !pieces[i]->isStepped()) {
+			pieces[i]->step();
+			pieces[i]->move();
+			
+			// LEFT
+			for (int j = i - 1; j >= 0; --j) {
+				if (pieces[j]->isStepped()) {
+					pieces[j]->move();
+				}
+				else {
+					break;
+				}
+			}
+
+			for (int k = i + 1; k < ING_LENGTH; k++) {
+				if (pieces[k]->isStepped()) {
+					pieces[k]->move();
+				}
+				else {
+					break;
+				}
+			}
+
+			return;
+		}
+	}
+}

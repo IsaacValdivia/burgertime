@@ -24,20 +24,20 @@ public:
 protected:
     struct GameInfo
     {
-        std::shared_ptr<Map> map;
-        std::shared_ptr<IngredientMap> ingmap;
+        std::vector<std::shared_ptr<Map>> maps;
+        std::vector<std::shared_ptr<IngredientMap>> ingMaps;
+
         std::shared_ptr<Player> player;
         std::shared_ptr<Pepper> pepper;
 
         std::vector<std::shared_ptr<Enemy>> enemies;
-
-        std::vector<IA> ias;
 
         std::shared_ptr<sf::Sprite> pepperText;
 
         std::array<std::shared_ptr<sf::RectangleShape>, 2> curtains;
 
         uint32_t currentScore;
+        size_t currentMap;
     };
 
     void changeGameInfo();

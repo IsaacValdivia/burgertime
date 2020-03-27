@@ -4,10 +4,10 @@
 #include "Map.hpp"
 #include "Constants.hpp"
 
-class IA
+class AI
 {
 public:
-    IA(const std::shared_ptr<Map> map, const Tile &newGoalTile);
+    AI(const std::shared_ptr<Map> map, const Tile &newGoalTile);
 
     Direction getNextMove(const Tile &startTile) const;
 

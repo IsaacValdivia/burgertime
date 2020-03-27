@@ -6,6 +6,7 @@
 #include "BT_sprites.hpp"
 #include "Updrawable.hpp"
 #include "IngredientPiece.hpp"
+#include "Map.hpp"
 
 class Ingredient : public Updrawable {
 private:
@@ -25,6 +26,8 @@ public:
     uint8_t row;
     char content;
 
+    std::shared_ptr<Map> my_map;
+
     std::shared_ptr<IngredientPiece> pieces[ING_LENGTH];
 
     Ingredient(const float _x, const float _y, const uint8_t _col, const uint8_t _row, const char _content);
@@ -33,6 +36,8 @@ public:
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
     void update(float delta_t) override;
+
+    void stepped(const sf::FloatRect &rectangle) const;
     
     void drop();
     void land();

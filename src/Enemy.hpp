@@ -4,7 +4,7 @@
 
 #include "memory"
 #include "Actor.hpp"
-#include "IA.hpp"
+#include "AI.hpp"
 
 class Enemy : public Actor {
 public:
@@ -46,15 +46,16 @@ private:
     Direction aStarDirection;
 
     Direction initial_direction;
+    bool initialMovement;
 
     Action new_action;
     Action last_action;
 
-    const IA &ia;
+    const AI &ia;
 
     void move(float &move_x, float &move_y, float delta_t);
 public:
-    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia, const Direction initial_direction);
+    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction);
 
     void pepper();
 

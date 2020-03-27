@@ -11,12 +11,19 @@ IngredientPiece::IngredientPiece(const sf::Vector2f& _init_pos, BT_sprites::Spri
 
 void IngredientPiece::update(float delta_t) {
     // UPDATE IS ONLY CALLED WHEN INGREDIENT IS FALLING
-    this->sprite.move(0,10.0);
+    this->sprite.move(0,60 * delta_t);
 }
 
 void IngredientPiece::step() {
     stepped = true;
-    this->sprite.move(0,10.0);
+}
+
+bool IngredientPiece::isStepped() {
+    return stepped;
+}
+
+void IngredientPiece::move() {
+    this->sprite.move(0, y_movement);
 }
 
 void IngredientPiece::drop() {

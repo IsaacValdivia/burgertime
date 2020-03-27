@@ -406,7 +406,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
-Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const IA &ia, const Direction initial_direction)
+Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction)
     : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
             sprite_state_machine[0].sprites[NONE], map),
       sprite_state_machine(sprite_state_machine),
@@ -415,7 +415,8 @@ Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_sta
       ia(ia),
       initial_direction(initial_direction),
       aStarDirection(Direction::LEFT),
-      aStarTile(nullptr){};
+      aStarTile(nullptr),
+      initialMovement(true) {};
 
 void Enemy::pepper()
 {
@@ -475,6 +476,8 @@ void Enemy::update(float delta_t) {
     // PEPPER
     else if (last_action == PEPPER && acc_delta_t_pepper < pepper_duration) {
         new_action = PEPPER;
+
+        aStarTile = nullptr;
     }
     // A*/MOVE
     else {
@@ -483,13 +486,15 @@ void Enemy::update(float delta_t) {
         float move_x;
         float move_y;
 
-        if (map->outOfMap(*this)) {
+        if (map->outOfMap(*this) && initialMovement) {
             direction = initial_direction;
 
             move(move_x, move_y, delta_t);
             sprite.move(move_x, move_y);
         }
         else {
+            initialMovement = false;
+
             Direction backup_dir = direction;
 
             std::vector<const Tile *> actorOnTiles = map->actorOnTiles(*this);
@@ -508,7 +513,6 @@ void Enemy::update(float delta_t) {
 
             if (!aStartCalled && t.isConnector()) {
                 direction = ia.getNextMove(t);
-                fprintf(stderr, "ASTAR\n");
                 aStarDirection = direction;
                 aStarTile = &t; 
             }
@@ -528,7 +532,7 @@ void Enemy::update(float delta_t) {
                 move(move_x, move_y, delta_t);
 
                 if (map->can_actor_move(move_x, move_y, *this)) {
-                    //fprintf(stderr, "WANT TO MOVE BUT CANT\n");
+                    fprintf(stderr, "WANT TO MOVE BUT CANT\n");
                     sprite.move(move_x, move_y);
                 }
                 else {
@@ -539,10 +543,14 @@ void Enemy::update(float delta_t) {
                         direction = Direction::LEFT;
                     }
 
+                    aStarDirection = direction;
+                    aStarTile = nullptr;
+
+                    fprintf(stderr, "VUELVE");
+
                     move(move_x, move_y, delta_t);
 
                     if (map->can_actor_move(move_x, move_y, *this)) {
-                        fprintf(stderr, "direction = %d\n", direction);
                         sprite.move(move_x, move_y);
                     }
                     else {

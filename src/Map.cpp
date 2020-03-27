@@ -208,7 +208,7 @@ bool Map::can_move_down(const Tile& t, float bot_edge) const {
             return true;
         }
         // if end of tile has not been reached, true
-        float tile_edge = t.shape.getPosition().y + Tile::TILE_HEIGHT - 3;
+        float tile_edge = t.shape.getPosition().y + Tile::TILE_HEIGHT - Y_PADDING;
         if (bot_edge < tile_edge /* - HOR_COLL_LOOKAHEAD_CORR */) {
             return true;
         }
@@ -240,10 +240,10 @@ bool Map::can_actor_move(float &x, float &y, const sf::FloatRect& collisionShape
     }
 
     if (horizontal_mov && right && can_move_right(*tiles_of_player.back(), bot_right_x)) {
-        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - 3) - bot_y;
+        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - Y_PADDING) - bot_y;
         return true;
     } else if (horizontal_mov && !right && can_move_left(*tiles_of_player.front(), bot_left_x)) {
-        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - 3) - bot_y;
+        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - Y_PADDING) - bot_y;
         return true;
     } else {
         short up_bot_count = 0;
