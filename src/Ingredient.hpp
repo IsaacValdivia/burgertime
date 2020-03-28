@@ -9,32 +9,57 @@
 #include "SpritedEntity.hpp"
 
 class Ingredient : public Entity {
+public:
+    enum Landable {
+        NONE,
+        INGREDIENT,
+        STATIC_ING_BASKET,
+        FLOOR
+    };
 private:
+    static constexpr auto y_movement_static = 1.5;
+    static constexpr auto y_movement_falling = 100;
+
+    enum State {
+        IDLE,
+        FALLING,
+        BOUNCE_UP_1,
+        BOUNCE_UP_2,
+        BOUNCE_DOWN_1,
+        BOUNCE_DOWN_2,
+        STATIC
+    };
+
+    static constexpr auto BOUNCE_UP_1_DURATION = 0.1;
+    static constexpr auto BOUNCE_UP_2_DURATION = 0.1;
+    static constexpr auto BOUNCE_DOWN_1_DURATION = 1;
+    static constexpr auto BOUNCE_DOWN_2_DURATION = 0.1;
+
+    Landable last_landable;
+    State state;
+
+    static const unsigned int ING_LENGTH = 4;
+
     class IngredientPiece : public SpritedEntity {
     private:
-        static constexpr auto y_movement_static = 1.5;
-        static constexpr auto y_movement_falling = 100;
+        bool stepped;
 
     public:
-        bool stepped;
 
         IngredientPiece(const sf::Vector2f &_init_pos, BT_sprites::Sprite _init_sprite);
 
-        void update(float delta_t) override;
-
         bool isStepped() const;
         void step();
-        void move();
-        void drop();
-        void land();
+
+        void move_down(float delta_t);
+        void move_up(float delta_t);
 
         friend class Ingredient;
     };
 
-    static const unsigned int ING_LENGTH = 4;
-    bool falling;
+    void fix_position_down();
+    void fix_position_up();
 public:
-
     static const char TOP_BUN = '^';
     static const char BOT_BUN = 'v';
     static const char MEAT = 'M';
@@ -62,7 +87,10 @@ public:
 
     void drop();
 
-    void land(float y);
+    void land(float y, Landable landable);
 
     bool isFalling();
+
+    void displace_middle(const float magnitude);
+    void displace_edges(const float magnitude);
 };

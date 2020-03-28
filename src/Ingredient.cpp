@@ -5,25 +5,25 @@ Ingredient::IngredientPiece::IngredientPiece(const sf::Vector2f &_init_pos, BT_s
     this->sprite.setScale(2, 2);
 }
 
-void Ingredient::IngredientPiece::update(float delta_t) {
-    // UPDATE IS ONLY CALLED WHEN INGREDIENT IS FALLING
+void Ingredient::IngredientPiece::move_down(float delta_t) {
     this->sprite.move(0, y_movement_falling * delta_t);
+}
+
+void Ingredient::IngredientPiece::move_up(float delta_t) {
+    this->sprite.move(0, -y_movement_falling * delta_t);
 }
 
 void Ingredient::IngredientPiece::step() {
     stepped = true;
+    this->sprite.move(0, y_movement_static);
 }
 
 bool Ingredient::IngredientPiece::isStepped() const {
     return stepped;
 }
 
-void Ingredient::IngredientPiece::move() {
-    this->sprite.move(0, y_movement_static);
-}
-
 Ingredient::Ingredient(const float _x, const float _y, const char _content) :
-    falling(false), content(_content) {
+    state(IDLE), content(_content), last_landable(NONE) {
     std::array<BT_sprites::Sprite, ING_LENGTH> sprite_indicators;
 
     switch (_content) {
@@ -87,68 +87,133 @@ void Ingredient::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 }
 
 bool Ingredient::isFalling() {
-    return falling;
+    return state == FALLING;
+}
+
+void Ingredient::displace_middle(const float magnitude) {
+    pieces[1].sprite.move(0, magnitude);
+    pieces[2].sprite.move(0, magnitude);
+}
+
+void Ingredient::displace_edges(const float magnitude) {
+    pieces[0].sprite.move(0, magnitude);
+    pieces[3].sprite.move(0, magnitude);
+}
+
+void Ingredient::fix_position_down() {
+    float lowestY = 0;
+
+    for (auto &piece : pieces) {
+        float y = piece.sprite.getPosition().y;
+        if (y > lowestY) {
+            lowestY = y;
+        }
+    }
+
+    for (auto &piece : pieces) {
+        auto position = piece.sprite.getPosition();
+        piece.sprite.setPosition(position.x, lowestY);
+    }
+}
+
+void Ingredient::fix_position_up() {
+    float highestY = 0;
+
+    for (auto &piece : pieces) {
+        float y = piece.sprite.getPosition().y;
+        if (y < highestY) {
+            highestY = y;
+        }
+    }
+
+    for (auto &piece : pieces) {
+        auto position = piece.sprite.getPosition();
+        piece.sprite.setPosition(position.x, highestY);
+    }
 }
 
 void Ingredient::update(float delta_t) {
-    if (falling) {
-        for (auto &piece : pieces) {
-            piece.update(delta_t);
-        }
-    }
-    else {
-        // COUNT NUMBER OF STEPS
-        unsigned int step_num = 0;
-        float lowerY = 0;
-        for (auto &piece : pieces) {
-            if (piece.stepped) {
-                ++step_num;
-            }
+    acc_delta_t += delta_t;
 
-            float y = piece.sprite.getPosition().y;
-
-            if (y > lowerY) {
-                lowerY = y;
-            }
-
-        }
-        // // FALLING TO TRUE IF 4
-        if (step_num >= 4) {
-            // Fix positions
+    switch (state) {
+        case FALLING:
             for (auto &piece : pieces) {
-                auto position = piece.sprite.getPosition();
-                piece.sprite.setPosition(position.x, lowerY);
+                piece.move_down(delta_t);
             }
-            falling = true;
-        }
+            break;
+        case BOUNCE_UP_1:
+            if (acc_delta_t >= BOUNCE_UP_1_DURATION) {
+                acc_delta_t = 0;
+                state = BOUNCE_UP_2;
+                displace_edges(-0.5 * y_movement_static);
+                displace_middle(-2 * y_movement_static);
+            }
+            break;
+        case BOUNCE_UP_2:
+            if (acc_delta_t >= BOUNCE_UP_2_DURATION) {
+                acc_delta_t = 0;
+                state = FALLING;
+                fix_position_down();
+            }
+            break;
+        case BOUNCE_DOWN_1:
+            if (acc_delta_t >= BOUNCE_DOWN_1_DURATION) {
+                acc_delta_t = 0;
+                state = BOUNCE_DOWN_2;
+                displace_middle(-3 * y_movement_static);
+                displace_edges(-y_movement_static);
+            }
+            break;
+        case BOUNCE_DOWN_2:
+            if (acc_delta_t >= BOUNCE_DOWN_2_DURATION) {
+                acc_delta_t = 0;
+                state = IDLE;
+                fix_position_up();
+            }
+            break;
+        default:
+            break;
     }
+}
+
+void Ingredient::land(float y, Landable landable) {
+    if (state == FALLING) {
+        return;
+    }
+
+    if (landable == INGREDIENT || landable == STATIC_ING_BASKET) {
+        state = BOUNCE_UP_1;
+        displace_middle(-2 * y_movement_static);
+        displace_edges(-y_movement_static);
+    }
+    else if (landable == FLOOR) {
+        state = BOUNCE_DOWN_1;
+        displace_edges(y_movement_static);
+        displace_middle(2 * y_movement_static);
+    }
+
+    last_landable = landable;
+    acc_delta_t = 0;
 }
 
 void Ingredient::drop() {
-    falling = true;
-    // TODO: poner todas las IngredientPiece a la misma altura
-}
-
-void Ingredient::land(float y) {
-    falling = false;
-    for (auto &piece : pieces) {
-        auto position = piece.sprite.getPosition();
-        piece.sprite.setPosition(position.x, y);
-        piece.stepped = false;
-    }
+    fix_position_down();
+    state = FALLING;
 }
 
 void Ingredient::stepped(const sf::FloatRect &rectangle) {
-    if (!falling) {
+    if (state == IDLE) {
+
+        int stepped_count = 0;
+
         for (int i = 0; i < ING_LENGTH; ++i) {
             if (pieces[i].getCollisionShape().intersects(rectangle) && !pieces[i].isStepped()) {
                 pieces[i].step();
-                pieces[i].move();
 
                 // LEFT
                 for (int j = i - 1; j >= 0; --j) {
                     if (pieces[j].isStepped()) {
-                        pieces[j].move();
+                        pieces[j].step();
                     }
                     else {
                         break;
@@ -158,15 +223,22 @@ void Ingredient::stepped(const sf::FloatRect &rectangle) {
                 // RIGHT
                 for (int k = i + 1; k < ING_LENGTH; k++) {
                     if (pieces[k].isStepped()) {
-                        pieces[k].move();
+                        pieces[k].step();
                     }
                     else {
                         break;
                     }
                 }
-
-                return;
             }
+
+            if (pieces[i].isStepped()) {
+                ++stepped_count;
+            }
+        }
+
+        if (stepped_count == ING_LENGTH) {
+            fix_position_down();
+            state = FALLING;
         }
     }
 }
