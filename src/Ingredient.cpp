@@ -124,6 +124,10 @@ void Ingredient::update(float delta_t) {
     }
 }
 
+void Ingredient::drop() {
+    falling = true;
+}
+
 void Ingredient::land(float y) {
     falling = false;
     for (auto &piece : pieces) {

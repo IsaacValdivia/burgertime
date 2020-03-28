@@ -101,7 +101,7 @@ void EnterStatePlaying::entry()
     controller.clearScreen();
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
-    gameInfo->currentMap = 0;
+    gameInfo->currentMap = 4;
     gameInfo->currentScore = 0;
     gameInfo->currentIngredients = 0;
     gameInfo->currentLives = 3;
@@ -219,17 +219,30 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
 
         if (ingredient.isFalling())
         {
-            for (const auto &tile : map->entityOnTiles(ingredient))
+            const auto tiles = map->entityOnTiles(ingredient);
+            if (tiles.size() > 1)
             {
-                if (tile->isFloor())
+                if (tiles[1]->isSteppableHor())
                 {
-                    ingredient.land(tile->shape.getPosition().y + (Tile::TILE_HEIGHT - 8));
+                    for (auto &other : map->ing_data)
+                    {
+                        if (&other != &ingredient) 
+                        {
+                            if (other.intersectsWith(ingredient))
+                            {
+                                other.land(tiles[1]->shape.getPosition().y + 10);
+                                other.drop();
+                                break;
+                            }
+                        }
+                    }
+
+                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 8));
                 }
-                else if (tile->isBasket())
+                else if (tiles[1]->isBasket() || tiles[1]->isBasketEdge())
                 {
-                    // TODO: mas cosas
                     gameInfo->currentIngredients++;
-                    ingredient.land(tile->shape.getPosition().y + (Tile::TILE_HEIGHT - 12));
+                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 12));
                 }
             }
         }
@@ -304,6 +317,7 @@ void WinStatePlaying::entry()
     controller.restartTimer();
     gameInfo->player->win();
     gameInfo->currentMap = (gameInfo->currentMap + 1) % gameInfo->maps.size();
+    gameInfo->currentIngredients = 0;
 }
 
 void WinStatePlaying::react(const ExecuteEvent &event)

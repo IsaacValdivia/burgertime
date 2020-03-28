@@ -536,7 +536,6 @@ void Enemy::update(float delta_t) {
                 move(move_x, move_y, delta_t);
 
                 if (map->can_entity_move(move_x, move_y, *this)) {
-                    fprintf(stderr, "WANT TO MOVE BUT CANT\n");
                     sprite.move(move_x, move_y);
                 }
                 else {
@@ -549,8 +548,6 @@ void Enemy::update(float delta_t) {
 
                     aStarDirection = direction;
                     aStarTile = nullptr;
-
-                    fprintf(stderr, "VUELVE");
 
                     move(move_x, move_y, delta_t);
 

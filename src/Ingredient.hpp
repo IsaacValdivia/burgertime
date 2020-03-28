@@ -60,6 +60,8 @@ public:
 
     sf::FloatRect getCollisionShape() const override;
 
+    void drop();
+
     void land(float y);
 
     bool isFalling();
