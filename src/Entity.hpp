@@ -7,9 +7,9 @@ protected:
     float acc_delta_t;
 
 public:
-    virtual void update(float delta_t) = 0;
+    virtual void update(float delta_t) {};
 
     virtual sf::FloatRect getCollisionShape() const = 0;
-    
+
     virtual bool intersectsWith(const Entity &entity) const;
 };
