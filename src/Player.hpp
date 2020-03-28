@@ -45,10 +45,13 @@ private:
 
     std::function<void(const sf::Vector2f&, Direction)> pepper_spawned_func;
 
+    std::function<bool()> has_pepper;
+
     nod::unsafe_signal<void(const std::shared_ptr<Tile>)> player_moved;
 
 public:
-    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func);
+    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func,
+           const std::function<bool()> &has_pepper);
 
     void update(float delta_t) override;
 

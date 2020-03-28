@@ -126,6 +126,7 @@ void Ingredient::update(float delta_t) {
 
 void Ingredient::drop() {
     falling = true;
+    // TODO: poner todas las IngredientPiece a la misma altura
 }
 
 void Ingredient::land(float y) {
@@ -173,6 +174,14 @@ void Ingredient::stepped(const sf::FloatRect &rectangle) {
 sf::FloatRect Ingredient::getCollisionShape() const {
     sf::FloatRect collisionShape = pieces[0].sprite.getGlobalBounds();
     collisionShape.width *= 4;
+
+    // for (const auto &piece : pieces)
+    // {
+    //     if (piece.sprite.getGlobalBounds().top > collisionShape.top)
+    //     {
+    //         collisionShape.top = piece.sprite.getGlobalBounds().top;
+    //     }
+    // }
 
     return collisionShape;
 }

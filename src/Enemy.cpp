@@ -77,7 +77,7 @@ const Enemy::Sprite_state_machine Enemy::sausage_sprite_state_machine[] = {
         BT_sprites::Sprite::SAUSAGE_UPSTAIRS_1, // UP
         BT_sprites::Sprite::SAUSAGE_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::SAUSAGE_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::SAUSAGE_CRUSHED_1, // DIE
+        BT_sprites::Sprite::SAUSAGE_CRUSHED_2, // DIE
     },
     // SAUSAGE_CRUSHED_2
     dying_sprite_duration,
@@ -88,7 +88,7 @@ const Enemy::Sprite_state_machine Enemy::sausage_sprite_state_machine[] = {
         BT_sprites::Sprite::SAUSAGE_UPSTAIRS_1, // UP
         BT_sprites::Sprite::SAUSAGE_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::SAUSAGE_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::SAUSAGE_CRUSHED_2, // DIE
+        BT_sprites::Sprite::SAUSAGE_CRUSHED_3, // DIE
     },
     // SAUSAGE_CRUSHED_3
     dying_sprite_duration,
@@ -99,7 +99,7 @@ const Enemy::Sprite_state_machine Enemy::sausage_sprite_state_machine[] = {
         BT_sprites::Sprite::SAUSAGE_UPSTAIRS_1, // UP
         BT_sprites::Sprite::SAUSAGE_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::SAUSAGE_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::SAUSAGE_CRUSHED_3, // DIE
+        BT_sprites::Sprite::SAUSAGE_CRUSHED_4, // DIE
     },
     // SAUSAGE_CRUSHED_4
     dying_sprite_duration,
@@ -212,7 +212,7 @@ const Enemy::Sprite_state_machine Enemy::pickle_sprite_state_machine[] = {
         BT_sprites::Sprite::PICKLE_UPSTAIRS_1, // UP
         BT_sprites::Sprite::PICKLE_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::PICKLE_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::PICKLE_CRUSHED_1, // DIE
+        BT_sprites::Sprite::PICKLE_CRUSHED_2, // DIE
     },
     // PICKLE_CRUSHED_2
     dying_sprite_duration,
@@ -223,7 +223,7 @@ const Enemy::Sprite_state_machine Enemy::pickle_sprite_state_machine[] = {
         BT_sprites::Sprite::PICKLE_UPSTAIRS_1, // UP
         BT_sprites::Sprite::PICKLE_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::PICKLE_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::PICKLE_CRUSHED_2, // DIE
+        BT_sprites::Sprite::PICKLE_CRUSHED_3, // DIE
     },
     // PICKLE_CRUSHED_3
     dying_sprite_duration,
@@ -234,7 +234,7 @@ const Enemy::Sprite_state_machine Enemy::pickle_sprite_state_machine[] = {
         BT_sprites::Sprite::PICKLE_UPSTAIRS_1, // UP
         BT_sprites::Sprite::PICKLE_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::PICKLE_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::PICKLE_CRUSHED_3, // DIE
+        BT_sprites::Sprite::PICKLE_CRUSHED_4, // DIE
     },
     // PICKLE_CRUSHED_4
     dying_sprite_duration,
@@ -347,7 +347,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
         BT_sprites::Sprite::EGG_UPSTAIRS_1, // UP
         BT_sprites::Sprite::EGG_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::EGG_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::EGG_CRUSHED_1, // DIE
+        BT_sprites::Sprite::EGG_CRUSHED_2, // DIE
     },
     // EGG_CRUSHED_2
     dying_sprite_duration,
@@ -358,7 +358,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
         BT_sprites::Sprite::EGG_UPSTAIRS_1, // UP
         BT_sprites::Sprite::EGG_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::EGG_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::EGG_CRUSHED_2, // DIE
+        BT_sprites::Sprite::EGG_CRUSHED_3, // DIE
     },
     // EGG_CRUSHED_3
     dying_sprite_duration,
@@ -369,7 +369,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
         BT_sprites::Sprite::EGG_UPSTAIRS_1, // UP
         BT_sprites::Sprite::EGG_DOWNSTAIRS_1, // DOWN
         BT_sprites::Sprite::EGG_PEPPER_1, // PEPPER
-        BT_sprites::Sprite::EGG_CRUSHED_3, // DIE
+        BT_sprites::Sprite::EGG_CRUSHED_4, // DIE
     },
     // EGG_CRUSHED_4
     dying_sprite_duration,

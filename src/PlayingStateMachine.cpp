@@ -15,9 +15,23 @@ GUI &PlayingStateMachine::gui = GUI::get();
 
 void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Direction direction)
 {
-    current_state_ptr->deletePepper();
-    current_state_ptr->gameInfo->pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
-    controller.addDrawable(current_state_ptr->gameInfo->pepper);
+    if (current_state_ptr->gameInfo->currentPepper > 0)
+    {
+        current_state_ptr->gameInfo->currentPepper--;
+        current_state_ptr->deletePepper();
+        current_state_ptr->gameInfo->pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
+        gui.getText("playingStatePepper").lock()->setString(GUI::fixTextToRight(std::to_string(current_state_ptr->gameInfo->currentPepper), 3));
+        controller.addDrawable(current_state_ptr->gameInfo->pepper);
+    }
+    else
+    {
+        // TODO: exception
+    }   
+}
+
+bool PlayingStateMachine::hasPepper() const
+{
+    return current_state_ptr->gameInfo->currentPepper > 0;
 }
 
 void PlayingStateMachine::addPlayerAndEnemies()
@@ -29,7 +43,10 @@ void PlayingStateMachine::addPlayerAndEnemies()
 
     sf::Vector2f initPos = playerSpawnTile->shape.getPosition();
     initPos.y -= playerSpawnTile->height;
-    gameInfo->player = std::make_shared<Player>(initPos, map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
+    gameInfo->player = std::make_shared<Player>(initPos, map, 
+        std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2), 
+        std::bind(&PlayingStateMachine::hasPepper, this)
+    );
 
     gameInfo->ai = std::make_shared<AI>(map, playerSpawnTile);
 
@@ -101,10 +118,11 @@ void EnterStatePlaying::entry()
     controller.clearScreen();
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
-    gameInfo->currentMap = 4;
+    gameInfo->currentMap = 0;
     gameInfo->currentScore = 0;
     gameInfo->currentIngredients = 0;
     gameInfo->currentLives = 3;
+    gameInfo->currentPepper = 5;
     controller.clearScreen();
 
     gameInfo->curtains[0] = std::make_shared<sf::RectangleShape>();
@@ -118,6 +136,7 @@ void EnterStatePlaying::entry()
 
     gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
     gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
+    gui.createText("playingStatePepper", GUI::fixTextToRight(std::to_string(gameInfo->currentPepper), 3), sf::Vector2u(763, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
 
     gameInfo->pepperText = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*gameInfo->pepperText, BT_sprites::Sprite::PEPPER);
@@ -189,6 +208,7 @@ void NormalStatePlaying::entry()
     controller.addDrawable(gameInfo->pepperText);
     controller.addDrawable(gui.getText("playingStateOneUp"));
     controller.addDrawable(gui.getText("playingStateHiScore"));
+    controller.addDrawable(gui.getText("playingStatePepper"));
     controller.addDrawable(gameInfo->curtains[0]);
     controller.addDrawable(gameInfo->curtains[1]);
     // controller.addDrawable(currentScoreText);
@@ -200,7 +220,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
     for (const auto &enemy : gameInfo->enemies)
     {
         if (!enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) {
-#if false
+#if true
             if (gameInfo->currentLives > 0)
             {
                 transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
@@ -260,7 +280,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
         {
             if (gameInfo->pepper->intersectsWith(*enemy)) {
                 // TODO: algo?
-                enemy->pepper();
+               enemy->pepper();
             }
         }
     }
@@ -295,8 +315,16 @@ void DeadStatePlaying::react(const ExecuteEvent &event)
 {
     if (BurgerTimeStateMachine::timedStateReact(4))
     {
+        if (gameInfo->currentLives == 0)
+        {
+            transit<GameOverStatePlaying>();
+        }
+        else
+        {
+            transit<GameReadyScreenState>(std::bind(&DeadStatePlaying::changeGameInfo, this));
+        }
+        
         // TODO: change
-        transit<GameReadyScreenState>(std::bind(&DeadStatePlaying::changeGameInfo, this));
         // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }
     else
@@ -332,4 +360,10 @@ void WinStatePlaying::react(const ExecuteEvent &event)
     {
         gameInfo->player->update(event.deltaT);
     }
+}
+
+
+void GameOverStatePlaying::entry()
+{
+    gameInfo = nullptr;
 }

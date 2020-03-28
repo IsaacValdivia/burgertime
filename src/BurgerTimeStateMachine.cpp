@@ -49,14 +49,8 @@ void HighscoreDisplayScreenState::entry()
     for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
     {
         auto scoreStr = std::to_string(hScores[i].second);
-        std::string whiteSpace(" ");
 
-        for (uint8_t j = 0; j < HighScores::MAX_SCORE_CHARS - scoreStr.length(); ++j)
-        {
-            whiteSpace += " ";
-        }
-
-        std::string text = std::to_string(i + 1) + " " + hScores[i].first.data() + whiteSpace + scoreStr + " PTS";
+        std::string text = std::to_string(i + 1) + " " + hScores[i].first.data() + GUI::fixTextToRight(scoreStr, HighScores::MAX_SCORE_CHARS) + " PTS";
         auto hScoreText = gui.createText(std::string("hScorehScoreText") + std::to_string(i), text, sf::Vector2u(180, (450 + i * 100)), sf::Vector2f(0.70, 0.70));
 
         controller.addDrawable(hScoreText);
@@ -446,17 +440,15 @@ void PlayingState::entry()
 
 void PlayingState::react(const ExecuteEvent &event)
 {
-    PlayingStateMachine::dispatch(event);
-
-    // if (MainScreenStateMachine::is_in_state<FinishedStartState>())
-    // {
-    //     transit<GameReadyScreenState>();
-    // }
-
-    // if (MainScreenStateMachine::is_in_state<FinishedExitState>())
-    // {
-    //     transit<FinishedState>();
-    // }
+    if (PlayingStateMachine::is_in_state<GameOverStatePlaying>())
+    {
+        transit<GameOverScreenState>();
+    }
+    else
+    {
+        PlayingStateMachine::dispatch(event);
+    }
+    // TODO: mas
 }
 
 

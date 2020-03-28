@@ -16,6 +16,8 @@ public:
 
     std::weak_ptr<sf::Text> getText(const std::string &id);
 
+    static std::string fixTextToRight(const std::string &st, int maxChars);
+
     static constexpr auto HORIZONTAL_DIVISIONS = WINDOW_WIDTH / 1000.0;
     static constexpr auto VERTICAL_DIVISIONS = WINDOW_HEIGHT / 1000.0;
 

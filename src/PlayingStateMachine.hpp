@@ -14,7 +14,9 @@ class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine>
 public:
     void react(const tinyfsm::Event &){};
 
-    virtual void react(const ExecuteEvent &) = 0;
+    virtual void react(const ExecuteEvent &) {};
+
+    bool hasPepper() const;
 
     void addPlayerAndEnemies();
 
@@ -37,6 +39,7 @@ protected:
 
         std::array<std::shared_ptr<sf::RectangleShape>, 2> curtains;
 
+        uint8_t currentPepper;
         uint8_t currentIngredients;
         uint8_t currentLives;
         uint32_t currentScore;
@@ -57,6 +60,12 @@ class EnterStatePlaying : public PlayingStateMachine
 {
     void entry() override;
     void react(const ExecuteEvent &) override;
+};
+
+class GameOverStatePlaying : public PlayingStateMachine
+{
+    void entry() override;
+    // void react(const ExecuteEvent &) override;
 };
 
 class GameReadyScreenState : public PlayingStateMachine

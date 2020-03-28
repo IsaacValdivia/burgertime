@@ -33,7 +33,7 @@ private:
     static constexpr float y_walking_speed = x_walking_speed / 1.72;
 
     static constexpr float walking_sprite_duration = 0.08;
-    static constexpr float dying_sprite_duration = 0.1;
+    static constexpr float dying_sprite_duration = 0.16;
     static constexpr float pepper_sprite_animation = 0.27;
 
     static constexpr float pepper_duration = 4;

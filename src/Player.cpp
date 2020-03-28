@@ -231,11 +231,13 @@ const BT_sprites::Sprite Player::pepper_sprite_state_machine[] = {
     BT_sprites::Sprite::PLAYER_PEPPER_FRONT,
 };
 
-Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func)
+Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func,
+               const std::function<bool()> &has_pepper)
     : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, map),
       won(false),
       last_action(NONE),
-      pepper_spawned_func(pepper_spawned_func)
+      pepper_spawned_func(pepper_spawned_func),
+      has_pepper(has_pepper)
 {
 }
 
@@ -281,7 +283,7 @@ void Player::update(float delta_t) {
         InputSystem::Input inputToProcess = InputSystem::getLastInput();
 
         // PEPPER
-        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER)) {
+        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER) && has_pepper()) {
             new_action = PEPPER;
 
             sf::Vector2f pepper_pos(sprite.getPosition().x, sprite.getPosition().y);
@@ -360,7 +362,7 @@ void Player::update(float delta_t) {
         acc_delta_t = 0;
 
         // Special case.
-        if (new_action == PEPPER) {
+        if (new_action == PEPPER && has_pepper()) {
             current_sprite = pepper_sprite_state_machine[direction];
         }
         else {

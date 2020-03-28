@@ -45,3 +45,15 @@ std::weak_ptr<sf::Text> GUI::getText(const std::string &id)
         // TODO: exception
     }
 }
+
+std::string GUI::fixTextToRight(const std::string &st, int maxChars)
+{
+    std::string whiteSpace(" ");
+
+    for (uint8_t j = 0; j < maxChars - st.length(); ++j)
+    {
+        whiteSpace += " ";
+    }
+
+    return whiteSpace + st;
+}
