@@ -36,13 +36,13 @@ private:
     static constexpr float dying_sprite_duration = 0.1;
     static constexpr float pepper_sprite_animation = 0.27;
 
-    static constexpr float pepper_duration = 2;
+    static constexpr float pepper_duration = 4;
 
     const Sprite_state_machine *const sprite_state_machine;
 
     float acc_delta_t_pepper;
 
-    const Tile* aStarTile;
+    std::shared_ptr<Tile> aStarTile;
     Direction aStarDirection;
 
     Direction initial_direction;

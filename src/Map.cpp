@@ -4,6 +4,18 @@
 
 using namespace std;
 
+bool Map::isEnemy(const char c) {
+    return c == SAUSAGE || c == EGG || c == PICKLE;
+}
+
+bool Map::isItem(const char c) {
+    return c == ICE_CREAM || c == COFFEE || c == FRIES;
+}
+
+bool Map::isChef(const char c) {
+    return c == CHEF;
+}
+
 void Map::fill_tiles(const vector<string> &map_data) {
     unsigned int i = 0, j;
     bool double_placed = false;
@@ -15,18 +27,48 @@ void Map::fill_tiles(const vector<string> &map_data) {
             if (content == Tile::STAIRS || content == Tile::GO_UP || content == Tile::GO_BOTH || content == Tile::BASKET_EDGE) {
                 double_placed = !double_placed;
             }
-            data[i][j] = Tile(x, y, i, j, content, double_placed);
+            tile_data[i][j] = std::make_shared<Tile>(x, y, i, j, content, double_placed);
             ++j;
         }
         ++i;
     }
 }
 
-Map::Map(const vector<string> &map_data) {
-    fill_tiles(map_data);
-};
+void Map::fill_ingredients(const vector<string> &map_data) {
+    unsigned int i = 0, j;
+    for (auto& row : map_data) {
+        j = 0;
+        unsigned int ing_found = 0;
+        for (auto& content : row) {
+            if (content != Ingredient::NOT_ING) {
+                if (isEnemy(content)) {
+                    enemy_spawns.push_front(std::make_pair(content, sf::Vector2u(i,j)));
+                } else if (isItem(content)) {
+                    item_spawn.first = content;
+                    item_spawn.second = sf::Vector2u(i,j);
+                } else if (isChef(content)) {
+                    chef_spawn = sf::Vector2u(i,j);
+                } else {
+                    //ingredient_mask[i][j] = true;
+                    if (ing_found <= 0) {
+                        if (content == Ingredient::TOP_BUN) {
+                            ++num_burgers;
+                        }
+                        float x = SIDE_MARGINS + j * Tile::TILE_WIDTH;
+                        float y = UPPER_MARGIN + i * Tile::TILE_HEIGHT;
+                        ing_data.push_back(Ingredient(x, y, i, j, content));
+                        //data[i][j] = std::make_shared<Ingredient>(x, y, i, j, content);
+                    }
+                    ing_found = (ing_found + 1) % 4;
+                }
+            }
+            ++j;
+        }
+        ++i;
+    }
+}
 
-Map::Map(const string &filename) {
+vector<string> Map::process_mapfile(const string &filename) const {
     ifstream f;
     f.open(filename);
 
@@ -43,29 +85,41 @@ Map::Map(const string &filename) {
             }
             rows.push_back(row);
         }
-        
         f.close();
-        fill_tiles(rows);
+        return rows;
     } else {
         throw runtime_error("File " + filename + " could not be found");
     }
 }
 
+Map::Map(const vector<string> &tile_map, const vector<string> &ing_map) {
+    fill_tiles(tile_map);
+    fill_ingredients(ing_map);
+};
+
+Map::Map(const string &map_file) {
+    fill_tiles(process_mapfile(map_file + MAP_EXTENSION));
+    fill_ingredients(process_mapfile(map_file + INGMAP_EXTENSION));
+}
+
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    for (auto& row : data) {
+    for (auto& row : tile_data) {
         for (auto& tile : row) {
-            target.draw(tile, states);
+            target.draw(*tile, states);
         }
+    }
+    for (auto& ing : ing_data) {
+        target.draw(ing, states);
     }
 }
 
-std::vector<const Tile *> Map::actorOnTiles(const sf::FloatRect& collisionShape) const
+std::vector<std::shared_ptr<Tile>> Map::actorOnTiles(const sf::FloatRect& collisionShape) const
 {
     float bot_left_x = collisionShape.left;
     float bot_right_x = collisionShape.left + collisionShape.width;
     float bot_y = collisionShape.top + collisionShape.height;
 
-    std::vector<const Tile *> tiles;
+    std::vector<std::shared_ptr<Tile>> tiles;
 
     // Check left_edge
     size_t horizontal_tile_1 = (bot_left_x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH;
@@ -77,8 +131,8 @@ std::vector<const Tile *> Map::actorOnTiles(const sf::FloatRect& collisionShape)
     size_t vertical_tile = (bot_y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT;
 
     for (int h_i = horizontal_tile_1; h_i < horizontal_tile_2 + 1; ++h_i) {
-        if (data[vertical_tile][h_i].content != Tile::EMPTY) {
-            tiles.push_back(&data[vertical_tile][h_i]);
+        if (tile_data[vertical_tile][h_i]->content != Tile::EMPTY) {
+            tiles.push_back(tile_data[vertical_tile][h_i]);
         }
     }
 
@@ -86,7 +140,7 @@ std::vector<const Tile *> Map::actorOnTiles(const sf::FloatRect& collisionShape)
 }
 
 
-std::vector<const Tile *> Map::actorOnTiles(const Actor &actor) const
+std::vector<std::shared_ptr<Tile>> Map::actorOnTiles(const Actor &actor) const
 {
     auto collisionShape = actor.getCollisionShape();
 
@@ -102,19 +156,19 @@ bool Map::vertical_platform_check(const Tile &t) const {
 }
 
 bool Map::right_platform_check(const Tile &t) const {
-    return t.col < (MAX_COLS - 1) && data[t.row][t.col+1].isSteppableHor();
+    return t.col < (MAX_COLS - 1) && tile_data[t.row][t.col+1]->isSteppableHor();
 }
 
 bool Map::left_platform_check(const Tile &t) const {
-    return t.col > 0 && data[t.row][t.col-1].isSteppableHor();
+    return t.col > 0 && tile_data[t.row][t.col-1]->isSteppableHor();
 }
 
 bool Map::up_platform_check(const Tile &t) const {
-    return t.row > 0 && data[t.row-1][t.col].isSteppableVert();
+    return t.row > 0 && tile_data[t.row-1][t.col]->isSteppableVert();
 }
 
 bool Map::down_platform_check(const Tile &t) const {
-    return t.row < (MAX_ROWS - 1) && data[t.row+1][t.col].isSteppableVert();
+    return t.row < (MAX_ROWS - 1) && tile_data[t.row+1][t.col]->isSteppableVert();
 }
 
 bool Map::can_move_right(const Tile &t) const {
@@ -227,7 +281,7 @@ bool Map::can_actor_move(float &x, float &y, const sf::FloatRect& collisionShape
 
     float bot_y = collisionShape.top + collisionShape.height;
 
-    std::vector<const Tile *> tiles_of_player = actorOnTiles(collisionShape);
+    std::vector<std::shared_ptr<Tile>> tiles_of_player = actorOnTiles(collisionShape);
 
     bool horizontal_mov = x != 0;
     bool up = false, right = false;
@@ -298,24 +352,24 @@ bool Map::can_actor_move(float &x, float &y, const Actor& actor) const {
     return can_actor_move(x, y, collisionShape);
 }
 
-std::vector<const Tile*> Map::availableFrom(const Tile &current) const
+std::vector<std::shared_ptr<const Tile>> Map::availableFrom(const Tile &current) const
 {
-    std::vector<const Tile*> availablePaths;
+    std::vector<std::shared_ptr<const Tile>> availablePaths;
 
     if (can_move_up(current)) {
-        availablePaths.push_back(&data[current.row - 1][current.col]);
+        availablePaths.push_back(tile_data[current.row - 1][current.col]);
     }
 
     if (can_move_down(current)) {
-        availablePaths.push_back(&data[current.row + 1][current.col]);
+        availablePaths.push_back(tile_data[current.row + 1][current.col]);
     }
 
     if (can_move_left(current)) {
-        availablePaths.push_back(&data[current.row][current.col - 1]);
+        availablePaths.push_back(tile_data[current.row][current.col - 1]);
     }
 
     if (can_move_right(current)) {
-        availablePaths.push_back(&data[current.row][current.col + 1]);
+        availablePaths.push_back(tile_data[current.row][current.col + 1]);
     }
 
     

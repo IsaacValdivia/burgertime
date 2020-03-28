@@ -3,6 +3,7 @@
 #include "Enemy.hpp"
 #include <iostream>
 #include <filesystem>
+#include <set>
 
 namespace fs = std::filesystem;
 
@@ -68,35 +69,27 @@ void EnterStatePlaying::entry()
     // currentScoreText->setScale(0.5, 0.5);
     // currentScoreText->setPosition( * WINDOW_WIDTH / 100 , 2 * WINDOW_HEIGHT / 100);
 
-    std::vector<fs::path> paths;
+    std::set<std::string> mapStems;
     for (const auto &mapFile : fs::directory_iterator(MAPS_FOLDER))
     {
         if (mapFile.is_regular_file())
         {
-            paths.push_back(mapFile.path());
+            mapStems.insert(MAPS_FOLDER + std::string("/") + mapFile.path().stem().string());
         }
     }
-    //std::greater<string>();
-    std::sort(paths.begin(), paths.end());
+    std::vector<std::string> mapNames(mapStems.begin(), mapStems.end());
+    std::sort(mapNames.begin(), mapNames.end());
 
-    for (const auto &mapPath : paths)
+    for (const auto &mapName : mapNames)
     { 
-        if (mapPath.extension().string() == MAP_EXTENSION)
-        {
-            gameInfo->maps.push_back(std::make_shared<Map>(mapPath.string()));
-        }
-        else if (mapPath.extension().string() == INGMAP_EXTENSION)
-        {
-            gameInfo->ingMaps.push_back(std::make_shared<IngredientMap>(mapPath.string()));
-        }
+        gameInfo->maps.push_back(std::make_shared<Map>(mapName));
     }
 
     auto &map = gameInfo->maps[gameInfo->currentMap];
-    auto &ingMap = gameInfo->ingMaps[gameInfo->currentMap];
 
-    const auto &playerSpawnTile = map->data[ingMap->chef_spawn.x][ingMap->chef_spawn.y];
+    const auto &playerSpawnTile = map->tile_data[map->chef_spawn.x][map->chef_spawn.y];
 
-    sf::Vector2f initPos = playerSpawnTile.shape.getPosition();
+    sf::Vector2f initPos = playerSpawnTile->shape.getPosition();
     initPos.y -= Map::Y_PADDING;
     gameInfo->player = std::make_shared<Player>(initPos, map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -104,7 +97,7 @@ void EnterStatePlaying::entry()
 
     // TODO: cambiar
     float offset = 1;
-    for (const auto &enemySpawn : ingMap->enemy_spawns)
+    for (const auto &enemySpawn : map->enemy_spawns)
     {
         // gameInfo->ias.emplace_back(map, map->data[0][17]);
 
@@ -114,18 +107,18 @@ void EnterStatePlaying::entry()
         const Enemy::Sprite_state_machine *enemySprites;
         switch (enemySpawn.first)
         {
-            case IngredientMap::SAUSAGE:
+            case Map::SAUSAGE:
                 enemySprites = Enemy::sausage_sprite_state_machine;
                 break;
-            case IngredientMap::PICKLE:
+            case Map::PICKLE:
                 enemySprites = Enemy::pickle_sprite_state_machine;
                 break;
-            case IngredientMap::EGG:
+            case Map::EGG:
                 enemySprites = Enemy::egg_sprite_state_machine;
                 break;
         }
 
-        auto initialPos = map->data[enemySpawn.second.x][enemySpawn.second.y].shape.getPosition();
+        auto initialPos = map->tile_data[enemySpawn.second.x][enemySpawn.second.y]->shape.getPosition();
         Direction initialDir;
         if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
         {
@@ -148,7 +141,6 @@ void EnterStatePlaying::entry()
     }
 
     controller.addDrawable(map);
-    controller.addDrawable(ingMap);
     for (const auto &enemy : gameInfo->enemies)
     {
         controller.addDrawable(enemy);
@@ -178,7 +170,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
         }
     }
 
-    for (const auto &ingredient : gameInfo->ingMaps[gameInfo->currentMap]->data)
+    for (auto &ingredient : gameInfo->maps[gameInfo->currentMap]->ing_data)
     {
         ingredient.stepped(gameInfo->player->getCollisionShape());
     }
@@ -201,7 +193,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
         enemy->update(event.deltaT);
     }
 
-    for (auto &ingredient : gameInfo->ingMaps[gameInfo->currentMap]->data)
+    for (auto &ingredient : gameInfo->maps[gameInfo->currentMap]->ing_data)
     {
         ingredient.update(event.deltaT);
     }

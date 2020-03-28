@@ -339,7 +339,7 @@ void Player::update(float delta_t) {
             // Want to move and can.
             if (map->can_actor_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
-                player_moved(*map->actorOnTiles(*this)[0]);
+                player_moved(map->actorOnTiles(*this)[0]);
             }
             // Want to move but can't.
             else {
@@ -370,7 +370,7 @@ void Player::update(float delta_t) {
     last_action = new_action;
 }
 
-void Player::connect_player_moved(const std::function<void(const Tile&)> &player_moved_func)
+void Player::connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func)
 {
     player_moved.connect(player_moved_func);
 }

@@ -497,24 +497,24 @@ void Enemy::update(float delta_t) {
 
             Direction backup_dir = direction;
 
-            std::vector<const Tile *> actorOnTiles = map->actorOnTiles(*this);
+            std::vector<std::shared_ptr<Tile>> actorOnTiles = map->actorOnTiles(*this);
 
-            const Tile &t = *actorOnTiles[0];
+            const std::shared_ptr<Tile> t = actorOnTiles[0];
 
             bool aStartCalled = false;
 
             for (auto tile : actorOnTiles) {
-                if (tile == aStarTile) {
+                if (aStarTile && *tile == *aStarTile) {
                     aStartCalled = true;
 
                     break;
                 }
             }
 
-            if (!aStartCalled && t.isConnector()) {
+            if (!aStartCalled && t->isConnector()) {
                 direction = ia.getNextMove(t);
                 aStarDirection = direction;
-                aStarTile = &t; 
+                aStarTile = t; 
             }
             else {
                 direction = aStarDirection;

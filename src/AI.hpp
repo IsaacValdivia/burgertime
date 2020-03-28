@@ -7,18 +7,18 @@
 class AI
 {
 public:
-    AI(const std::shared_ptr<Map> map, const Tile &newGoalTile);
+    AI(const std::shared_ptr<Map> map, const std::shared_ptr<const Tile> newGoalTile);
 
-    Direction getNextMove(const Tile &startTile) const;
+    Direction getNextMove(const std::shared_ptr<const Tile> startTile) const;
 
-    void setGoalTile(const Tile &newGoalTile);
+    void setGoalTile(const std::shared_ptr<const Tile> newGoalTile);
 
 private:
-    float h(const Tile& from, const Tile& to) const;
+    float h(const std::shared_ptr<const Tile> from, const std::shared_ptr<const Tile> to) const;
 
-    Direction nextMoveDirection(const std::map<const Tile*, const Tile*> &cameFrom, const Tile& current) const;
+    Direction nextMoveDirection(const std::map<std::shared_ptr<const Tile>, std::shared_ptr<const Tile>> cameFrom, const std::shared_ptr<const Tile> current) const;
 
     std::shared_ptr<Map> map;
     
-    const Tile *goalTile;
+    std::shared_ptr<const Tile> goalTile;
 };

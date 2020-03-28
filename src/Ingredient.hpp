@@ -2,11 +2,13 @@
 
 #include <memory>
 #include <cstdint>
+#include <vector>
 
 #include "BT_sprites.hpp"
 #include "Updrawable.hpp"
 #include "IngredientPiece.hpp"
-#include "Map.hpp"
+
+class Map;
 
 class Ingredient : public Updrawable {
 private:
@@ -28,7 +30,7 @@ public:
 
     std::shared_ptr<Map> my_map;
 
-    std::shared_ptr<IngredientPiece> pieces[ING_LENGTH];
+    std::vector<IngredientPiece> pieces;
 
     Ingredient(const float _x, const float _y, const uint8_t _col, const uint8_t _row, const char _content);
 
@@ -37,7 +39,7 @@ public:
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
     void update(float delta_t) override;
 
-    void stepped(const sf::FloatRect &rectangle) const;
+    void stepped(const sf::FloatRect &rectangle);
     
     void drop();
     void land();

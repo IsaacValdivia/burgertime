@@ -45,7 +45,7 @@ private:
 
     std::function<void(const sf::Vector2f&, Direction)> pepper_spawned_func;
 
-    nod::unsafe_signal<void(const Tile&)> player_moved;
+    nod::unsafe_signal<void(const std::shared_ptr<Tile>)> player_moved;
 
 public:
     Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func);
@@ -56,5 +56,5 @@ public:
 
     void win();
 
-    void connect_player_moved(const std::function<void(const Tile&)> &player_moved_func);
+    void connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func);
 };

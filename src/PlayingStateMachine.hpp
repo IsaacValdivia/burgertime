@@ -8,7 +8,6 @@
 #include "Player.hpp"
 #include "Pepper.hpp"
 #include "Enemy.hpp"
-#include "IngredientMap.hpp"
 
 class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine>
 {
@@ -25,7 +24,6 @@ protected:
     struct GameInfo
     {
         std::vector<std::shared_ptr<Map>> maps;
-        std::vector<std::shared_ptr<IngredientMap>> ingMaps;
 
         std::shared_ptr<Player> player;
         std::shared_ptr<Pepper> pepper;
