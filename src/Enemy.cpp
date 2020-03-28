@@ -424,6 +424,10 @@ void Enemy::pepper()
     last_action = PEPPER;
 }
 
+bool Enemy::isPeppered() {
+    return last_action == PEPPER;
+}
+
 void Enemy::move(float &move_x, float &move_y, float delta_t) {
     move_x = 0;
     move_y = 0;
@@ -497,13 +501,13 @@ void Enemy::update(float delta_t) {
 
             Direction backup_dir = direction;
 
-            std::vector<std::shared_ptr<Tile>> actorOnTiles = map->actorOnTiles(*this);
+            std::vector<std::shared_ptr<Tile>> actorsTiles = map->entityOnTiles(*this);
 
-            const std::shared_ptr<Tile> t = actorOnTiles[0];
+            const std::shared_ptr<Tile> t = actorsTiles[0];
 
             bool aStartCalled = false;
 
-            for (auto tile : actorOnTiles) {
+            for (auto tile : actorsTiles) {
                 if (aStarTile && *tile == *aStarTile) {
                     aStartCalled = true;
 
@@ -522,7 +526,7 @@ void Enemy::update(float delta_t) {
 
             move(move_x, move_y, delta_t);
             // Want to move and can.
-            if (map->can_actor_move(move_x, move_y, *this)) {
+            if (map->can_entity_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
             }
             // Want to move but can't.
@@ -531,7 +535,7 @@ void Enemy::update(float delta_t) {
 
                 move(move_x, move_y, delta_t);
 
-                if (map->can_actor_move(move_x, move_y, *this)) {
+                if (map->can_entity_move(move_x, move_y, *this)) {
                     fprintf(stderr, "WANT TO MOVE BUT CANT\n");
                     sprite.move(move_x, move_y);
                 }
@@ -550,7 +554,7 @@ void Enemy::update(float delta_t) {
 
                     move(move_x, move_y, delta_t);
 
-                    if (map->can_actor_move(move_x, move_y, *this)) {
+                    if (map->can_entity_move(move_x, move_y, *this)) {
                         sprite.move(move_x, move_y);
                     }
                     else {

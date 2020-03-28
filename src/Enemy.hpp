@@ -59,5 +59,7 @@ public:
 
     void pepper();
 
+    bool isPeppered();
+
     void update(float delta_t) override;
 };

@@ -117,7 +117,8 @@ void Map::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     }
 }
 
-std::vector<std::shared_ptr<Tile>> Map::actorOnTiles(const sf::FloatRect &collisionShape) const {
+std::vector<std::shared_ptr<Tile>> Map::entityOnTiles(const Entity &entity) const {
+    auto collisionShape = entity.getCollisionShape();
     float bot_left_x = collisionShape.left;
     float bot_right_x = collisionShape.left + collisionShape.width;
     float bot_y = collisionShape.top + collisionShape.height;
@@ -133,6 +134,7 @@ std::vector<std::shared_ptr<Tile>> Map::actorOnTiles(const sf::FloatRect &collis
     // Check upper_edge
     size_t vertical_tile = (bot_y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT;
 
+    // TODO: excepcion o algo si vertical_tile h_i son mayores que los limites
     for (int h_i = horizontal_tile_1; h_i < horizontal_tile_2 + 1; ++h_i) {
         if (tile_data[vertical_tile][h_i]->content != Tile::EMPTY) {
             tiles.push_back(tile_data[vertical_tile][h_i]);
@@ -140,13 +142,6 @@ std::vector<std::shared_ptr<Tile>> Map::actorOnTiles(const sf::FloatRect &collis
     }
 
     return tiles;
-}
-
-
-std::vector<std::shared_ptr<Tile>> Map::actorOnTiles(const Actor &actor) const {
-    auto collisionShape = actor.getCollisionShape();
-
-    return actorOnTiles(collisionShape);
 }
 
 bool Map::horizontal_platform_check(const Tile &t) const {
@@ -264,7 +259,7 @@ bool Map::can_move_down(const Tile &t, float bot_edge) const {
             return true;
         }
         // if end of tile has not been reached, true
-        float tile_edge = t.shape.getPosition().y + Tile::TILE_HEIGHT - Y_PADDING;
+        float tile_edge = t.shape.getPosition().y + Tile::TILE_HEIGHT - t.height;
         if (bot_edge < tile_edge /* - HOR_COLL_LOOKAHEAD_CORR */) {
             return true;
         }
@@ -277,13 +272,14 @@ bool Map::can_move_down(const Tile &t, float bot_edge) const {
     }
 }
 
-bool Map::can_actor_move(float &x, float &y, const sf::FloatRect &collisionShape) const {
+bool Map::can_entity_move(float &x, float &y, const Entity& entity) const {
+    const auto &collisionShape = entity.getCollisionShape();
     float bot_left_x = collisionShape.left;
     float bot_right_x = collisionShape.left + collisionShape.width;
 
     float bot_y = collisionShape.top + collisionShape.height;
 
-    std::vector<std::shared_ptr<Tile>> tiles_of_player = actorOnTiles(collisionShape);
+    std::vector<std::shared_ptr<Tile>> tiles_of_player = entityOnTiles(entity);
 
     bool horizontal_mov = x != 0;
     bool up = false, right = false;
@@ -296,11 +292,11 @@ bool Map::can_actor_move(float &x, float &y, const sf::FloatRect &collisionShape
     }
 
     if (horizontal_mov && right && can_move_right(*tiles_of_player.back(), bot_right_x)) {
-        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - Y_PADDING) - bot_y;
+        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - tiles_of_player[0]->height) - bot_y;
         return true;
     }
     else if (horizontal_mov && !right && can_move_left(*tiles_of_player.front(), bot_left_x)) {
-        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - Y_PADDING) - bot_y;
+        y = ((tiles_of_player[0]->shape.getPosition().y + Tile::TILE_HEIGHT) - tiles_of_player[0]->height) - bot_y;
         return true;
     }
     else {
@@ -348,12 +344,6 @@ bool Map::outOfMap(const Actor &actor) {
     }
 
     return false;
-}
-
-bool Map::can_actor_move(float &x, float &y, const Actor &actor) const {
-    auto collisionShape = actor.getCollisionShape();
-
-    return can_actor_move(x, y, collisionShape);
 }
 
 std::vector<std::shared_ptr<const Tile>> Map::availableFrom(const Tile &current) const {

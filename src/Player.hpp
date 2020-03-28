@@ -56,5 +56,7 @@ public:
 
     void win();
 
+    bool goingXdirection();
+
     void connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func);
 };

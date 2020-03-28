@@ -8,11 +8,11 @@ StaticTexture Tile::left_basket_tex(LEFT_BASKET_PATH);
 StaticTexture Tile::mid_basket_tex(MID_BASKET_PATH);
 StaticTexture Tile::right_basket_tex(RIGHT_BASKET_PATH);
 
-Tile::Tile() : col(0), row(0), content(EMPTY) {
+Tile::Tile() : col(0), row(0), height(0), content(EMPTY) {
 	shape.setPosition(0.0, 0.0);
 };
 
-Tile::Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _left) : col(_col), row(_row), content(_content), shape(sf::Vector2f(TILE_WIDTH, TILE_HEIGHT)) {
+Tile::Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _left) : col(_col), row(_row), height(3), content(_content), shape(sf::Vector2f(TILE_WIDTH, TILE_HEIGHT)) {
 	shape.setPosition(_x, _y);
 	if (this->isFloor()) {
 		shape.setTexture(&floor_tex.tex);
@@ -30,6 +30,7 @@ Tile::Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _
 		shape.setTexture(&go_down_tex.tex);
 	} 
 	else if (this->isStairs()) {
+		height = 0;
 		shape.setTexture(&stairs_tex.tex);
         if (_left) {
             shape.setTextureRect(sf::IntRect(0, 0, TILE_WIDTH, TILE_HEIGHT));
@@ -39,6 +40,7 @@ Tile::Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _
         }
 	}
 	else if (this->isBasket()) {
+		height = 2;
 		shape.setTexture(&mid_basket_tex.tex);
 	}
 	else if (this->isBasketEdge()) {

@@ -16,7 +16,7 @@ BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController:
 GUI &BurgerTimeStateMachine::gui = GUI::get();
 
 
-bool BurgerTimeStateMachine::timedStateReact()
+bool BurgerTimeStateMachine::timedStateReact(int waitTime)
 {
     if (hasInputJustBeenPressed(InputSystem::Input::PAUSE))
     {
@@ -25,7 +25,7 @@ bool BurgerTimeStateMachine::timedStateReact()
     }
 
     auto elapsedTime = controller.getElapsedTime();
-    if (elapsedTime.asSeconds() >= getWaitTime())
+    if (elapsedTime.asSeconds() >= waitTime)
     {
         controller.restartTimer();
         return true;
@@ -69,7 +69,7 @@ void HighscoreDisplayScreenState::entry()
 
 void HighscoreDisplayScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<ItemPointsScreenState>();
     }
@@ -314,7 +314,7 @@ void ItemPointsScreenState::entry()
 
 void ItemPointsScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<CharacterScreenState>();
     }
@@ -333,7 +333,7 @@ void CharacterScreenState::entry()
 
 void CharacterScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<FirstTutorialVidScreenState>();
     }
@@ -352,7 +352,7 @@ void FirstTutorialVidScreenState::entry()
 
 void FirstTutorialVidScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<SecondTutorialVidScreenState>();
     }
@@ -371,7 +371,7 @@ void SecondTutorialVidScreenState::entry()
 
 void SecondTutorialVidScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<TutorialScreenState>();
     }
@@ -390,7 +390,7 @@ void TutorialScreenState::entry()
 
 void TutorialScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<ThirdTutorialVidScreenState>();
     }
@@ -409,7 +409,7 @@ void ThirdTutorialVidScreenState::entry()
 
 void ThirdTutorialVidScreenState::react(const ExecuteEvent &)
 {
-    if (BurgerTimeStateMachine::timedStateReact())
+    if (BurgerTimeStateMachine::timedStateReact(5))
     {
         transit<MainScreenState>();
     }
@@ -428,33 +428,12 @@ void MainScreenState::react(const ExecuteEvent &event)
 
     if (MainScreenStateMachine::is_in_state<FinishedStartState>())
     {
-        transit<GameReadyScreenState>();
+        transit<PlayingState>();
     }
 
     if (MainScreenStateMachine::is_in_state<FinishedExitState>())
     {
         transit<FinishedState>();
-    }
-}
-
-
-void GameReadyScreenState::entry()
-{
-    controller.clearScreen();
-
-    auto text = gui.createText("gameReadyText", "GAME READY", sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
-
-    controller.addDrawable(text);
-    controller.restartTimer();
-}
-
-void GameReadyScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact())
-    {
-        // TODO: change
-        transit<PlayingState>();
-        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }
 }
 

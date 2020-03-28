@@ -1,6 +1,7 @@
 #include "PlayingStateMachine.hpp"
 #include "InputSystem.hpp"
 #include "Enemy.hpp"
+#include "BurgerTimeStateMachine.hpp"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -17,6 +18,66 @@ void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Directio
     current_state_ptr->deletePepper();
     current_state_ptr->gameInfo->pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
     controller.addDrawable(current_state_ptr->gameInfo->pepper);
+}
+
+void PlayingStateMachine::addPlayerAndEnemies()
+{
+    gameInfo->enemies.clear();
+    auto &map = gameInfo->maps[gameInfo->currentMap];
+
+    const auto &playerSpawnTile = map->tile_data[map->chef_spawn.x][map->chef_spawn.y];
+
+    sf::Vector2f initPos = playerSpawnTile->shape.getPosition();
+    initPos.y -= playerSpawnTile->height;
+    gameInfo->player = std::make_shared<Player>(initPos, map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
+
+    gameInfo->ai = std::make_shared<AI>(map, playerSpawnTile);
+
+    // TODO: cambiar
+    float offset = 1;
+    for (const auto &enemySpawn : map->enemy_spawns)
+    {
+        // gameInfo->ias.emplace_back(map, map->data[0][17]);
+
+        // ias.push_back(ia);
+        gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, gameInfo->ai, std::placeholders::_1));
+        // gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
+        const Enemy::Sprite_state_machine *enemySprites;
+        switch (enemySpawn.first)
+        {
+            case Map::SAUSAGE:
+                enemySprites = Enemy::sausage_sprite_state_machine;
+                break;
+            case Map::PICKLE:
+                enemySprites = Enemy::pickle_sprite_state_machine;
+                break;
+            case Map::EGG:
+                enemySprites = Enemy::egg_sprite_state_machine;
+                break;
+        }
+
+        const auto &initialTile = map->tile_data[enemySpawn.second.x][enemySpawn.second.y];
+        auto initialPos = initialTile->shape.getPosition();
+        Direction initialDir;
+        if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
+        {
+            initialDir = Direction::RIGHT;
+            initialPos.x -= offset * 5 * Tile::TILE_WIDTH;
+        }
+        else
+        {
+            initialDir = Direction::LEFT;
+            initialPos.x += offset * 5 * Tile::TILE_WIDTH;
+        }
+        initialPos.y -= initialTile->height;
+
+        // sf::Vector2
+
+        offset += 1.2;
+
+        gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, *gameInfo->ai, initialDir));
+        // gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, gameInfo->ias.back(), initialDir));
+    }
 }
 
 void PlayingStateMachine::deletePepper()
@@ -37,11 +98,13 @@ void PlayingStateMachine::setGameInfo(std::unique_ptr<GameInfo> newGameInfo)
 
 void EnterStatePlaying::entry()
 {
+    controller.clearScreen();
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
-    // TODO: change
-    gameInfo->currentMap = 5;
+    gameInfo->currentMap = 0;
     gameInfo->currentScore = 0;
+    gameInfo->currentIngredients = 0;
+    gameInfo->currentLives = 3;
     controller.clearScreen();
 
     gameInfo->curtains[0] = std::make_shared<sf::RectangleShape>();
@@ -53,9 +116,8 @@ void EnterStatePlaying::entry()
     gameInfo->curtains[1]->setPosition(sf::Vector2f(WINDOW_WIDTH - 2 * Tile::TILE_WIDTH, 0));
     gameInfo->curtains[1]->setSize(sf::Vector2f(2 * Tile::TILE_WIDTH, WINDOW_HEIGHT));
 
-    auto oneUpText = gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
-
-    auto hiScoreText = gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
+    gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
+    gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
 
     gameInfo->pepperText = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*gameInfo->pepperText, BT_sprites::Sprite::PEPPER);
@@ -84,102 +146,106 @@ void EnterStatePlaying::entry()
     { 
         gameInfo->maps.push_back(std::make_shared<Map>(mapName));
     }
+}
 
-    auto &map = gameInfo->maps[gameInfo->currentMap];
+void EnterStatePlaying::react(const ExecuteEvent &event)
+{
+    transit<GameReadyScreenState>(std::bind(&EnterStatePlaying::changeGameInfo, this));
+}
 
-    const auto &playerSpawnTile = map->tile_data[map->chef_spawn.x][map->chef_spawn.y];
 
-    sf::Vector2f initPos = playerSpawnTile->shape.getPosition();
-    initPos.y -= Map::Y_PADDING;
-    gameInfo->player = std::make_shared<Player>(initPos, map, std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2));
+void GameReadyScreenState::entry()
+{
+    controller.clearScreen();
 
-    static auto ia = AI(map, playerSpawnTile);
+    auto text = gui.createText("gameReadyText", "GAME READY", sf::Vector2u(250, 500), sf::Vector2f(0.8, 0.8));
+    addPlayerAndEnemies();
 
-    // TODO: cambiar
-    float offset = 1;
-    for (const auto &enemySpawn : map->enemy_spawns)
+    controller.addDrawable(text);
+    controller.restartTimer();
+}
+
+void GameReadyScreenState::react(const ExecuteEvent &)
+{
+    if (BurgerTimeStateMachine::timedStateReact(1))
     {
-        // gameInfo->ias.emplace_back(map, map->data[0][17]);
-
-        // ias.push_back(ia);
-        gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &ia, std::placeholders::_1));
-        // gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
-        const Enemy::Sprite_state_machine *enemySprites;
-        switch (enemySpawn.first)
-        {
-            case Map::SAUSAGE:
-                enemySprites = Enemy::sausage_sprite_state_machine;
-                break;
-            case Map::PICKLE:
-                enemySprites = Enemy::pickle_sprite_state_machine;
-                break;
-            case Map::EGG:
-                enemySprites = Enemy::egg_sprite_state_machine;
-                break;
-        }
-
-        auto initialPos = map->tile_data[enemySpawn.second.x][enemySpawn.second.y]->shape.getPosition();
-        Direction initialDir;
-        if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
-        {
-            initialDir = Direction::RIGHT;
-            initialPos.x -= offset * 5 * Tile::TILE_WIDTH;
-        }
-        else
-        {
-            initialDir = Direction::LEFT;
-            initialPos.x += offset * 5 * Tile::TILE_WIDTH;
-        }
-        initialPos.y -= Map::Y_PADDING;
-
-        // sf::Vector2
-
-        offset += 1.2;
-
-        gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, ia, initialDir));
-        // gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, gameInfo->ias.back(), initialDir));
+        // TODO: change
+        transit<NormalStatePlaying>(std::bind(&GameReadyScreenState::changeGameInfo, this));
+        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }
+}
 
-    controller.addDrawable(map);
+
+void NormalStatePlaying::entry()
+{
+    controller.clearScreen();
+
+    controller.addDrawable(gameInfo->maps[gameInfo->currentMap]);
     for (const auto &enemy : gameInfo->enemies)
     {
         controller.addDrawable(enemy);
     }
     controller.addDrawable(gameInfo->player);
     controller.addDrawable(gameInfo->pepperText);
-    controller.addDrawable(oneUpText);
-    controller.addDrawable(hiScoreText);
+    controller.addDrawable(gui.getText("playingStateOneUp"));
+    controller.addDrawable(gui.getText("playingStateHiScore"));
     controller.addDrawable(gameInfo->curtains[0]);
     controller.addDrawable(gameInfo->curtains[1]);
     // controller.addDrawable(currentScoreText);
 }
 
-void EnterStatePlaying::react(const ExecuteEvent &event)
-{
-    transit<NormalStatePlaying>();
-    changeGameInfo();
-}
-
 void NormalStatePlaying::react(const ExecuteEvent &event)
 {
+    auto &map = gameInfo->maps[gameInfo->currentMap];
     for (const auto &enemy : gameInfo->enemies)
     {
-        if (gameInfo->player->getCollisionShape().intersects(enemy->getCollisionShape())) {
-            // TODO: tachan
-            // std::cout << "intersects" << std::endl;
+        if (!enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) {
+#if false
+            if (gameInfo->currentLives > 0)
+            {
+                transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
+                return;
+            }
+#endif
         }
     }
 
-    for (auto &ingredient : gameInfo->maps[gameInfo->currentMap]->ing_data)
+    for (auto &ingredient : map->ing_data)
     {
-        ingredient.stepped(gameInfo->player->getCollisionShape());
+        if (gameInfo->player->goingXdirection())
+        {
+            ingredient.stepped(gameInfo->player->getCollisionShape());
+        }
+
+        if (ingredient.isFalling())
+        {
+            for (const auto &tile : map->entityOnTiles(ingredient))
+            {
+                if (tile->isFloor())
+                {
+                    ingredient.land(tile->shape.getPosition().y + (Tile::TILE_HEIGHT - 8));
+                }
+                else if (tile->isBasket())
+                {
+                    // TODO: mas cosas
+                    gameInfo->currentIngredients++;
+                    ingredient.land(tile->shape.getPosition().y + (Tile::TILE_HEIGHT - 12));
+                }
+            }
+        }
+    }
+
+    if (gameInfo->currentIngredients == map->ing_data.size())
+    {
+        transit<WinStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
+        return;
     }
 
     if (gameInfo->pepper)
     {
         for (const auto &enemy : gameInfo->enemies)
         {
-            if (gameInfo->pepper->getCollisionShape().intersects(enemy->getCollisionShape())) {
+            if (gameInfo->pepper->intersectsWith(*enemy)) {
                 // TODO: algo?
                 enemy->pepper();
             }
@@ -193,7 +259,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
         enemy->update(event.deltaT);
     }
 
-    for (auto &ingredient : gameInfo->maps[gameInfo->currentMap]->ing_data)
+    for (auto &ingredient : map->ing_data)
     {
         ingredient.update(event.deltaT);
     }
@@ -201,5 +267,55 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
     if (gameInfo->pepper)
     {
         gameInfo->pepper->update(event.deltaT);
+    }
+}
+
+
+void DeadStatePlaying::entry()
+{
+    controller.restartTimer();
+    gameInfo->currentLives--;
+    gameInfo->player->die();
+}
+
+void DeadStatePlaying::react(const ExecuteEvent &event)
+{
+    if (BurgerTimeStateMachine::timedStateReact(4))
+    {
+        // TODO: change
+        transit<GameReadyScreenState>(std::bind(&DeadStatePlaying::changeGameInfo, this));
+        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
+    }
+    else
+    {
+        auto &map = gameInfo->maps[gameInfo->currentMap];
+        gameInfo->player->update(event.deltaT);
+
+        for (auto &ingredient : map->ing_data)
+        {
+            ingredient.update(event.deltaT);
+        }
+    }
+}
+
+
+void WinStatePlaying::entry()
+{
+    controller.restartTimer();
+    gameInfo->player->win();
+    gameInfo->currentMap = (gameInfo->currentMap + 1) % gameInfo->maps.size();
+}
+
+void WinStatePlaying::react(const ExecuteEvent &event)
+{
+    if (BurgerTimeStateMachine::timedStateReact(4))
+    {
+        // TODO: change
+        transit<GameReadyScreenState>(std::bind(&WinStatePlaying::changeGameInfo, this));
+        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
+    }
+    else
+    {
+        gameInfo->player->update(event.deltaT);
     }
 }

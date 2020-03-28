@@ -247,6 +247,10 @@ void Player::win() {
     won = true;
 }
 
+bool Player::goingXdirection() {
+    return last_action == LEFT || last_action == RIGHT;
+}
+
 void Player::update(float delta_t) {
     acc_delta_t += delta_t;
 
@@ -337,9 +341,9 @@ void Player::update(float delta_t) {
         // Want to move.
         if (move_x != 0.0 || move_y != 0.0) {
             // Want to move and can.
-            if (map->can_actor_move(move_x, move_y, *this)) {
+            if (map->can_entity_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
-                player_moved(map->actorOnTiles(*this)[0]);
+                player_moved(map->entityOnTiles(*this)[0]);
             }
             // Want to move but can't.
             else {

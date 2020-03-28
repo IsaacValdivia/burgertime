@@ -1,7 +1,7 @@
 #include "Ingredient.hpp"
 
 Ingredient::IngredientPiece::IngredientPiece(const sf::Vector2f &_init_pos, BT_sprites::Sprite _init_sprite) :
-    Entity(_init_pos, _init_sprite), stepped(false) {
+    SpritedEntity(_init_pos, _init_sprite), stepped(false) {
     this->sprite.setScale(2, 2);
 }
 
@@ -20,10 +20,6 @@ bool Ingredient::IngredientPiece::isStepped() const {
 
 void Ingredient::IngredientPiece::move() {
     this->sprite.move(0, y_movement_static);
-}
-
-sf::Sprite &Ingredient::IngredientPiece::getSprite() {
-    return sprite;
 }
 
 Ingredient::Ingredient(const float _x, const float _y, const char _content) :
@@ -90,6 +86,10 @@ void Ingredient::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     }
 }
 
+bool Ingredient::isFalling() {
+    return falling;
+}
+
 void Ingredient::update(float delta_t) {
     if (falling) {
         for (auto &piece : pieces) {
@@ -105,7 +105,7 @@ void Ingredient::update(float delta_t) {
                 ++step_num;
             }
 
-            float y = piece.getSprite().getPosition().y;
+            float y = piece.sprite.getPosition().y;
 
             if (y > lowerY) {
                 lowerY = y;
@@ -116,16 +116,21 @@ void Ingredient::update(float delta_t) {
         if (step_num >= 4) {
             // Fix positions
             for (auto &piece : pieces) {
-                auto position = piece.getSprite().getPosition();
-                piece.getSprite().setPosition(position.x, lowerY);
+                auto position = piece.sprite.getPosition();
+                piece.sprite.setPosition(position.x, lowerY);
             }
             falling = true;
         }
     }
 }
 
-void Ingredient::land() {
+void Ingredient::land(float y) {
     falling = false;
+    for (auto &piece : pieces) {
+        auto position = piece.sprite.getPosition();
+        piece.sprite.setPosition(position.x, y);
+        piece.stepped = false;
+    }
 }
 
 void Ingredient::stepped(const sf::FloatRect &rectangle) {
@@ -159,4 +164,11 @@ void Ingredient::stepped(const sf::FloatRect &rectangle) {
             }
         }
     }
+}
+
+sf::FloatRect Ingredient::getCollisionShape() const {
+    sf::FloatRect collisionShape = pieces[0].sprite.getGlobalBounds();
+    collisionShape.width *= 4;
+
+    return collisionShape;
 }

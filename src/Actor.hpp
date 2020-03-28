@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Entity.hpp"
+#include "SpritedEntity.hpp"
 #include "Constants.hpp"
 
 #include <memory>
 
 class Map;
 
-class Actor : public Entity {
+class Actor : public SpritedEntity {
 private:
     static constexpr auto sprite_scale = 2;
 

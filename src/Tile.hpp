@@ -40,6 +40,7 @@ public:
 
     uint8_t col;
     uint8_t row;
+    unsigned int height;
     char content;
     sf::RectangleShape shape;
 

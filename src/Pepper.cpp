@@ -8,7 +8,7 @@ const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
 };
 
 Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, const std::function<void()> &pepper_finished_func)
-    : Entity(init_pos, initial_sprite[type]),
+    : SpritedEntity(init_pos, initial_sprite[type]),
       type(type),
       current_sprite(initial_sprite[type]),
       pepper_finished_func(pepper_finished_func) {

@@ -5,14 +5,12 @@
 #include <vector>
 
 #include "BT_sprites.hpp"
-#include "Updrawable.hpp"
 #include "Entity.hpp"
+#include "SpritedEntity.hpp"
 
-class Map;
-
-class Ingredient : public Updrawable {
+class Ingredient : public Entity {
 private:
-    class IngredientPiece : public Entity {
+    class IngredientPiece : public SpritedEntity {
     private:
         static constexpr auto y_movement_static = 1.5;
         static constexpr auto y_movement_falling = 100;
@@ -29,12 +27,12 @@ private:
         void move();
         void drop();
         void land();
-        sf::Sprite &getSprite();
+
+        friend class Ingredient;
     };
 
     static const unsigned int ING_LENGTH = 4;
     bool falling;
-
 public:
 
     static const char TOP_BUN = '^';
@@ -48,8 +46,6 @@ public:
 
     char content;
 
-    std::shared_ptr<Map> my_map;
-
     std::vector<IngredientPiece> pieces;
 
     Ingredient(const float _x, const float _y, const char _content);
@@ -57,10 +53,14 @@ public:
     void operator=(const Ingredient &other);
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
     void update(float delta_t) override;
 
     void stepped(const sf::FloatRect &rectangle);
 
-    void drop();
-    void land();
+    sf::FloatRect getCollisionShape() const override;
+
+    void land(float y);
+
+    bool isFalling();
 };

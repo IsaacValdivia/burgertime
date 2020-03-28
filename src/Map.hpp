@@ -7,6 +7,7 @@
 
 #include "Constants.hpp"
 #include "Tile.hpp"
+#include "Entity.hpp"
 #include "Ingredient.hpp"
 #include "Actor.hpp"
 
@@ -57,8 +58,6 @@ public:
     static constexpr unsigned int MAX_ROWS = 24;
     static constexpr unsigned int MAX_COLS = 26;
 
-    static constexpr int Y_PADDING = 3;
-
     std::shared_ptr<Tile> tile_data[MAX_ROWS][MAX_COLS];
     std::vector<Ingredient> ing_data;
 
@@ -70,15 +69,11 @@ public:
 
     Map(const string &map_file);
 
-    std::vector<std::shared_ptr<Tile>> actorOnTiles(const sf::FloatRect& collisionShape) const;
-
-    std::vector<std::shared_ptr<Tile>> actorOnTiles(const Actor &actor) const;
+    std::vector<std::shared_ptr<Tile>> entityOnTiles(const Entity& entity) const;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-    bool can_actor_move(float &x, float &y, const sf::FloatRect& collisionShape) const;
-
-    bool can_actor_move(float &x, float &y, const Actor& actor) const;
+    bool can_entity_move(float &x, float &y, const Entity& entity) const;
 
     bool outOfMap(const Actor &actor);
 

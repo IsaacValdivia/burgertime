@@ -4,12 +4,12 @@
 #include <SFML/Graphics.hpp>
 #include "BT_sprites.hpp"
 #include "nod.hpp"
-#include "Entity.hpp"
+#include "SpritedEntity.hpp"
 
 #include "Constants.hpp"
 
 
-class Pepper : public Entity {
+class Pepper : public SpritedEntity {
 private:
     static constexpr int NUM_SPRITES_ANIMATION = 4;
 
