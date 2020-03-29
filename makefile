@@ -5,7 +5,7 @@ CFLAGS+=-MD -MP # Autogenerate dependencies.
 CFLAGS+=-O0 -ggdb -std=c++17
 CFLAGS+=-Iinclude
 
-LIBS=-lsfml-graphics -lsfml-window -lsfml-system -lstdc++fs
+LIBS=-lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lstdc++fs
 
 # Directories.
 BINDIR=bin
