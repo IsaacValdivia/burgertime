@@ -49,9 +49,6 @@ public:
     static const char ICE_CREAM = 'I';
     static const char COFFEE = 'D';
     static const char FRIES = 'F';
-    static const char SAUSAGE = 'S';
-    static const char PICKLE = 'P';
-    static const char EGG = 'E';
     static const char CHEF = '0';
 
     unsigned int num_burgers;

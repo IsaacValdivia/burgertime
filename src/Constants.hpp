@@ -14,7 +14,7 @@ static constexpr auto SPRITES_FILE = "img/burger_time_characters_and_objects_spr
 static constexpr auto MAPS_FOLDER = "maps";
 static constexpr auto MAP_EXTENSION = ".map";
 static constexpr auto INGMAP_EXTENSION = ".ingmap";
-
+static constexpr auto MAX_SCORE_CHARS = 6;
 
 enum Direction {
     LEFT,

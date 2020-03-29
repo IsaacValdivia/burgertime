@@ -8,8 +8,6 @@ namespace Audio {
     namespace {
         static constexpr size_t NUM_AUDIO_FILES = 17;
 
-        // static sf::SoundBuffer sound_buffer;
-
         struct Sounds {
             sf::SoundBuffer sound_buffer;
             std::string filename;
@@ -27,7 +25,7 @@ namespace Audio {
             {.filename = "audio/6_one_up.ogg", .loop = false},
             {.filename = "audio/7_enemy_crushed.ogg", .loop = false},
             {.filename = "audio/8_enemy_fall.ogg", .loop = false},
-            {.filename = "audio/9_getting_points.ogg", .loop = false},
+            {.filename = "audio/9_pepper_up.ogg", .loop = false},
             {.filename = "audio/10_level_intro.ogg", .loop = false},
             {.filename = "audio/11_main.ogg", .loop = true},
             {.filename = "audio/12_main_bip.ogg", .loop = true},
@@ -60,5 +58,11 @@ namespace Audio {
 
     void stop(Track track) {
         sounds[track].sound.stop();
+    }
+
+    void stopBackground() {
+        sounds[MAIN].sound.stop();
+        sounds[LEVEL_INTRO].sound.stop();
+        sounds[MAIN_BIP].sound.stop();
     }
 }

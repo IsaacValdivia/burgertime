@@ -29,5 +29,5 @@ public:
 
     bool is_alive() const;
 
-    void die();
+    virtual void die();
 };

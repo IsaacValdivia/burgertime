@@ -1,6 +1,8 @@
 #include "Actor.hpp"
 #include "Map.hpp"
 
+#include "Audio.hpp"
+
 Actor::Actor(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const BT_sprites::Sprite first_sprite, std::shared_ptr<Map> map)
     : alive(true), SpritedEntity(init_pos, init_sprite),
       direction(LEFT),
@@ -30,8 +32,8 @@ void Actor::mirror() {
 sf::FloatRect Actor::getCollisionShape() const {
     sf::FloatRect collisionShape = sprite.getGlobalBounds();
 
-    collisionShape.height -= 15;
-    collisionShape.top += 15;
+    collisionShape.height -= 18;
+    collisionShape.top += 18;
 
     collisionShape.left += 10;
     collisionShape.width -= 20;
@@ -45,4 +47,3 @@ bool Actor::is_alive() const {
 void Actor::die() {
     alive = false;
 }
-

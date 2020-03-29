@@ -1,11 +1,12 @@
 #include "Map.hpp"
 #include <fstream>
 #include <iostream>
+#include "Enemy.hpp"
 
 using namespace std;
 
 bool Map::isEnemy(const char c) {
-    return c == SAUSAGE || c == EGG || c == PICKLE;
+    return c == Enemy::Type::SAUSAGE || c == Enemy::Type::EGG || c == Enemy::Type::PICKLE;
 }
 
 bool Map::isItem(const char c) {

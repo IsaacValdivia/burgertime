@@ -2,7 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "memory"
+#include <memory>
+#include "Audio.hpp"
 #include "Actor.hpp"
 #include "AI.hpp"
 
@@ -17,6 +18,12 @@ public:
         PEPPER,
         DIE,
         NUM_ACTIONS
+    };
+
+    enum Type : char {
+        SAUSAGE = 'S',
+        PICKLE = 'P',
+        EGG = 'E',
     };
 
     struct Sprite_state_machine {
@@ -53,6 +60,8 @@ private:
     Action new_action;
     Action last_action;
 
+    Type type;
+
     const AI &ia;
 
     std::unique_ptr<nod::connection> ingredient_moving_connection;
@@ -60,7 +69,7 @@ private:
 
     void move(float &move_x, float &move_y, float delta_t);
 public:
-    Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction);
+    Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction);
 
     void pepper();
 
@@ -72,11 +81,13 @@ public:
 
     bool completelyDead();
 
+    void die() override;
+
     bool isSurfing() const;
 
     bool isPeppered() const;
 
-    const Sprite_state_machine *const getSpriteStateMachine() const;
+    Type getType() const;
 
     void update(float delta_t) override;
 };

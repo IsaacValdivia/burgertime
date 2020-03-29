@@ -8,7 +8,6 @@ class HighScores
 {
 public:
     static constexpr auto NUM_HIGH_SCORES = 5;
-    static constexpr auto MAX_SCORE_CHARS = 6;
     static constexpr auto PLAYER_NAME_SIZE = 4;
 
     HighScores(const std::string &fileName);

@@ -6,6 +6,7 @@
 #include <SFML/System.hpp>
 #include "Constants.hpp"
 #include "InputSystem.hpp"
+#include "Audio.hpp"
 #include "BurgerTimeStateMachine.hpp"
 
 BurgerTimeController::BurgerTimeController() : 
@@ -48,6 +49,7 @@ void BurgerTimeController::startup()
 {
     BurgerTimeStateMachine::start();
     window.setKeyRepeatEnabled(false);
+    Audio::init();
 }
 
 void BurgerTimeController::run()

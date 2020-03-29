@@ -2,6 +2,7 @@
 #include "InputSystem.hpp"
 #include "Enemy.hpp"
 #include "BurgerTimeStateMachine.hpp"
+#include "Audio.hpp"
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
@@ -19,6 +20,8 @@ void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Directio
 {
     if (current_state_ptr->gameInfo->currentPepper > 0)
     {
+        Audio::play(Audio::Track::PEPPER);
+
         current_state_ptr->gameInfo->currentPepper--;
         current_state_ptr->deletePepper();
         current_state_ptr->gameInfo->pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
@@ -28,7 +31,7 @@ void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Directio
     else
     {
         // TODO: exception
-    }   
+    }
 }
 
 bool PlayingStateMachine::hasPepper() const
@@ -45,8 +48,8 @@ void PlayingStateMachine::addPlayerAndEnemies()
 
     sf::Vector2f initPos = playerSpawnTile->shape.getPosition();
     initPos.y -= playerSpawnTile->height;
-    gameInfo->player = std::make_shared<Player>(initPos, map, 
-        std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2), 
+    gameInfo->player = std::make_shared<Player>(initPos, map,
+        std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2),
         std::bind(&PlayingStateMachine::hasPepper, this)
     );
 
@@ -55,27 +58,13 @@ void PlayingStateMachine::addPlayerAndEnemies()
     float offset = 1;
     for (const auto &enemySpawn : map->enemy_spawns)
     {
-        const Enemy::Sprite_state_machine *enemySprites;
-        switch (enemySpawn.first)
-        {
-            case Map::SAUSAGE:
-                enemySprites = Enemy::sausage_sprite_state_machine;
-                break;
-            case Map::PICKLE:
-                enemySprites = Enemy::pickle_sprite_state_machine;
-                break;
-            case Map::EGG:
-                enemySprites = Enemy::egg_sprite_state_machine;
-                break;
-        }
-
         const auto &initialTile = map->tile_data[enemySpawn.second.x][enemySpawn.second.y];
-        spawnEnemy(enemySprites, *initialTile, offset);
+        spawnEnemy(static_cast<Enemy::Type>(enemySpawn.first), *initialTile, offset);
         offset += 1.2;
     }
 }
 
-void PlayingStateMachine::spawnEnemy(const Enemy::Sprite_state_machine *enemySprites, const Tile &initialTile, float offset)
+void PlayingStateMachine::spawnEnemy(const Enemy::Type &type, const Tile &initialTile, float offset)
 {
     auto &map = gameInfo->maps[gameInfo->currentMap];
     // TODO: ia
@@ -98,7 +87,21 @@ void PlayingStateMachine::spawnEnemy(const Enemy::Sprite_state_machine *enemySpr
 
     // sf::Vector2
 
-    gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, *gameInfo->ai, initialDir));
+    const Enemy::Sprite_state_machine *enemySprites;
+    switch (type)
+    {
+        case Enemy::Type::SAUSAGE:
+            enemySprites = Enemy::sausage_sprite_state_machine;
+            break;
+        case Enemy::Type::PICKLE:
+            enemySprites = Enemy::pickle_sprite_state_machine;
+            break;
+        case Enemy::Type::EGG:
+            enemySprites = Enemy::egg_sprite_state_machine;
+            break;
+    }
+
+    gameInfo->enemies.push_back(std::make_shared<Enemy>(type, initialPos, enemySprites, map, *gameInfo->ai, initialDir));
 }
 
 
@@ -141,7 +144,7 @@ void PlayingStateMachine::ingredientCollision()
 
             for (auto &other : map->ing_data)
             {
-                if (&other != &ingredient) 
+                if (&other != &ingredient)
                 {
                     if (other.intersectsWith(ingredient) && (other.isIdle() || other.isStatic()))
                     {
@@ -159,10 +162,22 @@ void PlayingStateMachine::ingredientCollision()
 
             for (auto &enemy : gameInfo->enemies)
             {
-                if (ingredient.intersectsWith(*enemy))
+                if (ingredient.intersectsWith(*enemy) && enemy->is_alive())
                 {
                     if (ingredient.getCollisionShape().top < enemy->getCollisionShape().top)
                     {
+                        switch (enemy->getType())
+                        {
+                            case Enemy::Type::SAUSAGE:
+                                addPoints(100);
+                                break;
+                            case Enemy::Type::PICKLE:
+                                addPoints(200);
+                                break;
+                            case Enemy::Type::EGG:
+                                addPoints(300);
+                                break;
+                        }
                         enemy->die();
                     }
                 }
@@ -186,6 +201,12 @@ void PlayingStateMachine::ingredientCollision()
         {
             if (ingredient.stepped(gameInfo->player->getCollisionShape(), 1 + enemiesSurfing * 2))
             {
+                Audio::play(Audio::Track::BURGER_GOING_DOWN);
+                addPoints(50);
+                if (enemiesSurfing > 0)
+                {
+                    addPoints(std::pow(2, enemiesSurfing - 1) * 500);
+                }
                 for (auto &enemy : gameInfo->enemies)
                 {
                     if (!enemy->isSurfing() && ingredient.intersectsWith(*enemy) && ingredient.getCollisionShape().top >= enemy->getCollisionShape().top)
@@ -201,9 +222,18 @@ void PlayingStateMachine::ingredientCollision()
     }
 }
 
+void PlayingStateMachine::addPoints(int points)
+{
+    gameInfo->currentScore += points;
+    gui.getText("playingStateScore").lock()->setString(GUI::fixTextToRight(std::to_string(gameInfo->currentScore), MAX_SCORE_CHARS));
+
+}
+
 
 void EnterStatePlaying::entry()
 {
+    Audio::play(Audio::Track::LEVEL_INTRO);
+
     controller.clearScreen();
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
@@ -212,7 +242,6 @@ void EnterStatePlaying::entry()
     gameInfo->currentIngredients = 0;
     gameInfo->currentLives = 3;
     gameInfo->currentPepper = 5;
-    controller.clearScreen();
 
     gameInfo->curtains[0] = std::make_shared<sf::RectangleShape>();
     gameInfo->curtains[0]->setFillColor(sf::Color::Black);
@@ -226,7 +255,7 @@ void EnterStatePlaying::entry()
     gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
     gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
     gui.createText("playingStatePepper", GUI::fixTextToRight(std::to_string(gameInfo->currentPepper), 3), sf::Vector2u(763, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
-    gui.createText("playingStateScore", GUI::fixTextToRight(std::to_string(gameInfo->currentScore), 3), sf::Vector2u(140, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+    gui.createText("playingStateScore", GUI::fixTextToRight(std::to_string(gameInfo->currentScore), MAX_SCORE_CHARS), sf::Vector2u(50, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
 
     gameInfo->pepperText = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*gameInfo->pepperText, BT_sprites::Sprite::PEPPER);
@@ -252,7 +281,7 @@ void EnterStatePlaying::entry()
     std::sort(mapNames.begin(), mapNames.end());
 
     for (const auto &mapName : mapNames)
-    { 
+    {
         gameInfo->maps.push_back(std::make_shared<Map>(mapName));
     }
 }
@@ -285,9 +314,23 @@ void GameReadyScreenState::react(const ExecuteEvent &)
 }
 
 
+void NormalStatePlaying::checkMainMusic()
+{
+    if (!mainMusicPlayed)
+    {
+        auto elapsedTime = controller.getElapsedTime();
+        if (elapsedTime.asSeconds() >= 4)
+        {
+            mainMusicPlayed = true;
+            Audio::play(Audio::Track::MAIN);
+        }
+    }
+} 
+
 void NormalStatePlaying::entry()
 {
     controller.clearScreen();
+    mainMusicPlayed = false;
 
     auto &map = gameInfo->maps[gameInfo->currentMap];
     for (auto &ingredient : map->ing_data)
@@ -309,25 +352,28 @@ void NormalStatePlaying::entry()
     controller.addDrawable(gui.getText("playingStateScore"));
     controller.addDrawable(gameInfo->curtains[0]);
     controller.addDrawable(gameInfo->curtains[1]);
-    // controller.addDrawable(currentScoreText);
 }
 
 void NormalStatePlaying::react(const ExecuteEvent &event)
 {
+    checkMainMusic();
+
     auto &map = gameInfo->maps[gameInfo->currentMap];
 
     static std::set<int> initialPositions;
     for (auto it = gameInfo->enemies.begin(); it != gameInfo->enemies.end(); ++it)
     {
         const auto &enemy = *it;
-        if (!enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) {
-// #if false
+
+        if (!enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) 
+        {
+#if true
             if (gameInfo->currentLives > 0)
             {
                 transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
                 return;
             }
-// #endif
+#endif
         }
         else if (enemy->completelyDead())
         {
@@ -337,19 +383,19 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
             static std::uniform_int_distribution<> offsetDis(2, 4);
 
             auto enemySpawnsIt = map->enemy_spawns.begin();
-            
+
             int initPos;
             do
             {
                 initPos = spawnsDis(gen);
             } while (initialPositions.find(initPos) != initialPositions.end());
-            
+
             initialPositions.insert(initPos);
 
             std::advance(enemySpawnsIt, initPos);
             const auto &initialTilePos = (*enemySpawnsIt).second;
             const auto &initialTile = map->tile_data[initialTilePos.x][initialTilePos.y];
-            spawnEnemy(enemy->getSpriteStateMachine(), *initialTile, offsetDis(gen));
+            spawnEnemy(enemy->getType(), *initialTile, offsetDis(gen));
 
             it = gameInfo->enemies.erase(it);
             --it;
@@ -399,6 +445,9 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
 
 void DeadStatePlaying::entry()
 {
+    Audio::stopBackground();
+    Audio::play(Audio::Track::DIE);
+
     controller.restartTimer();
     gameInfo->currentLives--;
     gameInfo->player->die();
@@ -416,7 +465,7 @@ void DeadStatePlaying::react(const ExecuteEvent &event)
         {
             transit<GameReadyScreenState>(std::bind(&DeadStatePlaying::changeGameInfo, this));
         }
-        
+
         // TODO: change
         // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }
@@ -449,6 +498,8 @@ void WinStatePlaying::react(const ExecuteEvent &event)
     if (BurgerTimeStateMachine::timedStateReact(4))
     {
         // TODO: change
+        Audio::play(Audio::Track::LEVEL_INTRO);
+
         transit<GameReadyScreenState>(std::bind(&WinStatePlaying::changeGameInfo, this));
         // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }

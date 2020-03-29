@@ -1,5 +1,7 @@
 #include "Ingredient.hpp"
 
+#include "Audio.hpp"
+
 Ingredient::IngredientPiece::IngredientPiece(const sf::Vector2f &_init_pos, BT_sprites::Sprite _init_sprite) :
     SpritedEntity(_init_pos, _init_sprite), stepped(false) {
     this->sprite.setScale(2, 2);
@@ -295,6 +297,8 @@ void Ingredient::land(float y, Landable landable) {
             return;
         }
 
+        Audio::play(Audio::Track::BURGER_TOUCHING_FLOOR);
+
         if (landable == INGREDIENT || landable == STATIC_ING_BASKET) {
             state = BOUNCE_UP_1;
         }
@@ -323,6 +327,8 @@ bool Ingredient::stepped(const sf::FloatRect &rectangle, const int _num_levels) 
         for (int i = 0; i < ING_LENGTH; ++i) {
             if (pieces[i].getCollisionShape().intersects(rectangle) && !pieces[i].isStepped()) {
                 pieces[i].step();
+
+                Audio::play(Audio::Track::STEPPING_ON_BURGER);
 
                 // LEFT
                 for (int j = i - 1; j >= 0; --j) {

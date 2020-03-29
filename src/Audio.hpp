@@ -11,7 +11,7 @@ namespace Audio {
         ONE_UP,
         ENEMY_CRUSHED,
         ENEMY_FALL,
-        GETTING_POINTS,
+        PEPPER_UP,
         LEVEL_INTRO,
         MAIN,
         MAIN_BIP,
@@ -25,5 +25,6 @@ namespace Audio {
 
     void play(Track track);
     void stop(Track track);
+    void stopBackground();
 }
 

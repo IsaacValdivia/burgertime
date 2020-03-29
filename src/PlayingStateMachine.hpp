@@ -21,9 +21,11 @@ public:
 
     void addPlayerAndEnemies();
 
-    void spawnEnemy(const Enemy::Sprite_state_machine *, const Tile&, float offset);
+    void spawnEnemy(const Enemy::Type &type, const Tile&, float offset);
 
     void ingredientCollision();
+
+    void addPoints(int points);
 
     void addPepper(const sf::Vector2f &launchPosition, Direction direction);
 
@@ -83,6 +85,10 @@ class NormalStatePlaying : public PlayingStateMachine
 {
     void entry() override;
     void react(const ExecuteEvent &) override;
+
+    void checkMainMusic();
+
+    bool mainMusicPlayed;
 };
 
 class WinStatePlaying : public PlayingStateMachine

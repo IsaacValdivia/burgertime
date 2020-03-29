@@ -50,7 +50,7 @@ void HighscoreDisplayScreenState::entry()
     {
         auto scoreStr = std::to_string(hScores[i].second);
 
-        std::string text = std::to_string(i + 1) + " " + hScores[i].first.data() + GUI::fixTextToRight(scoreStr, HighScores::MAX_SCORE_CHARS) + " PTS";
+        std::string text = std::to_string(i + 1) + " " + hScores[i].first.data() + GUI::fixTextToRight(scoreStr, MAX_SCORE_CHARS) + " PTS";
         auto hScoreText = gui.createText(std::string("hScorehScoreText") + std::to_string(i), text, sf::Vector2u(180, (450 + i * 100)), sf::Vector2f(0.70, 0.70));
 
         controller.addDrawable(hScoreText);
@@ -531,7 +531,7 @@ void GameOverScreenState::react(const ExecuteEvent &)
 //         auto scoreStr = std::to_string(highScore);
 //         std::string whiteSpace(" ");
 
-//         for (uint8_t j = 0; j < HighScores::MAX_SCORE_CHARS - scoreStr.length(); ++j)
+//         for (uint8_t j = 0; j < MAX_SCORE_CHARS - scoreStr.length(); ++j)
 //         {
 //             whiteSpace += " ";
 //         }

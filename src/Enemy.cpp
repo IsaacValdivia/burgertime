@@ -406,9 +406,10 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
-Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction)
+Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction)
     : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
             sprite_state_machine[0].sprites[NONE], map),
+      type(type),
       sprite_state_machine(sprite_state_machine),
       last_action(NONE),
       acc_delta_t_pepper(0),
@@ -421,12 +422,16 @@ Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_sta
 
 void Enemy::pepper()
 {
+    Audio::play(Audio::Track::PEPPERED);
+
     acc_delta_t_pepper = 0;
     last_action = PEPPER;
 }
 
 void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con)
 {
+    Audio::play(Audio::Track::ENEMY_FALL);
+
     ingredient_moving_connection = std::make_unique<nod::connection>(std::move(ingredient_moving_con));
     stop_surfing_connection = std::make_unique<nod::connection>(std::move(stop_surfing_con));
 }
@@ -445,9 +450,21 @@ bool Enemy::isPeppered() const
     return last_action == PEPPER;
 }
 
+void Enemy::die()
+{
+    Actor::die();
+
+    Audio::play(Audio::Track::ENEMY_CRUSHED);
+}
+
 bool Enemy::isSurfing() const
 {
     return ingredient_moving_connection != nullptr;
+}
+
+Enemy::Type Enemy::getType() const
+{
+    return type;
 }
 
 bool Enemy::completelyDead() {
@@ -613,9 +630,4 @@ void Enemy::update(float delta_t) {
     }
 
     last_action = new_action;
-}
-
-const Enemy::Sprite_state_machine *const Enemy::getSpriteStateMachine() const
-{
-    return sprite_state_machine;
 }
