@@ -3,8 +3,10 @@
 #include "Enemy.hpp"
 #include "BurgerTimeStateMachine.hpp"
 #include <iostream>
+#include <algorithm>
 #include <filesystem>
 #include <set>
+#include <random>
 
 namespace fs = std::filesystem;
 
@@ -50,15 +52,9 @@ void PlayingStateMachine::addPlayerAndEnemies()
 
     gameInfo->ai = std::make_shared<AI>(map, playerSpawnTile);
 
-    // TODO: cambiar
     float offset = 1;
     for (const auto &enemySpawn : map->enemy_spawns)
     {
-        // gameInfo->ias.emplace_back(map, map->data[0][17]);
-
-        // ias.push_back(ia);
-        gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, gameInfo->ai, std::placeholders::_1));
-        // gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
         const Enemy::Sprite_state_machine *enemySprites;
         switch (enemySpawn.first)
         {
@@ -74,28 +70,37 @@ void PlayingStateMachine::addPlayerAndEnemies()
         }
 
         const auto &initialTile = map->tile_data[enemySpawn.second.x][enemySpawn.second.y];
-        auto initialPos = initialTile->shape.getPosition();
-        Direction initialDir;
-        if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
-        {
-            initialDir = Direction::RIGHT;
-            initialPos.x -= offset * 5 * Tile::TILE_WIDTH;
-        }
-        else
-        {
-            initialDir = Direction::LEFT;
-            initialPos.x += offset * 5 * Tile::TILE_WIDTH;
-        }
-        initialPos.y -= initialTile->height;
-
-        // sf::Vector2
-
+        spawnEnemy(enemySprites, *initialTile, offset);
         offset += 1.2;
-
-        gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, *gameInfo->ai, initialDir));
-        // gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, gameInfo->ias.back(), initialDir));
     }
 }
+
+void PlayingStateMachine::spawnEnemy(const Enemy::Sprite_state_machine *enemySprites, const Tile &initialTile, float offset)
+{
+    auto &map = gameInfo->maps[gameInfo->currentMap];
+    // TODO: ia
+    gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, gameInfo->ai, std::placeholders::_1));
+    // gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
+
+    auto initialPos = initialTile.shape.getPosition();
+    Direction initialDir;
+    if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
+    {
+        initialDir = Direction::RIGHT;
+        initialPos.x -= offset * 5 * Tile::TILE_WIDTH;
+    }
+    else
+    {
+        initialDir = Direction::LEFT;
+        initialPos.x += offset * 5 * Tile::TILE_WIDTH;
+    }
+    initialPos.y -= initialTile.height;
+
+    // sf::Vector2
+
+    gameInfo->enemies.push_back(std::make_shared<Enemy>(initialPos, enemySprites, map, *gameInfo->ai, initialDir));
+}
+
 
 void PlayingStateMachine::deletePepper()
 {
@@ -110,6 +115,90 @@ void PlayingStateMachine::changeGameInfo()
 void PlayingStateMachine::setGameInfo(std::unique_ptr<GameInfo> newGameInfo)
 {
     gameInfo = std::move(newGameInfo);
+}
+
+void PlayingStateMachine::ingredientCollision()
+{
+    auto &map = gameInfo->maps[gameInfo->currentMap];
+    for (auto &ingredient : map->ing_data)
+    {
+        int enemiesSurfing = 0;
+
+        if (ingredient.isFalling())
+        {
+            const auto tiles = map->entityOnTiles(ingredient);
+            if (tiles.size() > 1)
+            {
+                if (tiles[1]->isSteppableHor())
+                {
+                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 8), Ingredient::FLOOR);
+                }
+                else if (tiles[1]->isBasket() || tiles[1]->isBasketEdge())
+                {
+                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 12), Ingredient::STATIC_ING_BASKET);
+                }
+            }
+
+            for (auto &other : map->ing_data)
+            {
+                if (&other != &ingredient) 
+                {
+                    if (other.intersectsWith(ingredient) && (other.isIdle() || other.isStatic()))
+                    {
+                        auto state = other.isStatic() ? Ingredient::STATIC_ING_BASKET : Ingredient::INGREDIENT;
+                        // other.land(tiles[1]->shape.getPosition().y +
+                        // 10, Ingredient::INGREDIENT);
+                        std::cout << "other es " << other.content << std::endl;
+                        // std::cout << "other state " << other.state << std::endl;
+                        ingredient.land(other.getCollisionShape().top - (Tile::TILE_HEIGHT - 8), state);
+                        other.drop();
+                        break;
+                    }
+                }
+            }
+
+            for (auto &enemy : gameInfo->enemies)
+            {
+                if (ingredient.intersectsWith(*enemy))
+                {
+                    if (ingredient.getCollisionShape().top < enemy->getCollisionShape().top)
+                    {
+                        enemy->die();
+                    }
+                }
+            }
+        }
+
+        for (auto &enemy : gameInfo->enemies)
+        {
+            if (ingredient.intersectsWith(*enemy) && ingredient.getCollisionShape().top >= enemy->getCollisionShape().top)
+            {
+                enemiesSurfing++;
+            }
+        }
+
+        if (ingredient.testStatic())
+        {
+            gameInfo->currentIngredients++;
+        }
+
+        if (gameInfo->player->goingXdirection())
+        {
+            if (ingredient.stepped(gameInfo->player->getCollisionShape(), 1 + enemiesSurfing * 2))
+            {
+                for (auto &enemy : gameInfo->enemies)
+                {
+                    if (!enemy->isSurfing() && ingredient.intersectsWith(*enemy) && ingredient.getCollisionShape().top >= enemy->getCollisionShape().top)
+                    {
+                        auto connections = ingredient.connect_enemy_surfer(
+                            std::bind(&Enemy::move_by_signal, enemy, std::placeholders::_1),
+                            std::bind(&Enemy::stop_surfing, enemy));
+                        enemy->start_surfing(std::move(connections.first), std::move(connections.second));
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -137,6 +226,7 @@ void EnterStatePlaying::entry()
     gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
     gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
     gui.createText("playingStatePepper", GUI::fixTextToRight(std::to_string(gameInfo->currentPepper), 3), sf::Vector2u(763, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+    gui.createText("playingStateScore", GUI::fixTextToRight(std::to_string(gameInfo->currentScore), 3), sf::Vector2u(140, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
 
     gameInfo->pepperText = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*gameInfo->pepperText, BT_sprites::Sprite::PEPPER);
@@ -199,6 +289,13 @@ void NormalStatePlaying::entry()
 {
     controller.clearScreen();
 
+    auto &map = gameInfo->maps[gameInfo->currentMap];
+    for (auto &ingredient : map->ing_data)
+    {
+        ingredient.resetSteps();
+        ingredient.fix_position_up();
+    }
+
     controller.addDrawable(gameInfo->maps[gameInfo->currentMap]);
     for (const auto &enemy : gameInfo->enemies)
     {
@@ -209,6 +306,7 @@ void NormalStatePlaying::entry()
     controller.addDrawable(gui.getText("playingStateOneUp"));
     controller.addDrawable(gui.getText("playingStateHiScore"));
     controller.addDrawable(gui.getText("playingStatePepper"));
+    controller.addDrawable(gui.getText("playingStateScore"));
     controller.addDrawable(gameInfo->curtains[0]);
     controller.addDrawable(gameInfo->curtains[1]);
     // controller.addDrawable(currentScoreText);
@@ -217,56 +315,51 @@ void NormalStatePlaying::entry()
 void NormalStatePlaying::react(const ExecuteEvent &event)
 {
     auto &map = gameInfo->maps[gameInfo->currentMap];
-    for (const auto &enemy : gameInfo->enemies)
+
+    static std::set<int> initialPositions;
+    for (auto it = gameInfo->enemies.begin(); it != gameInfo->enemies.end(); ++it)
     {
+        const auto &enemy = *it;
         if (!enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) {
-#if true
+// #if false
             if (gameInfo->currentLives > 0)
             {
                 transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
                 return;
             }
-#endif
+// #endif
         }
-    }
-
-    for (auto &ingredient : map->ing_data)
-    {
-        if (gameInfo->player->goingXdirection())
+        else if (enemy->completelyDead())
         {
-            ingredient.stepped(gameInfo->player->getCollisionShape());
-        }
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            static std::uniform_int_distribution<> spawnsDis(0, map->enemy_spawns.size() - 1);
+            static std::uniform_int_distribution<> offsetDis(2, 4);
 
-        if (ingredient.isFalling())
-        {
-            const auto tiles = map->entityOnTiles(ingredient);
-            if (tiles.size() > 1)
+            auto enemySpawnsIt = map->enemy_spawns.begin();
+            
+            int initPos;
+            do
             {
-                if (tiles[1]->isSteppableHor())
-                {
-                    for (auto &other : map->ing_data)
-                    {
-                        if (&other != &ingredient) 
-                        {
-                            if (other.intersectsWith(ingredient))
-                            {
-                                other.land(tiles[1]->shape.getPosition().y + 10);
-                                other.drop();
-                                break;
-                            }
-                        }
-                    }
+                initPos = spawnsDis(gen);
+            } while (initialPositions.find(initPos) != initialPositions.end());
+            
+            initialPositions.insert(initPos);
 
-                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 8));
-                }
-                else if (tiles[1]->isBasket() || tiles[1]->isBasketEdge())
-                {
-                    gameInfo->currentIngredients++;
-                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 12));
-                }
-            }
+            std::advance(enemySpawnsIt, initPos);
+            const auto &initialTilePos = (*enemySpawnsIt).second;
+            const auto &initialTile = map->tile_data[initialTilePos.x][initialTilePos.y];
+            spawnEnemy(enemy->getSpriteStateMachine(), *initialTile, offsetDis(gen));
+
+            it = gameInfo->enemies.erase(it);
+            --it;
+
+            controller.addDrawable(gameInfo->enemies.back());
         }
     }
+    initialPositions.clear();
+
+    ingredientCollision();
 
     if (gameInfo->currentIngredients == map->ing_data.size())
     {
@@ -330,6 +423,9 @@ void DeadStatePlaying::react(const ExecuteEvent &event)
     else
     {
         auto &map = gameInfo->maps[gameInfo->currentMap];
+
+        ingredientCollision();
+
         gameInfo->player->update(event.deltaT);
 
         for (auto &ingredient : map->ing_data)

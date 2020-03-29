@@ -21,7 +21,7 @@ sf::FloatRect SpritedEntity::getCollisionShape() const {
 void SpritedEntity::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(sprite, states);
 
-#if true
+#if false
     auto collisionShape = getCollisionShape();
     sf::RectangleShape drawShape;
     drawShape.setOutlineColor(sf::Color::Red);

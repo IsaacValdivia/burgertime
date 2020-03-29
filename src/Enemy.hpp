@@ -48,10 +48,15 @@ private:
     Direction initial_direction;
     bool initialMovement;
 
+    bool totallyDead;
+
     Action new_action;
     Action last_action;
 
     const AI &ia;
+
+    std::unique_ptr<nod::connection> ingredient_moving_connection;
+    std::unique_ptr<nod::connection> stop_surfing_connection;
 
     void move(float &move_x, float &move_y, float delta_t);
 public:
@@ -59,7 +64,19 @@ public:
 
     void pepper();
 
-    bool isPeppered();
+    void start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con);
+
+    void stop_surfing();
+
+    void move_by_signal(const float y);
+
+    bool completelyDead();
+
+    bool isSurfing() const;
+
+    bool isPeppered() const;
+
+    const Sprite_state_machine *const getSpriteStateMachine() const;
 
     void update(float delta_t) override;
 };

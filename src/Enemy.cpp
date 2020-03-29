@@ -416,7 +416,8 @@ Enemy::Enemy(const sf::Vector2f &init_pos, const Sprite_state_machine sprite_sta
       initial_direction(initial_direction),
       aStarDirection(Direction::LEFT),
       aStarTile(nullptr),
-      initialMovement(true) {};
+      initialMovement(true),
+      totallyDead(false) {};
 
 void Enemy::pepper()
 {
@@ -424,8 +425,37 @@ void Enemy::pepper()
     last_action = PEPPER;
 }
 
-bool Enemy::isPeppered() {
+void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con)
+{
+    ingredient_moving_connection = std::make_unique<nod::connection>(std::move(ingredient_moving_con));
+    stop_surfing_connection = std::make_unique<nod::connection>(std::move(stop_surfing_con));
+}
+
+void Enemy::stop_surfing()
+{
+    ingredient_moving_connection->disconnect();
+    stop_surfing_connection->disconnect();
+    ingredient_moving_connection = nullptr;
+    stop_surfing_connection = nullptr;
+    die();
+}
+
+bool Enemy::isPeppered() const 
+{
     return last_action == PEPPER;
+}
+
+bool Enemy::isSurfing() const
+{
+    return ingredient_moving_connection != nullptr;
+}
+
+bool Enemy::completelyDead() {
+    return totallyDead;
+}
+
+void Enemy::move_by_signal(const float y) {
+    sprite.setPosition(sprite.getPosition().x, y);
 }
 
 void Enemy::move(float &move_x, float &move_y, float delta_t) {
@@ -466,14 +496,22 @@ void Enemy::update(float delta_t) {
     acc_delta_t += delta_t;
     acc_delta_t_pepper += delta_t;
 
+    if (ingredient_moving_connection != nullptr) {
+        return;
+    }
+
     new_action = NONE;
+
+    float animation_duration = sprite_state_machine[current_sprite - first_sprite].sprite_duration;
 
     // DIE
     if (!is_alive()) {
         new_action = DIE;
 
-        if (current_sprite == sprite_state_machine[current_sprite - first_sprite].sprites[new_action]) {
-            // BORRAR ENEMIGO
+        if (current_sprite == sprite_state_machine[current_sprite - first_sprite].sprites[new_action]
+            && acc_delta_t >= animation_duration) {
+
+            totallyDead = true;
             return;
         }
     }
@@ -562,8 +600,6 @@ void Enemy::update(float delta_t) {
         }
     }
 
-    float animation_duration = sprite_state_machine[current_sprite - first_sprite].sprite_duration;
-
     // Set new sprite.
 
     if (acc_delta_t > animation_duration || new_action != last_action) {
@@ -577,4 +613,9 @@ void Enemy::update(float delta_t) {
     }
 
     last_action = new_action;
+}
+
+const Enemy::Sprite_state_machine *const Enemy::getSpriteStateMachine() const
+{
+    return sprite_state_machine;
 }

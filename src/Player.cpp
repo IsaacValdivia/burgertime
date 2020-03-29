@@ -376,7 +376,7 @@ void Player::update(float delta_t) {
     last_action = new_action;
 }
 
-void Player::connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func)
+nod::connection Player::connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func)
 {
-    player_moved.connect(player_moved_func);
+    return player_moved.connect(player_moved_func);
 }

@@ -3,6 +3,7 @@
 #include <memory>
 #include <cstdint>
 #include <vector>
+#include "nod.hpp"
 
 #include "BT_sprites.hpp"
 #include "Entity.hpp"
@@ -18,27 +19,34 @@ public:
     };
 private:
     static constexpr auto y_movement_static = 1.5;
-    static constexpr auto y_movement_falling = 100;
+    static constexpr auto bounce_movement = 4.0;
+    static constexpr auto y_movement_falling = 125;
 
     enum State {
         IDLE,
         FALLING,
         BOUNCE_UP_1,
         BOUNCE_UP_2,
+        BOUNCE_UP_3,
         BOUNCE_DOWN_1,
         BOUNCE_DOWN_2,
+        BOUNCE_DOWN_3,
         STATIC
     };
 
-    static constexpr auto BOUNCE_UP_1_DURATION = 0.1;
-    static constexpr auto BOUNCE_UP_2_DURATION = 0.1;
-    static constexpr auto BOUNCE_DOWN_1_DURATION = 1;
-    static constexpr auto BOUNCE_DOWN_2_DURATION = 0.1;
+    static constexpr auto BOUNCE_DURATION = 0.10;
 
     Landable last_landable;
     State state;
 
+    bool staticTested;
+
+    int num_levels;
+
     static const unsigned int ING_LENGTH = 4;
+
+    nod::unsafe_signal<void(float)> ingredient_moved;
+    nod::unsafe_signal<void()> ingredient_stopped_moving;
 
     class IngredientPiece : public SpritedEntity {
     private:
@@ -51,14 +59,13 @@ private:
         bool isStepped() const;
         void step();
 
-        void move_down(float delta_t);
-        void move_up(float delta_t);
+        void move_y(float magnitude);
 
         friend class Ingredient;
     };
 
-    void fix_position_down();
-    void fix_position_up();
+    void move_down(const float delta_t);
+    void descend_and_check();
 public:
     static const char TOP_BUN = '^';
     static const char BOT_BUN = 'v';
@@ -75,22 +82,42 @@ public:
 
     Ingredient(const float _x, const float _y, const char _content);
 
+    Ingredient(Ingredient &&) noexcept;
+
     void operator=(const Ingredient &other);
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
     void update(float delta_t) override;
 
-    void stepped(const sf::FloatRect &rectangle);
+    bool stepped(const sf::FloatRect &rectangle, const int _num_levels);
 
     sf::FloatRect getCollisionShape() const override;
 
     void drop();
 
+    void move_down_no_delta(const float magnitude);
+
     void land(float y, Landable landable);
 
-    bool isFalling();
+    bool testStatic();
+
+    bool isStatic() const;
+
+    bool isIdle() const;
+
+    bool isFalling() const;
+
+    bool isBouncing() const;
+
+    void resetSteps();
+    void fix_position_down();
+    void fix_position_up();
+
+    void fix_to_y(const float y);
 
     void displace_middle(const float magnitude);
     void displace_edges(const float magnitude);
+
+    std::pair<nod::connection, nod::connection> connect_enemy_surfer(const std::function<void(float)> &enemy_surfer_func, const std::function<void()> &disconnect_func);
 };

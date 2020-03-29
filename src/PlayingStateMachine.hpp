@@ -3,6 +3,7 @@
 #include <tinyfsm.hpp>
 
 #include <SFML/Graphics.hpp>
+#include <list>
 #include "Constants.hpp"
 #include "BurgerTimeController.hpp"
 #include "Player.hpp"
@@ -20,6 +21,10 @@ public:
 
     void addPlayerAndEnemies();
 
+    void spawnEnemy(const Enemy::Sprite_state_machine *, const Tile&, float offset);
+
+    void ingredientCollision();
+
     void addPepper(const sf::Vector2f &launchPosition, Direction direction);
 
     void deletePepper();
@@ -33,7 +38,7 @@ protected:
         std::shared_ptr<Pepper> pepper;
 
         std::shared_ptr<AI> ai;
-        std::vector<std::shared_ptr<Enemy>> enemies;
+        std::list<std::shared_ptr<Enemy>> enemies;
 
         std::shared_ptr<sf::Sprite> pepperText;
 

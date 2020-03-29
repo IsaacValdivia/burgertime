@@ -30,8 +30,9 @@ void Actor::mirror() {
 sf::FloatRect Actor::getCollisionShape() const {
     sf::FloatRect collisionShape = sprite.getGlobalBounds();
 
-    collisionShape.height -= 10;
-    collisionShape.top += 10;
+    collisionShape.height -= 15;
+    collisionShape.top += 15;
+
     collisionShape.left += 10;
     collisionShape.width -= 20;
     return collisionShape;

@@ -59,7 +59,7 @@ void Map::fill_ingredients(const vector<string> &map_data) {
                         }
                         float x = SIDE_MARGINS + j * Tile::TILE_WIDTH;
                         float y = UPPER_MARGIN + i * Tile::TILE_HEIGHT;
-                        ing_data.push_back(Ingredient(x, y, content));
+                        ing_data.emplace_back(x, y, content);
                         //data[i][j] = std::make_shared<Ingredient>(x, y, i, j, content);
                     }
                     ing_found = (ing_found + 1) % 4;
@@ -135,6 +135,10 @@ std::vector<std::shared_ptr<Tile>> Map::entityOnTiles(const Entity &entity) cons
     size_t vertical_tile = (bot_y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT;
 
     // TODO: excepcion o algo si vertical_tile h_i son mayores que los limites
+    if (vertical_tile >= MAX_ROWS)
+    {
+        return tiles;
+    }
     for (int h_i = horizontal_tile_1; h_i < horizontal_tile_2 + 1; ++h_i) {
         if (tile_data[vertical_tile][h_i]->content != Tile::EMPTY) {
             tiles.push_back(tile_data[vertical_tile][h_i]);
