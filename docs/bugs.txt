@@ -1,2 +1,3 @@
 pimienta dura mucho algunas veces
 cuando enemigos mueren el usuario desaparece un milisegundo a veces
+Algunas veces el jugador se sale del mapa (va lento y se mueve mucho por delta t?)
