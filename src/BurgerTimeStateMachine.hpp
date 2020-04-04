@@ -122,8 +122,10 @@ private:
     void react(const ExecuteEvent &) override;
 
     static constexpr auto ENTER_NAME_STR = "ENTER YOUR NAME";
+    static constexpr auto HIGH_SCORE_TEXT_BASE = "enterHighScore_";
     static uint32_t newHighscore;
-    int charPosition = 0;
+    int highScorePosition;
+    int charPosition;
 };
 
 class FinishedState : public BurgerTimeStateMachine
