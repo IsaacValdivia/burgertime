@@ -47,7 +47,7 @@ private:
 
     static constexpr float pepper_duration = 4;
 
-    const Sprite_state_machine *sprite_state_machine;
+    const Sprite_state_machine *const sprite_state_machine;
 
     float acc_delta_t_pepper;
 
@@ -77,7 +77,7 @@ private:
 
     void move(float &move_x, float &move_y, float delta_t);
 public:
-    Enemy(const Type &type, const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added);
+    Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added);
 
     void pepper();
 
