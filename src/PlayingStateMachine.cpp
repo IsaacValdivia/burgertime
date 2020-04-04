@@ -367,7 +367,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
 
         if (!enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) 
         {
-#if true
+#if false
             if (gameInfo->currentLives > 0)
             {
                 transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));

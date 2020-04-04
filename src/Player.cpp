@@ -345,6 +345,7 @@ void Player::update(float delta_t) {
             // Want to move and can.
             if (map->can_entity_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
+                // TODO: comprobar que entityOnTiles no sea vacio
                 player_moved(map->entityOnTiles(*this)[0]);
             }
             // Want to move but can't.

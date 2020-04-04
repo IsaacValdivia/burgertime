@@ -50,66 +50,59 @@ void BurgerTimeController::startup()
     BurgerTimeStateMachine::start();
     window.setKeyRepeatEnabled(false);
     Audio::init();
+    restartTimer();
 }
 
 void BurgerTimeController::run()
 {
     startup();
-    logicClock.restart();
 
-    const auto logicDeltaTime = sf::seconds(LOGIC_UPDATE_FREQ);
+    const auto LOGIC_DELTA_TIME = sf::seconds(LOGIC_UPDATE_FREQ);
 
     sf::Clock clock;
     auto nextTime = clock.getElapsedTime();
     auto lastTime = clock.getElapsedTime();
 
-    sf::Event event;
+    const auto MAX_TIME_DIFF = sf::seconds(0.5);
+    constexpr int MAX_SKIPPED_FRAMES = 5;
+    int skippedFrames = 1;
 
-    bool isTextEntered = false;
-    char charEntered;
     while (window.isOpen() && !hasGameFinished())
     {
-        while (window.pollEvent(event)) 
-        {
-            if (event.type == sf::Event::Closed) 
-            {
-                // TODO: change
-                window.setSize(sf::Vector2u(2 * WINDOW_WIDTH, 2 * WINDOW_HEIGHT));
-                // window.close();
-            }
-            else if (event.type == sf::Event::TextEntered)
-            {
-                if ((event.text.unicode >= 'a' && event.text.unicode <= 'z') || 
-                    (event.text.unicode >= 'A' && event.text.unicode <= 'Z') || 
-                    (event.text.unicode >= '0' && event.text.unicode <= '9'))
-                {
-                    charEntered = static_cast<char>(event.text.unicode);
-                    isTextEntered = true;
-                }
-            }
-        }
         auto currentTime = clock.getElapsedTime();
+
+        if (currentTime - nextTime > MAX_TIME_DIFF)
+        {
+            nextTime = currentTime;
+        }
 
         if (currentTime >= nextTime)
         {
-            float deltaT = (currentTime - lastTime).asSeconds();
-            if (deltaT > 1.3 * LOGIC_UPDATE_FREQ)
+            float frameTime = (currentTime - lastTime).asSeconds();
+            lastTime = currentTime;
+            if (frameTime > 1.3 * LOGIC_UPDATE_FREQ)
             {
                 std::cerr << "Error, logica va muy lenta" << std::endl;
             }
 
-            nextTime += logicDeltaTime;
-            if (isTextEntered)
+            nextTime += LOGIC_DELTA_TIME;
+
+            while (frameTime > 0.0)
             {
-                update(deltaT, charEntered);
-                isTextEntered = false;
+                float deltaT = std::min(frameTime, LOGIC_UPDATE_FREQ);
+                update(deltaT);
+                frameTime -= deltaT;
+            }
+
+            if ((currentTime < nextTime) || (skippedFrames > MAX_SKIPPED_FRAMES))
+            {
+                draw();
+                skippedFrames = 1;
             }
             else
             {
-                update(deltaT);
+                skippedFrames++;
             }
-            draw();
-            lastTime = currentTime;
         }
         else
         {
@@ -126,13 +119,41 @@ void BurgerTimeController::run()
 
 void BurgerTimeController::update(float deltaT)
 {
-    InputSystem::update();
-    BurgerTimeStateMachine::dispatch(ExecuteEvent(deltaT));
-}
+    sf::Event event;
 
-void BurgerTimeController::update(float deltaT, char charEntered)
-{
-    InputSystem::update(charEntered);
+    bool isTextEntered = false;
+    char charEntered;
+    while (window.pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed) 
+        {
+            // TODO: change
+            window.setSize(sf::Vector2u(2 * WINDOW_WIDTH, 2 * WINDOW_HEIGHT));
+            // window.close();
+        }
+        else if (event.type == sf::Event::TextEntered)
+        {
+            if ((event.text.unicode >= 'a' && event.text.unicode <= 'z') || 
+                (event.text.unicode >= 'A' && event.text.unicode <= 'Z') || 
+                (event.text.unicode >= '0' && event.text.unicode <= '9'))
+            {
+                charEntered = static_cast<char>(event.text.unicode);
+                isTextEntered = true;
+            }
+        }
+    }
+
+    if (isTextEntered)
+    {
+        InputSystem::update(charEntered);
+        isTextEntered = false;
+    }
+    else
+    {
+        InputSystem::update();
+    }
+    
+
     BurgerTimeStateMachine::dispatch(ExecuteEvent(deltaT));
 }
 

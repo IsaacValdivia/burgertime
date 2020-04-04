@@ -32,7 +32,6 @@ private:
 
     void startup();
 
-    void update(float deltaT, char charEntered);
     void update(float deltaT);
 
     void draw();
