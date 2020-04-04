@@ -9,6 +9,7 @@
 #include "Player.hpp"
 #include "Pepper.hpp"
 #include "Enemy.hpp"
+#include "Bonus.hpp"
 
 class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine>
 {
@@ -31,7 +32,54 @@ public:
 
     void deletePepper();
 
+    static uint32_t getCurrentScore();
+
 protected:
+    class PepperCounter
+    {
+        uint8_t currentPepper;
+
+    public:
+        PepperCounter();
+
+        void changePepper(int change);
+        bool hasPepper() const;
+    };
+
+    class LivesCounter
+    {
+        uint8_t currentLives;
+
+    public:
+        LivesCounter();
+
+        void changeLives(int change);
+        bool hasLives() const;
+    };
+
+    class ScoreCounter
+    {
+        uint32_t currentScore;
+        uint32_t currentTopScore;
+
+    public:
+        ScoreCounter();
+
+        void addPoints(uint32_t points);
+        uint32_t getScore() const;
+    };
+
+    class LevelCounter
+    {
+        uint32_t currentLevel;
+
+    public:
+        LevelCounter();
+
+        void addLevel(uint32_t level);
+    };
+
+
     struct GameInfo
     {
         std::vector<std::shared_ptr<Map>> maps;
@@ -43,13 +91,19 @@ protected:
         std::list<std::shared_ptr<Enemy>> enemies;
 
         std::shared_ptr<sf::Sprite> pepperText;
+        std::shared_ptr<sf::Sprite> livesSprite;
+        std::shared_ptr<sf::Sprite> levelSprite;
+
+        std::shared_ptr<Bonus> bonus;
 
         std::array<std::shared_ptr<sf::RectangleShape>, 2> curtains;
 
-        uint8_t currentPepper;
         uint8_t currentIngredients;
-        uint8_t currentLives;
-        uint32_t currentScore;
+        int pointsToExtraLife;
+        PepperCounter pepperCounter;
+        LivesCounter livesCounter;
+        ScoreCounter scoreCounter;
+        LevelCounter levelCounter;
         size_t currentMap;
     };
 
@@ -71,8 +125,6 @@ class EnterStatePlaying : public PlayingStateMachine
 
 class GameOverStatePlaying : public PlayingStateMachine
 {
-    void entry() override;
-    // void react(const ExecuteEvent &) override;
 };
 
 class GameReadyScreenState : public PlayingStateMachine

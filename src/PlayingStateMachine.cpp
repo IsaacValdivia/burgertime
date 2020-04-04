@@ -3,6 +3,7 @@
 #include "Enemy.hpp"
 #include "BurgerTimeStateMachine.hpp"
 #include "Audio.hpp"
+#include "HighScores.hpp"
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
@@ -11,6 +12,81 @@
 
 namespace fs = std::filesystem;
 
+void PlayingStateMachine::PepperCounter::changePepper(int change)
+{
+    if (currentPepper + change >= 0)
+    {
+        currentPepper += change;
+        gui.getText("playingStatePepper").lock()->setString(GUI::fixTextToRight(std::to_string(currentPepper), 3));
+    }
+}
+
+bool PlayingStateMachine::PepperCounter::hasPepper() const
+{
+    return currentPepper != 0;
+}
+
+PlayingStateMachine::PepperCounter::PepperCounter() : currentPepper(5)
+{
+    gui.createText("playingStatePepper", GUI::fixTextToRight(std::to_string(currentPepper), 3), sf::Vector2u(763, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+}
+
+
+void PlayingStateMachine::LivesCounter::changeLives(int change)
+{
+    currentLives += change;
+    gui.getText("playingStateLives").lock()->setString(GUI::fixTextToRight(std::to_string(currentLives), 3));
+}
+
+bool PlayingStateMachine::LivesCounter::hasLives() const
+{
+    return currentLives != 0;
+}
+
+PlayingStateMachine::LivesCounter::LivesCounter() : currentLives(3)
+{
+    gui.createText("playingStateLives", GUI::fixTextToRight(std::to_string(currentLives), 3), sf::Vector2u(1, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
+}
+
+
+void PlayingStateMachine::ScoreCounter::addPoints(uint32_t points)
+{
+    currentScore += points;
+
+    if (currentScore > currentTopScore)
+    {
+        currentTopScore = currentScore;
+        gui.getText("playingStateTopScore").lock()->setString(GUI::fixTextToRight(std::to_string(currentScore), MAX_SCORE_CHARS));
+    }
+
+    gui.getText("playingStateScore").lock()->setString(GUI::fixTextToRight(std::to_string(currentScore), MAX_SCORE_CHARS));
+}
+
+uint32_t PlayingStateMachine::ScoreCounter::getScore() const
+{
+    return currentScore;
+}
+
+
+PlayingStateMachine::ScoreCounter::ScoreCounter() : currentScore(0), currentTopScore(HighScores().getTopScore())
+{
+    gui.createText("playingStateScore", GUI::fixTextToRight(std::to_string(currentScore), MAX_SCORE_CHARS), sf::Vector2u(50, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+    gui.createText("playingStateTopScore", GUI::fixTextToRight(std::to_string(currentTopScore), MAX_SCORE_CHARS), sf::Vector2u(300, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+}
+
+
+void PlayingStateMachine::LevelCounter::addLevel(uint32_t level)
+{
+    currentLevel += level;
+    gui.getText("playingStateLevel").lock()->setString(GUI::fixTextToRight(std::to_string(currentLevel), 3));
+}
+
+PlayingStateMachine::LevelCounter::LevelCounter() : currentLevel(1)
+{
+    gui.createText("playingStateLevel", GUI::fixTextToRight(std::to_string(currentLevel), 3), sf::Vector2u(800, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
+}
+
+
 FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
 
 BurgerTimeController &PlayingStateMachine::controller = BurgerTimeController::get();
@@ -18,14 +94,13 @@ GUI &PlayingStateMachine::gui = GUI::get();
 
 void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Direction direction)
 {
-    if (current_state_ptr->gameInfo->currentPepper > 0)
+    if (current_state_ptr->gameInfo->pepperCounter.hasPepper())
     {
         Audio::play(Audio::Track::PEPPER);
 
-        current_state_ptr->gameInfo->currentPepper--;
+        current_state_ptr->gameInfo->pepperCounter.changePepper(-1);
         current_state_ptr->deletePepper();
         current_state_ptr->gameInfo->pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
-        gui.getText("playingStatePepper").lock()->setString(GUI::fixTextToRight(std::to_string(current_state_ptr->gameInfo->currentPepper), 3));
         controller.addDrawable(current_state_ptr->gameInfo->pepper);
     }
     else
@@ -36,7 +111,7 @@ void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Directio
 
 bool PlayingStateMachine::hasPepper() const
 {
-    return current_state_ptr->gameInfo->currentPepper > 0;
+    return current_state_ptr->gameInfo->pepperCounter.hasPepper();
 }
 
 void PlayingStateMachine::addPlayerAndEnemies()
@@ -152,7 +227,6 @@ void PlayingStateMachine::ingredientCollision()
                         auto state = other.isStatic() ? Ingredient::STATIC_ING_BASKET : Ingredient::INGREDIENT;
                         // other.land(tiles[1]->shape.getPosition().y +
                         // 10, Ingredient::INGREDIENT);
-                        std::cout << "other es " << other.content << std::endl;
                         // std::cout << "other state " << other.state << std::endl;
                         ingredient.land(other.getCollisionShape().top - (Tile::TILE_HEIGHT - 8), state);
                         other.drop();
@@ -220,8 +294,20 @@ void PlayingStateMachine::ingredientCollision()
 
 void PlayingStateMachine::addPoints(unsigned int points)
 {
-    current_state_ptr->gameInfo->currentScore += points;
-    current_state_ptr->gui.getText("playingStateScore").lock()->setString(GUI::fixTextToRight(std::to_string(current_state_ptr->gameInfo->currentScore), MAX_SCORE_CHARS));
+    current_state_ptr->gameInfo->scoreCounter.addPoints(points);
+    current_state_ptr->gameInfo->pointsToExtraLife -= points;
+
+    if (current_state_ptr->gameInfo->pointsToExtraLife <= 0)
+    {
+        Audio::play(Audio::Track::ONE_UP);
+        current_state_ptr->gameInfo->livesCounter.changeLives(1);
+        current_state_ptr->gameInfo->pointsToExtraLife = 20000 - current_state_ptr->gameInfo->pointsToExtraLife;
+    }
+}
+
+uint32_t PlayingStateMachine::getCurrentScore()
+{
+    return current_state_ptr->gameInfo->scoreCounter.getScore();
 }
 
 
@@ -233,10 +319,8 @@ void EnterStatePlaying::entry()
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
     gameInfo->currentMap = 0;
-    gameInfo->currentScore = 0;
     gameInfo->currentIngredients = 0;
-    gameInfo->currentLives = 3;
-    gameInfo->currentPepper = 5;
+    gameInfo->pointsToExtraLife = 20000;
 
     gameInfo->curtains[0] = std::make_shared<sf::RectangleShape>();
     gameInfo->curtains[0]->setFillColor(sf::Color::Black);
@@ -249,20 +333,22 @@ void EnterStatePlaying::entry()
 
     gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
     gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
-    gui.createText("playingStatePepper", GUI::fixTextToRight(std::to_string(gameInfo->currentPepper), 3), sf::Vector2u(763, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
-    gui.createText("playingStateScore", GUI::fixTextToRight(std::to_string(gameInfo->currentScore), MAX_SCORE_CHARS), sf::Vector2u(50, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
 
     gameInfo->pepperText = std::make_shared<sf::Sprite>();
     BT_sprites::set_initial_sprite(*gameInfo->pepperText, BT_sprites::Sprite::PEPPER);
-    gameInfo->pepperText->setPosition(78 * WINDOW_WIDTH / 100, 16 * WINDOW_HEIGHT / 1000);
+    gameInfo->pepperText->setPosition(780 * WINDOW_WIDTH / 1000, 16 * WINDOW_HEIGHT / 1000);
     gameInfo->pepperText->setScale(2, 2);
 
-    // currentScoreText = std::make_shared<sf::Text>();
-    // currentScoreText->setFont(controller.font);
-    // currentScoreText->setString(std::to_string(currentScore));
-    // currentScoreText->setFillColor(sf::Color::White);
-    // currentScoreText->setScale(0.5, 0.5);
-    // currentScoreText->setPosition( * WINDOW_WIDTH / 100 , 2 * WINDOW_HEIGHT / 100);
+    gameInfo->livesSprite = std::make_shared<sf::Sprite>();
+    BT_sprites::set_initial_sprite(*gameInfo->livesSprite, BT_sprites::Sprite::LIVES);
+    gameInfo->livesSprite->setPosition(80 * WINDOW_WIDTH / 1000, 815 * WINDOW_HEIGHT / 1000);
+    gameInfo->livesSprite->setScale(2, 2);
+
+    gameInfo->levelSprite = std::make_shared<sf::Sprite>();
+    BT_sprites::set_initial_sprite(*gameInfo->levelSprite, BT_sprites::Sprite::MINI_BURGER_1);
+    gameInfo->levelSprite->setPosition(880 * WINDOW_WIDTH / 1000, 815 * WINDOW_HEIGHT / 1000);
+    gameInfo->levelSprite->setScale(2, 2);
+
 
     std::set<std::string> mapStems;
     for (const auto &mapFile : fs::directory_iterator(MAPS_FOLDER))
@@ -280,6 +366,8 @@ void EnterStatePlaying::entry()
         gameInfo->maps.push_back(std::make_shared<Map>(mapName));
     }
 }
+
+
 
 void EnterStatePlaying::react(const ExecuteEvent &event)
 {
@@ -334,17 +422,49 @@ void NormalStatePlaying::entry()
         ingredient.fix_position_up();
     }
 
+    const auto &itemSpawnTile = map->tile_data[map->item_spawn.second.x][map->item_spawn.second.y];
+
+    sf::Vector2f initPos = itemSpawnTile->shape.getPosition();
+    // initPos.y -= itemSpawnTile->height;
+
+    BT_sprites::Sprite init_sprite;
+    int points;
+    switch (map->item_spawn.first)
+    {
+        case Map::ICE_CREAM:
+            init_sprite = BT_sprites::Sprite::ICE_CREAM;
+            points = 500;
+            break;
+        case Map::COFFEE:
+            init_sprite = BT_sprites::Sprite::COFFEE;
+            points = 1000;
+            break;
+        case Map::FRIES:
+            init_sprite = BT_sprites::Sprite::FRIES;
+            points = 1500;
+            break;
+    }
+
+    gameInfo->bonus = std::make_shared<Bonus>(initPos, init_sprite, points);
+
+
     controller.addDrawable(gameInfo->maps[gameInfo->currentMap]);
+    controller.addDrawable(gameInfo->bonus);
     for (const auto &enemy : gameInfo->enemies)
     {
         controller.addDrawable(enemy);
     }
     controller.addDrawable(gameInfo->player);
     controller.addDrawable(gameInfo->pepperText);
+    controller.addDrawable(gameInfo->livesSprite);
+    controller.addDrawable(gameInfo->levelSprite);
     controller.addDrawable(gui.getText("playingStateOneUp"));
     controller.addDrawable(gui.getText("playingStateHiScore"));
     controller.addDrawable(gui.getText("playingStatePepper"));
     controller.addDrawable(gui.getText("playingStateScore"));
+    controller.addDrawable(gui.getText("playingStateTopScore"));
+    controller.addDrawable(gui.getText("playingStateLives"));
+    controller.addDrawable(gui.getText("playingStateLevel"));
     controller.addDrawable(gameInfo->curtains[0]);
     controller.addDrawable(gameInfo->curtains[1]);
 }
@@ -355,6 +475,13 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
 
     auto &map = gameInfo->maps[gameInfo->currentMap];
 
+    if (gameInfo->bonus->intersectsWith(*gameInfo->player))
+    {
+        gameInfo->bonus->has_been_claimed();
+        addPoints(gameInfo->bonus->get_points());
+        gameInfo->pepperCounter.changePepper(1);
+    }
+
     static std::set<int> initialPositions;
     for (auto it = gameInfo->enemies.begin(); it != gameInfo->enemies.end(); ++it)
     {
@@ -362,8 +489,8 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
 
         if (!enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) 
         {
-#if false
-            if (gameInfo->currentLives > 0)
+#if true
+            if (gameInfo->livesCounter.hasLives())
             {
                 transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
                 return;
@@ -419,6 +546,8 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
         }
     }
 
+    gameInfo->bonus->update(event.deltaT);
+
     gameInfo->player->update(event.deltaT);
 
     for (const auto &enemy : gameInfo->enemies)
@@ -444,7 +573,7 @@ void DeadStatePlaying::entry()
     Audio::play(Audio::Track::DIE);
 
     controller.restartTimer();
-    gameInfo->currentLives--;
+    gameInfo->livesCounter.changeLives(-1);
     gameInfo->player->die();
 }
 
@@ -452,9 +581,9 @@ void DeadStatePlaying::react(const ExecuteEvent &event)
 {
     if (BurgerTimeStateMachine::timedStateReact(4))
     {
-        if (gameInfo->currentLives == 0)
+        if (!gameInfo->livesCounter.hasLives())
         {
-            transit<GameOverStatePlaying>();
+            transit<GameOverStatePlaying>(std::bind(&DeadStatePlaying::changeGameInfo, this));
         }
         else
         {
@@ -494,6 +623,7 @@ void WinStatePlaying::react(const ExecuteEvent &event)
     {
         // TODO: change
         Audio::play(Audio::Track::LEVEL_INTRO);
+        gameInfo->levelCounter.addLevel(1);
 
         transit<GameReadyScreenState>(std::bind(&WinStatePlaying::changeGameInfo, this));
         // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
@@ -502,10 +632,4 @@ void WinStatePlaying::react(const ExecuteEvent &event)
     {
         gameInfo->player->update(event.deltaT);
     }
-}
-
-
-void GameOverStatePlaying::entry()
-{
-    gameInfo = nullptr;
 }

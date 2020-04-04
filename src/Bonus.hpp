@@ -9,21 +9,19 @@
 
 class Bonus : public SpritedEntity {
 private:
-    static constexpr float respawn_time = 35;
-    static constexpr float show_duration = 6;
-    static constexpr float giving_points_duration = 6;
+    static constexpr float respawn_time = 37;
+    static constexpr float show_duration = 7;
+    static constexpr float giving_points_duration = 1;
 
     static constexpr float sprite_scale = 2;
-
-    static constexpr int ice_cream_points = 2;
-    static constexpr int coffee_points = 2;
-    static constexpr int fries_points = 2;
 
     enum State {
         HIDE,
         SHOW,
         GIVING_POINTS
     };
+
+    const BT_sprites::Sprite initial_sprite;
 
     State state;
 
@@ -39,4 +37,6 @@ public:
     bool intersectsWith(const Entity &entity) const override;
 
     void update(float delta_t) override;
+
+    int get_points() const;
 };

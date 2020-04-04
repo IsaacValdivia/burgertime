@@ -43,7 +43,7 @@ void HighscoreDisplayScreenState::entry()
     auto bestFivePlayersText = gui.createText("hScoreBestFivePlayers", "BEST FIVE PLAYERS", sf::Vector2u(180, 300), sf::Vector2f(0.70, 0.70));
 
 
-    HighScores highScores("welp.hscores");
+    HighScores highScores;
     auto hScores = highScores.getHighScores();
 
     for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
@@ -422,8 +422,6 @@ void MainScreenState::react(const ExecuteEvent &event)
 
     if (MainScreenStateMachine::is_in_state<FinishedStartState>())
     {
-        // TODO: cambiar
-        // transit<EnterHighscoreState>();
         transit<PlayingState>();
     }
 
@@ -444,7 +442,15 @@ void PlayingState::react(const ExecuteEvent &event)
 {
     if (PlayingStateMachine::is_in_state<GameOverStatePlaying>())
     {
-        transit<GameOverScreenState>();
+        HighScores hscores;
+        if (hscores.isHighScore(PlayingStateMachine::getCurrentScore()))
+        {
+            transit<EnterHighscoreState>();
+        }
+        else
+        {
+            transit<GameOverScreenState>();
+        }
     }
     else
     {
@@ -494,7 +500,7 @@ uint32_t EnterHighscoreState::newHighscore;
 
 void EnterHighscoreState::entry()
 {
-    setHighScore(10000);
+    setHighScore(PlayingStateMachine::getCurrentScore());
     charPosition = 0;
     controller.clearScreen();
 
@@ -502,7 +508,7 @@ void EnterHighscoreState::entry()
 
     auto helpText = gui.createText("enterHighScoreHelp", ENTER_NAME_STR, sf::Vector2u(220, 300), sf::Vector2f(0.7, 0.7));
 
-    HighScores highScores("welp.hscores");
+    HighScores highScores;
     auto hScores = highScores.getHighScores();
 
     highScorePosition = highScores.highScorePosition(newHighscore) - 1;
@@ -574,6 +580,8 @@ void EnterHighscoreState::react(const ExecuteEvent &)
         helpText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER))
         {
+            HighScores highScores;
+            highScores.saveNewScore(currentStr.substring(2, 4), newHighscore);
             // TODO: save new highscores etc etc
             transit<MainScreenState>();
         }
