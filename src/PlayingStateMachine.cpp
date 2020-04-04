@@ -87,21 +87,7 @@ void PlayingStateMachine::spawnEnemy(const Enemy::Type &type, const Tile &initia
 
     // sf::Vector2
 
-    const Enemy::Sprite_state_machine *enemySprites;
-    switch (type)
-    {
-        case Enemy::Type::SAUSAGE:
-            enemySprites = Enemy::sausage_sprite_state_machine;
-            break;
-        case Enemy::Type::PICKLE:
-            enemySprites = Enemy::pickle_sprite_state_machine;
-            break;
-        case Enemy::Type::EGG:
-            enemySprites = Enemy::egg_sprite_state_machine;
-            break;
-    }
-
-    gameInfo->enemies.push_back(std::make_shared<Enemy>(type, initialPos, enemySprites, map, *gameInfo->ai, initialDir, std::bind(&PlayingStateMachine::addPoints, this, std::placeholders::_1)));
+    gameInfo->enemies.push_back(std::make_shared<Enemy>(type, initialPos, map, *gameInfo->ai, initialDir, std::bind(&PlayingStateMachine::addPoints, this, std::placeholders::_1)));
 }
 
 

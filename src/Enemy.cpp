@@ -406,11 +406,11 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
-Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added)
+Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added)
     : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
             sprite_state_machine[0].sprites[NONE], map),
       type(type),
-      sprite_state_machine(sprite_state_machine),
+      sprite_state_machine(nullptr),
       last_action(NONE),
       acc_delta_t_pepper(0),
       ia(ia),
@@ -425,12 +425,15 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_
     switch (getType())
     {
         case Enemy::Type::SAUSAGE:
+            sprite_state_machine = sausage_sprite_state_machine;
             dead_points = 100;
             break;
         case Enemy::Type::PICKLE:
+            sprite_state_machine = pickle_sprite_state_machine;
             dead_points = 200;
             break;
         case Enemy::Type::EGG:
+            sprite_state_machine = egg_sprite_state_machine;
             dead_points = 300;
             break;
     }
