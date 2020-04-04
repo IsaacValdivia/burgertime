@@ -39,6 +39,8 @@ private:
     static constexpr float x_walking_speed = 60;
     static constexpr float y_walking_speed = x_walking_speed / 1.72;
 
+    static constexpr float after_dead_sprite_duration = 1;
+
     static constexpr float walking_sprite_duration = 0.08;
     static constexpr float dying_sprite_duration = 0.16;
     static constexpr float pepper_sprite_animation = 0.27;
@@ -53,7 +55,11 @@ private:
     Direction aStarDirection;
 
     Direction initial_direction;
+
+    int dead_points;
+
     bool initialMovement;
+    bool after_dead;
 
     bool totallyDead;
 
@@ -67,13 +73,15 @@ private:
     std::unique_ptr<nod::connection> ingredient_moving_connection;
     std::unique_ptr<nod::connection> stop_surfing_connection;
 
+    std::function<void(unsigned int)> points_added;
+
     void move(float &move_x, float &move_y, float delta_t);
 public:
-    Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction);
+    Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added);
 
     void pepper();
 
-    void start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con);
+    void start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con, const int dead_points);
 
     void stop_surfing();
 

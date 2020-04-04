@@ -101,7 +101,7 @@ void PlayingStateMachine::spawnEnemy(const Enemy::Type &type, const Tile &initia
             break;
     }
 
-    gameInfo->enemies.push_back(std::make_shared<Enemy>(type, initialPos, enemySprites, map, *gameInfo->ai, initialDir));
+    gameInfo->enemies.push_back(std::make_shared<Enemy>(type, initialPos, enemySprites, map, *gameInfo->ai, initialDir, std::bind(&PlayingStateMachine::addPoints, this, std::placeholders::_1)));
 }
 
 
@@ -148,6 +148,7 @@ void PlayingStateMachine::ingredientCollision()
                 {
                     if (other.intersectsWith(ingredient) && (other.isIdle() || other.isStatic()))
                     {
+                        addPoints(50);
                         auto state = other.isStatic() ? Ingredient::STATIC_ING_BASKET : Ingredient::INGREDIENT;
                         // other.land(tiles[1]->shape.getPosition().y +
                         // 10, Ingredient::INGREDIENT);
@@ -166,18 +167,6 @@ void PlayingStateMachine::ingredientCollision()
                 {
                     if (ingredient.getCollisionShape().top < enemy->getCollisionShape().top)
                     {
-                        switch (enemy->getType())
-                        {
-                            case Enemy::Type::SAUSAGE:
-                                addPoints(100);
-                                break;
-                            case Enemy::Type::PICKLE:
-                                addPoints(200);
-                                break;
-                            case Enemy::Type::EGG:
-                                addPoints(300);
-                                break;
-                        }
                         enemy->die();
                     }
                 }
@@ -201,12 +190,10 @@ void PlayingStateMachine::ingredientCollision()
         {
             if (ingredient.stepped(gameInfo->player->getCollisionShape(), 1 + enemiesSurfing * 2))
             {
+                bool firstSurfer = true;
+                int surfPoints = std::pow(2, enemiesSurfing - 1) * 500;
                 Audio::play(Audio::Track::BURGER_GOING_DOWN);
                 addPoints(50);
-                if (enemiesSurfing > 0)
-                {
-                    addPoints(std::pow(2, enemiesSurfing - 1) * 500);
-                }
                 for (auto &enemy : gameInfo->enemies)
                 {
                     if (!enemy->isSurfing() && ingredient.intersectsWith(*enemy) && ingredient.getCollisionShape().top >= enemy->getCollisionShape().top)
@@ -214,7 +201,16 @@ void PlayingStateMachine::ingredientCollision()
                         auto connections = ingredient.connect_enemy_surfer(
                             std::bind(&Enemy::move_by_signal, enemy, std::placeholders::_1),
                             std::bind(&Enemy::stop_surfing, enemy));
-                        enemy->start_surfing(std::move(connections.first), std::move(connections.second));
+                        if (firstSurfer)
+                        {
+                            enemy->start_surfing(std::move(connections.first), std::move(connections.second), surfPoints);
+                            firstSurfer = false;
+                        }
+                        else
+                        {
+                            enemy->start_surfing(std::move(connections.first), std::move(connections.second), 0);
+                        }
+                        
                     }
                 }
             }
@@ -222,11 +218,10 @@ void PlayingStateMachine::ingredientCollision()
     }
 }
 
-void PlayingStateMachine::addPoints(int points)
+void PlayingStateMachine::addPoints(unsigned int points)
 {
-    gameInfo->currentScore += points;
-    gui.getText("playingStateScore").lock()->setString(GUI::fixTextToRight(std::to_string(gameInfo->currentScore), MAX_SCORE_CHARS));
-
+    current_state_ptr->gameInfo->currentScore += points;
+    current_state_ptr->gui.getText("playingStateScore").lock()->setString(GUI::fixTextToRight(std::to_string(current_state_ptr->gameInfo->currentScore), MAX_SCORE_CHARS));
 }
 
 

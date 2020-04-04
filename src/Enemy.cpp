@@ -406,7 +406,7 @@ const Enemy::Sprite_state_machine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
-Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction)
+Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added)
     : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
             sprite_state_machine[0].sprites[NONE], map),
       type(type),
@@ -418,7 +418,23 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_
       aStarDirection(Direction::LEFT),
       aStarTile(nullptr),
       initialMovement(true),
-      totallyDead(false) {};
+      totallyDead(false),
+      after_dead(false),
+      points_added(points_added)
+{
+    switch (getType())
+    {
+        case Enemy::Type::SAUSAGE:
+            dead_points = 100;
+            break;
+        case Enemy::Type::PICKLE:
+            dead_points = 200;
+            break;
+        case Enemy::Type::EGG:
+            dead_points = 300;
+            break;
+    }
+}
 
 void Enemy::pepper()
 {
@@ -428,9 +444,11 @@ void Enemy::pepper()
     last_action = PEPPER;
 }
 
-void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con)
+void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con, const int dead_points)
 {
     Audio::play(Audio::Track::ENEMY_FALL);
+
+    this->dead_points = dead_points;
 
     ingredient_moving_connection = std::make_unique<nod::connection>(std::move(ingredient_moving_con));
     stop_surfing_connection = std::make_unique<nod::connection>(std::move(stop_surfing_con));
@@ -518,18 +536,45 @@ void Enemy::update(float delta_t) {
     }
 
     new_action = NONE;
+    
+    float animation_duration;
 
-    float animation_duration = sprite_state_machine[current_sprite - first_sprite].sprite_duration;
+    if (!after_dead) {
+        animation_duration = sprite_state_machine[current_sprite - first_sprite].sprite_duration;
+    }
 
     // DIE
     if (!is_alive()) {
         new_action = DIE;
 
+        if (after_dead) {
+            if (acc_delta_t >= after_dead_sprite_duration) {
+                totallyDead = true;
+            }
+            return;
+        }
+
         if (current_sprite == sprite_state_machine[current_sprite - first_sprite].sprites[new_action]
             && acc_delta_t >= animation_duration) {
 
-            totallyDead = true;
-            return;
+            if (dead_points > 0) {
+                after_dead = true;
+
+                acc_delta_t = 0;
+
+                direction = Direction::LEFT;
+                mirror();
+
+                points_added(dead_points);
+
+                BT_sprites::update_sprite(sprite, BT_sprites::get_sprite_points(dead_points));
+            }
+            else {
+                totallyDead = true;
+
+                return;
+            }
+
         }
     }
     // PEPPER

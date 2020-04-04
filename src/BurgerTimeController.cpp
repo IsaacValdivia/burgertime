@@ -169,7 +169,7 @@ void BurgerTimeController::draw()
         }
         else
         {
-            drawablesOnScreen.erase(objWeakIt++);
+            objWeakIt = drawablesOnScreen.erase(objWeakIt);
             --objWeakIt;
         }
     }

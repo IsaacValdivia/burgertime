@@ -25,7 +25,7 @@ public:
 
     void ingredientCollision();
 
-    void addPoints(int points);
+    void addPoints(unsigned int points);
 
     void addPepper(const sf::Vector2f &launchPosition, Direction direction);
 

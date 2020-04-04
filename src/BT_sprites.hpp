@@ -164,4 +164,6 @@ namespace BT_sprites {
     void set_initial_sprite(sf::Sprite &sp, const Sprite new_sprite);
 
     void update_sprite(sf::Sprite &sp, const Sprite new_sprite);
+
+    Sprite get_sprite_points(const int points);
 };
