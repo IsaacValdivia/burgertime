@@ -420,10 +420,8 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_
       initialMovement(true),
       totallyDead(false),
       after_dead(false),
-      points_added(points_added)
-{
-    switch (getType())
-    {
+      points_added(points_added) {
+    switch (getType()) {
         case Enemy::Type::SAUSAGE:
             dead_points = 100;
             break;
@@ -436,16 +434,16 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_
     }
 }
 
-void Enemy::pepper()
-{
-    Audio::play(Audio::Track::PEPPERED);
+void Enemy::pepper() {
+    if (!Audio::is_playing(Audio::Track::PEPPERED)) {
+        Audio::play(Audio::Track::PEPPERED);
+    }
 
     acc_delta_t_pepper = 0;
     last_action = PEPPER;
 }
 
-void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con, const int dead_points)
-{
+void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connection &&stop_surfing_con, const int dead_points) {
     Audio::play(Audio::Track::ENEMY_FALL);
 
     this->dead_points = dead_points;
@@ -454,8 +452,7 @@ void Enemy::start_surfing(nod::connection &&ingredient_moving_con, nod::connecti
     stop_surfing_connection = std::make_unique<nod::connection>(std::move(stop_surfing_con));
 }
 
-void Enemy::stop_surfing()
-{
+void Enemy::stop_surfing() {
     ingredient_moving_connection->disconnect();
     stop_surfing_connection->disconnect();
     ingredient_moving_connection = nullptr;
@@ -463,25 +460,21 @@ void Enemy::stop_surfing()
     die();
 }
 
-bool Enemy::isPeppered() const 
-{
+bool Enemy::isPeppered() const {
     return last_action == PEPPER;
 }
 
-void Enemy::die()
-{
+void Enemy::die() {
     Actor::die();
 
     Audio::play(Audio::Track::ENEMY_CRUSHED);
 }
 
-bool Enemy::isSurfing() const
-{
+bool Enemy::isSurfing() const {
     return ingredient_moving_connection != nullptr;
 }
 
-Enemy::Type Enemy::getType() const
-{
+Enemy::Type Enemy::getType() const {
     return type;
 }
 
@@ -498,32 +491,32 @@ void Enemy::move(float &move_x, float &move_y, float delta_t) {
     move_y = 0;
 
     switch (direction) {
-    case Direction::LEFT:
+        case Direction::LEFT:
 
-        new_action = LEFT;
-        move_x = -x_walking_speed * delta_t;
+            new_action = LEFT;
+            move_x = -x_walking_speed * delta_t;
 
-        break;
-    case Direction::RIGHT:
+            break;
+        case Direction::RIGHT:
 
-        new_action = RIGHT;
-        move_x = x_walking_speed * delta_t;
+            new_action = RIGHT;
+            move_x = x_walking_speed * delta_t;
 
-        break;
-    case Direction::UP:
+            break;
+        case Direction::UP:
 
-        new_action = UP;
-        move_y = -y_walking_speed * delta_t;
+            new_action = UP;
+            move_y = -y_walking_speed * delta_t;
 
-        break;
-    case Direction::DOWN:
+            break;
+        case Direction::DOWN:
 
-        new_action = DOWN;
-        move_y = y_walking_speed * delta_t;
+            new_action = DOWN;
+            move_y = y_walking_speed * delta_t;
 
-        break;
-    default:
-        break;
+            break;
+        default:
+            break;
     }
 }
 
@@ -536,7 +529,7 @@ void Enemy::update(float delta_t) {
     }
 
     new_action = NONE;
-    
+
     float animation_duration;
 
     if (!after_dead) {
@@ -555,7 +548,7 @@ void Enemy::update(float delta_t) {
         }
 
         if (current_sprite == sprite_state_machine[current_sprite - first_sprite].sprites[new_action]
-            && acc_delta_t >= animation_duration) {
+                && acc_delta_t >= animation_duration) {
 
             if (dead_points > 0) {
                 after_dead = true;
@@ -618,7 +611,7 @@ void Enemy::update(float delta_t) {
             if (!aStartCalled && t->isConnector()) {
                 direction = ia.getNextMove(t);
                 aStarDirection = direction;
-                aStarTile = t; 
+                aStarTile = t;
             }
             else {
                 direction = aStarDirection;

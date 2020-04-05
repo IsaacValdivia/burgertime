@@ -65,4 +65,8 @@ namespace Audio {
         sounds[LEVEL_INTRO].sound.stop();
         sounds[MAIN_BIP].sound.stop();
     }
+
+    bool is_playing(Track track) {
+        return sounds[track].sound.getStatus() == sf::SoundSource::Playing;
+    }
 }

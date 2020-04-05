@@ -23,6 +23,7 @@ namespace Audio {
     };
     void init();
 
+    bool is_playing(Track track);
     void play(Track track);
     void stop(Track track);
     void stopBackground();

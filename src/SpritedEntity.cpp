@@ -1,7 +1,7 @@
 #include "SpritedEntity.hpp"
 
 SpritedEntity::SpritedEntity(const sf::Vector2f &init_pos, BT_sprites::Sprite init_sprite)
-    : current_sprite(init_sprite) {
+    : Entity(), current_sprite(init_sprite) {
 
     BT_sprites::set_initial_sprite(sprite, init_sprite);
 

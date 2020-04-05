@@ -1,5 +1,6 @@
 #include "Player.hpp"
 #include "InputSystem.hpp"
+#include "Audio.hpp"
 
 const Player::Sprite_state_machine Player::sprite_state_machine[] = {
     // PLAYER_DOWNSTAIRS_1
@@ -231,14 +232,13 @@ const BT_sprites::Sprite Player::pepper_sprite_state_machine[] = {
     BT_sprites::Sprite::PLAYER_PEPPER_FRONT,
 };
 
-Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func,
+Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f &, Direction)> &pepper_spawned_func,
                const std::function<bool()> &has_pepper)
     : Actor(init_pos, BT_sprites::Sprite::PLAYER_STILL_FRONT, BT_sprites::Sprite::PLAYER_DOWNSTAIRS_1, map),
       won(false),
       last_action(NONE),
       pepper_spawned_func(pepper_spawned_func),
-      has_pepper(has_pepper)
-{
+      has_pepper(has_pepper) {
 }
 
 bool Player::has_won() const {
@@ -246,6 +246,7 @@ bool Player::has_won() const {
 }
 
 void Player::win() {
+    Audio::play(Audio::Track::WIN);
     won = true;
 }
 
@@ -377,7 +378,6 @@ void Player::update(float delta_t) {
     last_action = new_action;
 }
 
-nod::connection Player::connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func)
-{
+nod::connection Player::connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func) {
     return player_moved.connect(player_moved_func);
 }

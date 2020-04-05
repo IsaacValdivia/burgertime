@@ -7,6 +7,8 @@ protected:
     float acc_delta_t;
 
 public:
+    Entity();
+
     virtual void update(float delta_t) {};
 
     virtual sf::FloatRect getCollisionShape() const = 0;
