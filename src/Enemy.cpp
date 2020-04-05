@@ -1,5 +1,7 @@
 #include "Enemy.hpp"
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 
 const Enemy::Sprite_state_machine Enemy::sausage_sprite_state_machine[] = {
     // SAUSAGE_DOWNSTAIRS_1
@@ -520,6 +522,75 @@ void Enemy::move(float &move_x, float &move_y, float delta_t) {
     }
 }
 
+void Enemy::random_move(const float delta_t) {
+
+    Direction backup_dir = direction;
+
+    std::vector<Direction> posible_dirs;
+
+    float move_x;
+    float move_y;
+
+    if (backup_dir != Direction::RIGHT) {
+
+        direction = Direction::LEFT;
+
+        move(move_x, move_y, delta_t);
+
+        if (map->can_entity_move(move_x, move_y, *this)) {
+            posible_dirs.push_back(direction);
+        }
+
+    }
+
+    if (backup_dir != Direction::LEFT) {
+
+        direction = Direction::RIGHT;
+
+        move(move_x, move_y, delta_t);
+
+        if (map->can_entity_move(move_x, move_y, *this)) {
+            posible_dirs.push_back(direction);
+        }
+
+    }
+
+    if (backup_dir != Direction::UP) {
+
+        direction = Direction::DOWN;
+
+        move(move_x, move_y, delta_t);
+
+        if (map->can_entity_move(move_x, move_y, *this)) {
+            posible_dirs.push_back(direction);
+        }
+    }
+
+    if (backup_dir != Direction::DOWN) {
+
+        direction = Direction::UP;
+
+        move(move_x, move_y, delta_t);
+
+        if (map->can_entity_move(move_x, move_y, *this)) {
+            posible_dirs.push_back(direction);
+        }
+
+    }
+
+    if (posible_dirs.size() == 0) {
+        direction = backup_dir;
+    }
+    else {
+        srand(time(NULL));
+        int rand_num = rand() % posible_dirs.size();
+        //fprintf(stderr, "rand = %d", rand_num);
+        //fprintf(stderr, "size = %d", posible_dirs.size());
+
+        direction = posible_dirs.at(rand_num);
+    }
+}
+
 void Enemy::update(float delta_t) {
     acc_delta_t += delta_t;
     acc_delta_t_pepper += delta_t;
@@ -609,7 +680,16 @@ void Enemy::update(float delta_t) {
             }
 
             if (!aStartCalled && t->isConnector()) {
-                direction = ia.getNextMove(t);
+                srand(time(NULL));
+                int rand_num = rand() % 100;
+
+                if (rand_num > rand_mov_prob) {
+                    direction = ia.getNextMove(t);
+                }
+                else {
+                    random_move(delta_t);
+                }
+
                 aStarDirection = direction;
                 aStarTile = t;
             }
