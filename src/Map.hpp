@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <list>
+#include <set>
 
 #include "Constants.hpp"
 #include "Tile.hpp"
@@ -36,10 +37,10 @@ private:
     bool can_move_up(const Tile &t) const;
     bool can_move_down(const Tile &t) const;
 
-    bool can_move_right(const Tile& t, float right_edge) const;
-    bool can_move_left(const Tile& t, float left_edge) const;
-    bool can_move_up(const Tile& t, float top_edge) const;
-    bool can_move_down(const Tile& t, float bot_edge) const;
+    bool can_move_right(const Tile &t, float right_edge) const;
+    bool can_move_left(const Tile &t, float left_edge) const;
+    bool can_move_up(const Tile &t, float top_edge) const;
+    bool can_move_down(const Tile &t, float bot_edge) const;
 
     static bool isEnemy(const char c);
     static bool isItem(const char c);
@@ -66,13 +67,15 @@ public:
 
     Map(const string &map_file);
 
-    std::vector<std::shared_ptr<Tile>> entityOnTiles(const Entity& entity) const;
+    std::vector<std::shared_ptr<Tile>> entityOnTiles(const Entity &entity) const;
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
-    bool can_entity_move(float &x, float &y, const Entity& entity) const;
+    bool can_entity_move(float &x, float &y, const Entity &entity) const;
 
     bool outOfMap(const Actor &actor);
 
     std::vector<std::shared_ptr<const Tile>> availableFrom(const Tile &current) const;
+
+    std::set<Direction> availableFromDirection(const Tile &current, const Direction actual_dir) const;
 };

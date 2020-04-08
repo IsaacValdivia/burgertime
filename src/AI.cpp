@@ -9,13 +9,15 @@
 AI::AI(const std::shared_ptr<Map> map, const std::shared_ptr<const Tile> newGoalTile) : map(map), goalTile(newGoalTile)
 {}
 
-void AI::setGoalTile(const std::shared_ptr<const Tile> newGoalTile)
-{
+void AI::setGoalTile(const std::shared_ptr<const Tile> newGoalTile) {
     goalTile = newGoalTile;
 }
 
-float AI::h(const std::shared_ptr<const Tile> from, const std::shared_ptr<const Tile> to) const
-{
+float AI::distance_to_goal(const std::shared_ptr<const Tile> from) const {
+    return h(from, goalTile);
+}
+
+float AI::h(const std::shared_ptr<const Tile> from, const std::shared_ptr<const Tile> to) const {
 
     int x = abs(to->col - from->col);
     int y = abs(to->row - from->row);
@@ -23,52 +25,42 @@ float AI::h(const std::shared_ptr<const Tile> from, const std::shared_ptr<const 
     return (x + y);
 }
 
-Direction AI::nextMoveDirection(const std::map<std::shared_ptr<const Tile>, std::shared_ptr<const Tile>> cameFrom, const std::shared_ptr<const Tile> current) const
-{
+Direction AI::nextMoveDirection(const std::map<std::shared_ptr<const Tile>, std::shared_ptr<const Tile>> cameFrom, const std::shared_ptr<const Tile> current) const {
     std::shared_ptr<const Tile> previous;
     std::shared_ptr<const Tile> currentPtr = current;
     std::map<const std::shared_ptr<const Tile>, const std::shared_ptr<const Tile>>::const_iterator cameFromIt;
 
-    while (cameFrom.find(currentPtr) != cameFrom.end())
-    {
+    while (cameFrom.find(currentPtr) != cameFrom.end()) {
         previous = currentPtr;
         currentPtr = cameFrom.at(currentPtr);
     }
 
-    if (!previous)
-    {
+    if (!previous) {
         // TODO: cambiar?
         return LEFT;
     }
-    
+
     sf::Vector2i direction(currentPtr->col - previous->col, currentPtr->row - previous->row);
-    if (abs(direction.x) < abs(direction.y))
-    {
-        if (direction.y < 0)
-        {
+    if (abs(direction.x) < abs(direction.y)) {
+        if (direction.y < 0) {
             return DOWN;
         }
-        else
-        {
+        else {
             return UP;
         }
     }
-    else
-    {
-        if (direction.x < 0)
-        {
+    else {
+        if (direction.x < 0) {
             return RIGHT;
         }
-        else
-        {
+        else {
             return LEFT;
         }
     }
 }
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
-Direction AI::getNextMove(const std::shared_ptr<const Tile> startTile) const
-{
+Direction AI::getNextMove(const std::shared_ptr<const Tile> startTile) const {
     // For node n, cameFrom[n] is the node immediately preceding it on the cheapest path from start
     // to n currently known.
     std::map<std::shared_ptr<const Tile>, std::shared_ptr<const Tile>> cameFrom;
@@ -78,8 +70,7 @@ Direction AI::getNextMove(const std::shared_ptr<const Tile> startTile) const
     std::map<std::shared_ptr<const Tile>, float> gScore;
     auto getGscore = [&gScore](const std::shared_ptr<const Tile> &val) {
         float scoreVal = std::numeric_limits<float>::infinity();
-        if (gScore.find(val) != gScore.end())
-        {
+        if (gScore.find(val) != gScore.end()) {
             scoreVal = gScore.at(val);
         }
 
@@ -93,8 +84,7 @@ Direction AI::getNextMove(const std::shared_ptr<const Tile> startTile) const
     std::map<std::shared_ptr<const Tile>, float> fScore;
     auto getFscore = [&fScore](const std::shared_ptr<const Tile> val) {
         float scoreVal = std::numeric_limits<float>::infinity();
-        if (fScore.find(val) != fScore.end())
-        {
+        if (fScore.find(val) != fScore.end()) {
             scoreVal = fScore.at(val);
         }
 
@@ -114,29 +104,24 @@ Direction AI::getNextMove(const std::shared_ptr<const Tile> startTile) const
     openSet.emplace(startTile);
 
 
-    while (!openSet.empty())
-    {
+    while (!openSet.empty()) {
         // This operation can occur in O(1) time if openMinHeap is a min-heap or a priority queue
         // current := the node in openMinHeap having the lowest fScore[] value
         const auto current = openMinHeap.top();
-        if (*current == *goalTile)
-        {
+        if (*current == *goalTile) {
             return nextMoveDirection(cameFrom, current);
         }
 
         openMinHeap.pop();
         openSet.erase(current);
-        for (const auto &neighbor : map->availableFrom(*current))
-        {
+        for (const auto &neighbor : map->availableFrom(*current)) {
             auto tentativeGscore = getGscore(current) + 1;
-            if (tentativeGscore < getGscore(neighbor))
-            {
+            if (tentativeGscore < getGscore(neighbor)) {
                 // This path to neighbor is better than any previous one. Record it!
                 cameFrom[neighbor] = current;
                 gScore[neighbor] = tentativeGscore;
                 fScore[neighbor] = getGscore(neighbor) + h(neighbor, goalTile);
-                if (openSet.find(neighbor) == openSet.end())
-                {
+                if (openSet.find(neighbor) == openSet.end()) {
                     openMinHeap.push(neighbor);
                     openSet.insert(neighbor);
                 }

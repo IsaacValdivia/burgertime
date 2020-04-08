@@ -136,8 +136,7 @@ std::vector<std::shared_ptr<Tile>> Map::entityOnTiles(const Entity &entity) cons
     size_t vertical_tile = (bot_y - (UPPER_MARGIN + 1)) / Tile::TILE_HEIGHT;
 
     // TODO: excepcion o algo si vertical_tile h_i son mayores que los limites
-    if (vertical_tile >= MAX_ROWS)
-    {
+    if (vertical_tile >= MAX_ROWS) {
         return tiles;
     }
     for (int h_i = horizontal_tile_1; h_i < horizontal_tile_2 + 1; ++h_i) {
@@ -277,7 +276,7 @@ bool Map::can_move_down(const Tile &t, float bot_edge) const {
     }
 }
 
-bool Map::can_entity_move(float &x, float &y, const Entity& entity) const {
+bool Map::can_entity_move(float &x, float &y, const Entity &entity) const {
     const auto &collisionShape = entity.getCollisionShape();
     float bot_left_x = collisionShape.left;
     float bot_right_x = collisionShape.left + collisionShape.width;
@@ -370,6 +369,28 @@ std::vector<std::shared_ptr<const Tile>> Map::availableFrom(const Tile &current)
         availablePaths.push_back(tile_data[current.row][current.col + 1]);
     }
 
+
+    return availablePaths;
+}
+
+std::set<Direction> Map::availableFromDirection(const Tile &current, const Direction actual_dir) const {
+    std::set<Direction> availablePaths;
+
+    if (can_move_up(current)) {
+        availablePaths.insert(Direction::UP);
+    }
+
+    if (can_move_down(current)) {
+        availablePaths.insert(Direction::DOWN);
+    }
+
+    if (can_move_left(current)) {
+        availablePaths.insert(Direction::LEFT);
+    }
+
+    if (can_move_right(current)) {
+        availablePaths.insert(Direction::RIGHT);
+    }
 
     return availablePaths;
 }
