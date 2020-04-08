@@ -57,21 +57,21 @@ namespace Audio {
         }
     }
 
-    void play(Track track) {
+    void play(const Track track) {
         sounds[track].sound.play();
     }
 
-    void stop(Track track) {
+    void stop(const Track track) {
         sounds[track].sound.stop();
     }
 
-    void stopBackground() {
+    void stop_background() {
         sounds[MAIN].sound.stop();
         sounds[LEVEL_INTRO].sound.stop();
         sounds[MAIN_BIP].sound.stop();
     }
 
-    bool is_playing(Track track) {
+    bool is_playing(const Track track) {
         return sounds[track].sound.getStatus() == sf::SoundSource::Playing;
     }
 }

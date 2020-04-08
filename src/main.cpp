@@ -2,8 +2,7 @@
 
 #include "BurgerTimeController.hpp"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     BurgerTimeController::get().run();
 
     return EXIT_SUCCESS;

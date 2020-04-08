@@ -30,27 +30,28 @@ private:
     static constexpr float peppering_sprite_duration = 0.1;
     static constexpr float end_game_sprite_duration = 0.2;
 
-    struct Sprite_state_machine {
+    struct SpriteStateMachine {
         float sprite_duration;
-        BT_sprites::Sprite sprites[NUM_ACTIONS];
+        BtSprites::Sprite sprites[NUM_ACTIONS];
     };
 
-    static const Sprite_state_machine sprite_state_machine[];
-    static const BT_sprites::Sprite pepper_sprite_state_machine[]; // Special case.
+    static const SpriteStateMachine sprite_state_machine[];
+    static const BtSprites::Sprite pepper_sprite_state_machine[]; // Special case.
 
     Action new_action;
     Action last_action;
 
     bool won;
 
-    std::function<void(const sf::Vector2f&, Direction)> pepper_spawned_func;
+    std::function<void(const sf::Vector2f &, Direction)> pepper_spawned_func;
 
     std::function<bool()> has_pepper;
 
     nod::unsafe_signal<void(const std::shared_ptr<Tile>)> player_moved;
 
 public:
-    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map, const std::function<void(const sf::Vector2f&, Direction)> &pepper_spawned_func,
+    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map,
+           const std::function<void(const sf::Vector2f &, Direction)> &pepper_spawned_func,
            const std::function<bool()> &has_pepper);
 
     void update(float delta_t) override;
@@ -59,7 +60,8 @@ public:
 
     void win();
 
-    bool goingXdirection();
+    bool going_x_direction();
 
-    nod::connection connect_player_moved(const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func);
+    nod::connection connect_player_moved(
+        const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func);
 };

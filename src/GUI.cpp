@@ -1,59 +1,51 @@
 #include "GUI.hpp"
 #include "Constants.hpp"
 
-GUI::GUI()
-{
-    if (!font.loadFromFile(FONT_FILE))
-    {
+GUI::GUI() {
+    if (!font.loadFromFile(FONT_FILE)) {
         // TODO: error
     }
 }
 
-GUI::~GUI()
-{
-}
+GUI::~GUI() {}
 
-GUI &GUI::get()
-{
+GUI &GUI::get() {
     static GUI instance;
     return instance;
 }
 
-std::weak_ptr<sf::Text> GUI::createText(const std::string &id, const std::string &text, sf::Vector2u screenPos, 
-    sf::Vector2f scale, sf::Color color)
-{
-    auto textObj = std::make_shared<sf::Text>();
-    guiTexts[id] = textObj;
+std::weak_ptr<sf::Text> GUI::create_text(const std::string &id,
+        const std::string &text,
+        sf::Vector2u screen_pos,
+        sf::Vector2f scale, sf::Color color) {
 
-    textObj->setFillColor(color);
-    textObj->setScale(scale);
-    textObj->setString(text);
-    textObj->setFont(font);
-    textObj->setPosition(screenPos.x * HORIZONTAL_DIVISIONS, screenPos.y * VERTICAL_DIVISIONS);
+    auto text_obj = std::make_shared<sf::Text>();
+    gui_texts[id] = text_obj;
 
-    return textObj;
+    text_obj->setFillColor(color);
+    text_obj->setScale(scale);
+    text_obj->setString(text);
+    text_obj->setFont(font);
+    text_obj->setPosition(screen_pos.x * HORIZONTAL_DIVISIONS, screen_pos.y * VERTICAL_DIVISIONS);
+
+    return text_obj;
 }
 
-std::weak_ptr<sf::Text> GUI::getText(const std::string &id)
-{
-    if (guiTexts.find(id) != guiTexts.end())
-    {
-        return guiTexts[id];
+std::weak_ptr<sf::Text> GUI::get_text(const std::string &id) {
+    if (gui_texts.find(id) != gui_texts.end()) {
+        return gui_texts[id];
     }
-    else
-    {
+    else {
         // TODO: exception
     }
 }
 
-std::string GUI::fixTextToRight(const std::string &st, int maxChars)
-{
-    std::string whiteSpace(" ");
+std::string GUI::fix_text_to_right(const std::string &st, const int max_chars) {
+    std::string white_space(" ");
 
-    for (uint8_t j = 0; j < maxChars - st.length(); ++j)
-    {
-        whiteSpace += " ";
+    for (uint8_t j = 0; j < max_chars - st.length(); ++j) {
+        white_space += " ";
     }
 
-    return whiteSpace + st;
+    return white_space + st;
 }

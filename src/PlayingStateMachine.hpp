@@ -11,77 +11,71 @@
 #include "Enemy.hpp"
 #include "Bonus.hpp"
 
-class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine>
-{
+class PlayingStateMachine : public tinyfsm::MooreMachine<PlayingStateMachine> {
 public:
-    void react(const tinyfsm::Event &){};
+    void react(const tinyfsm::Event &) {};
 
     virtual void react(const ExecuteEvent &) {};
 
-    bool hasPepper() const;
+    bool has_pepper() const;
 
-    void addPlayerAndEnemies();
+    void add_player_and_enemies();
 
-    void spawnEnemy(const Enemy::Type &type, const Tile&, float offset);
+    void spawn_enemy(const Enemy::Type &type, const Tile &, float offset);
 
-    void ingredientCollision();
+    void ingredient_collision();
 
-    void addPoints(unsigned int points);
+    void add_points(unsigned int points);
 
-    void addPepper(const sf::Vector2f &launchPosition, Direction direction);
+    void add_pepper(const sf::Vector2f &launchPosition, Direction direction);
 
-    void deletePepper();
+    void delete_pepper();
 
-    static uint32_t getCurrentScore();
+    static uint32_t get_current_score();
 
 protected:
-    class PepperCounter
-    {
-        uint8_t currentPepper;
+    class PepperCounter {
+        uint8_t current_pepper;
 
     public:
         PepperCounter();
 
-        void changePepper(int change);
-        bool hasPepper() const;
+        void change_pepper(int change);
+        bool has_pepper() const;
     };
 
-    class LivesCounter
-    {
-        uint8_t currentLives;
+    class LivesCounter {
+        uint8_t current_lives;
 
     public:
         LivesCounter();
 
-        void changeLives(int change);
-        bool hasLives() const;
+        void change_lives(int change);
+        bool has_lives() const;
     };
 
-    class ScoreCounter
-    {
-        uint32_t currentScore;
-        uint32_t currentTopScore;
+    class ScoreCounter {
+        uint32_t current_score;
+        uint32_t current_top_score;
 
     public:
         ScoreCounter();
 
-        void addPoints(uint32_t points);
+        void add_points(uint32_t points);
         uint32_t getScore() const;
     };
 
-    class LevelCounter
-    {
-        uint32_t currentLevel;
+    class LevelCounter {
+        uint32_t current_level;
 
     public:
         LevelCounter();
 
-        void addLevel(uint32_t level);
+        void add_level(uint32_t level);
     };
 
 
-    struct GameInfo
-    {
+    struct GameInfo {
         std::vector<std::shared_ptr<Map>> maps;
 
         std::shared_ptr<Player> player;
@@ -90,70 +84,66 @@ protected:
         std::shared_ptr<AI> ai;
         std::list<std::shared_ptr<Enemy>> enemies;
 
-        std::shared_ptr<sf::Sprite> pepperText;
-        std::shared_ptr<sf::Sprite> livesSprite;
-        std::shared_ptr<sf::Sprite> levelSprite;
+        std::shared_ptr<sf::Sprite> pepper_text;
+        std::shared_ptr<sf::Sprite> lives_sprite;
+        std::shared_ptr<sf::Sprite> level_sprite;
 
         std::shared_ptr<Bonus> bonus;
 
         std::array<std::shared_ptr<sf::RectangleShape>, 2> curtains;
 
-        uint8_t currentIngredients;
-        int pointsToExtraLife;
-        PepperCounter pepperCounter;
-        LivesCounter livesCounter;
-        ScoreCounter scoreCounter;
-        LevelCounter levelCounter;
-        size_t currentMap;
+        uint8_t current_ingredients;
 
-        bool hasJustEntered;
+        int points_to_extra_life;
+
+        PepperCounter pepper_counter;
+        LivesCounter lives_counter;
+        ScoreCounter score_counter;
+        LevelCounter level_counter;
+
+        size_t current_map;
+
+        bool has_just_entered;
     };
 
-    void changeGameInfo();
+    void change_game_info();
 
-    void setGameInfo(std::unique_ptr<GameInfo> newGameInfo);
+    void set_game_info(std::unique_ptr<GameInfo> newGameInfo);
 
-    std::unique_ptr<GameInfo> gameInfo;
+    std::unique_ptr<GameInfo> game_info;
 
     static BurgerTimeController &controller;
     static GUI &gui;
 };
 
-class EnterStatePlaying : public PlayingStateMachine
-{
+class EnterStatePlaying : public PlayingStateMachine {
     void entry() override;
     void react(const ExecuteEvent &) override;
 };
 
-class GameOverStatePlaying : public PlayingStateMachine
-{
-};
+class GameOverStatePlaying : public PlayingStateMachine {};
 
-class GameReadyScreenState : public PlayingStateMachine
-{
+class GameReadyScreenState : public PlayingStateMachine {
     void entry() override;
     void react(const ExecuteEvent &) override;
 };
 
-class NormalStatePlaying : public PlayingStateMachine
-{
+class NormalStatePlaying : public PlayingStateMachine {
     void entry() override;
     void react(const ExecuteEvent &) override;
 
-    void checkMainMusic();
+    void check_main_music();
 
-    bool mainMusicPlayed;
-    bool hasEnteredLevelFirstTime;
+    bool main_music_played;
+    bool has_entered_level_first_time;
 };
 
-class WinStatePlaying : public PlayingStateMachine
-{
+class WinStatePlaying : public PlayingStateMachine {
     void entry() override;
     void react(const ExecuteEvent &) override;
 };
 
-class DeadStatePlaying : public PlayingStateMachine
-{
+class DeadStatePlaying : public PlayingStateMachine {
     void entry() override;
     void react(const ExecuteEvent &) override;
 };

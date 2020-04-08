@@ -119,10 +119,10 @@ void Map::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 }
 
 std::vector<std::shared_ptr<Tile>> Map::entityOnTiles(const Entity &entity) const {
-    auto collisionShape = entity.getCollisionShape();
-    float bot_left_x = collisionShape.left;
-    float bot_right_x = collisionShape.left + collisionShape.width;
-    float bot_y = collisionShape.top + collisionShape.height;
+    auto collision_shape = entity.get_collision_shape();
+    float bot_left_x = collision_shape.left;
+    float bot_right_x = collision_shape.left + collision_shape.width;
+    float bot_y = collision_shape.top + collision_shape.height;
 
     std::vector<std::shared_ptr<Tile>> tiles;
 
@@ -277,11 +277,11 @@ bool Map::can_move_down(const Tile &t, float bot_edge) const {
 }
 
 bool Map::can_entity_move(float &x, float &y, const Entity &entity) const {
-    const auto &collisionShape = entity.getCollisionShape();
-    float bot_left_x = collisionShape.left;
-    float bot_right_x = collisionShape.left + collisionShape.width;
+    const auto &collision_shape = entity.get_collision_shape();
+    float bot_left_x = collision_shape.left;
+    float bot_right_x = collision_shape.left + collision_shape.width;
 
-    float bot_y = collisionShape.top + collisionShape.height;
+    float bot_y = collision_shape.top + collision_shape.height;
 
     std::vector<std::shared_ptr<Tile>> tiles_of_player = entityOnTiles(entity);
 
@@ -332,10 +332,10 @@ bool Map::can_entity_move(float &x, float &y, const Entity &entity) const {
 }
 
 bool Map::outOfMap(const Actor &actor) {
-    auto collisionShape = actor.getCollisionShape();
+    auto collision_shape = actor.get_collision_shape();
 
-    float bot_left_x = collisionShape.left;
-    float bot_right_x = collisionShape.left + collisionShape.width;
+    float bot_left_x = collision_shape.left;
+    float bot_right_x = collision_shape.left + collision_shape.width;
 
     // Check left_edge
     float horizontal_tile_1 = (bot_left_x - (SIDE_MARGINS + 1)) / Tile::TILE_WIDTH;

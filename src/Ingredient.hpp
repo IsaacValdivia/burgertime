@@ -39,7 +39,7 @@ private:
     Landable last_landable;
     State state;
 
-    bool staticTested;
+    bool static_tested;
 
     int num_levels;
 
@@ -53,20 +53,52 @@ private:
         bool stepped;
 
     public:
+        /**
+         * @brief Construct a new Ingredient Piece object
+         *
+         * @param _init_pos
+         * @param _init_sprite
+         */
+        IngredientPiece(const sf::Vector2f &_init_pos, BtSprites::Sprite _init_sprite);
 
-        IngredientPiece(const sf::Vector2f &_init_pos, BT_sprites::Sprite _init_sprite);
+        /**
+         * @brief Returns if the piece has been stepped
+         *
+         * @return true
+         * @return false
+         */
+        bool is_stepped() const;
 
-        bool isStepped() const;
+        /**
+         * @brief Steps on the piece
+         *
+         */
         void step();
 
+        /**
+         * @brief Moves the piece in the y axis
+         *
+         * @param magnitude
+         */
         void move_y(float magnitude);
 
         friend class Ingredient;
     };
 
+    /**
+     * @brief Moves the ingredient down
+     *
+     * @param delta_t
+     */
     void move_down(const float delta_t);
+
+    /**
+     * @brief Descends a minimum of 1 level and checks where it has landed
+     *
+     */
     void descend_and_check();
 public:
+    // TODO: COSAS A PRIVADO Y ESTO A ENUM.
     static const char TOP_BUN = '^';
     static const char BOT_BUN = 'v';
     static const char MEAT = 'M';
@@ -80,44 +112,165 @@ public:
 
     std::vector<IngredientPiece> pieces;
 
+    /**
+     * @brief Construct a new Ingredient object
+     *
+     * @param _x
+     * @param _y
+     * @param _content
+     */
     Ingredient(const float _x, const float _y, const char _content);
 
+    /**
+     * @brief Construct a new Ingredient object
+     *
+     */
     Ingredient(Ingredient &&) noexcept;
 
+    /**
+     * @brief = operator for ingredients
+     *
+     * @param other
+     */
     void operator=(const Ingredient &other);
 
+    /**
+     * @brief Draws all the pieces of the ingredient
+     *
+     * @param target
+     * @param states
+     */
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
+    /**
+     * @brief Main control function
+     *
+     * @param delta_t
+     */
     void update(float delta_t) override;
 
+    /**
+     * @brief Returns
+     *
+     * @param rectangle
+     * @param _num_levels
+     * @return true
+     * @return false
+     */
     bool stepped(const sf::FloatRect &rectangle, const int _num_levels);
 
-    sf::FloatRect getCollisionShape() const override;
+    /**
+     * @brief Gets the collision shape enclosing the ingredient and its pieces
+     *
+     * @return sf::FloatRect
+     */
+    sf::FloatRect get_collision_shape() const override;
 
+    /**
+     * @brief Changes the ingredient state to falling
+     *
+     */
     void drop();
 
+    /**
+     * @brief Moves the item down by a fixed magnitude, independent of delta_t
+     *
+     * @param magnitude
+     */
     void move_down_no_delta(const float magnitude);
 
-    void land(float y, Landable landable);
+    /**
+     * @brief Called when the ingredient lands on a surface
+     *
+     * @param y
+     * @param landable
+     */
+    void land(const float y, const Landable landable);
 
-    bool testStatic();
+    /**
+     * @brief Returns if the ingredient is basketed, can only be called once
+     *
+     * @return true
+     * @return false
+     */
+    bool test_static();
 
-    bool isStatic() const;
+    /**
+     * @brief Returns if the ingredient is basketed
+     *
+     * @return true
+     * @return false
+     */
+    bool is_static() const;
 
-    bool isIdle() const;
+    /**
+     * @brief Returns if the ingredient is steppable
+     *
+     * @return true
+     * @return false
+     */
+    bool is_idle() const;
 
-    bool isFalling() const;
+    /**
+     * @brief Returns if the ingredient is falling
+     *
+     * @return true
+     * @return false
+     */
+    bool is_falling() const;
 
-    bool isBouncing() const;
+    /**
+     * @brief Returns if the ingredient is bouncing
+     *
+     * @return true
+     * @return false
+     */
+    bool is_bouncing() const;
 
-    void resetSteps();
+    /**
+     * @brief Reset all ingredient pieces to not stepped
+     *
+     */
+    void reset_steps();
+
+    /**
+     * @brief Fixes the position of the ingredient to the one of the lowest piece
+     *
+     */
     void fix_position_down();
+
+    /**
+     * @brief Fixes the position of the ingredient to the one of the highest piece
+     *
+     */
     void fix_position_up();
 
+    /**
+     * @brief Fixes the position to the selected y
+     *
+     * @param y
+     */
     void fix_to_y(const float y);
 
+    /**
+     * @brief Moves the two middle pieces by a magnitude
+     *
+     * @param magnitude
+     */
     void displace_middle(const float magnitude);
+
+    /**
+     * @brief Moves the two edge pieces by a magnitude
+     *
+     * @param magnitude
+     */
     void displace_edges(const float magnitude);
 
-    std::pair<nod::connection, nod::connection> connect_enemy_surfer(const std::function<void(float)> &enemy_surfer_func, const std::function<void()> &disconnect_func);
+    /**
+     * @brief Subscribes enemy to the surf signal
+     *
+     */
+    std::pair<nod::connection, nod::connection> connect_enemy_surfer(
+        const std::function<void(float)> &enemy_surfer_func,
+        const std::function<void()> &disconnect_func);
 };

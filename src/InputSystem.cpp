@@ -5,11 +5,9 @@
 #include <set>
 #include <SFML/Window.hpp>
 
-namespace InputSystem
-{
-    namespace
-    {
-        static std::map<Input, sf::Keyboard::Key> inputMappings = {
+namespace InputSystem {
+    namespace {
+        static std::map<Input, sf::Keyboard::Key> input_mappings = {
             {Input::UP, sf::Keyboard::Key::W},
             {Input::DOWN, sf::Keyboard::Key::S},
             {Input::LEFT, sf::Keyboard::Key::A},
@@ -19,110 +17,95 @@ namespace InputSystem
             {Input::DELETE, sf::Keyboard::Key::BackSpace},
         };
 
-        static std::list<Input> orderedPressedInputs;
-        static std::set<Input> currentPressedInputs;
-        static std::set<Input> justPressedInputs;
-        static std::set<Input> justReleasedInputs;
-        static bool isCharEntered = false;
-        static char charEntered;
+        static std::list<Input> ordered_pressed_inputs;
+        static std::set<Input> current_pressed_inputs;
+        static std::set<Input> just_pressed_inputs;
+        static std::set<Input> just_released_inputs;
+        static bool is_char_entered = false;
+        static char char_entered;
     }
 
-    bool isInputPressed(Input input, const std::set<Input> &pressedInputs)
-    {
-        return pressedInputs.find(input) != pressedInputs.end();
+    bool is_input_pressed(Input input, const std::set<Input> &pressed_inputs) {
+        return pressed_inputs.find(input) != pressed_inputs.end();
     }
 
-    void updateCommon()
-    {
-        std::set<Input> pressedInputs;
-        justPressedInputs.clear();
-        justReleasedInputs.clear();
+    void update_common() {
+        std::set<Input> pressed_inputs;
+        just_pressed_inputs.clear();
+        just_released_inputs.clear();
 
-        for (const auto &mapping : inputMappings)
-        {
+        for (const auto &mapping : input_mappings) {
             Input input = mapping.first;
             sf::Keyboard::Key key = mapping.second;
 
-            if (sf::Keyboard::isKeyPressed(key))
-            {
-                pressedInputs.insert(input);
+            if (sf::Keyboard::isKeyPressed(key)) {
+                pressed_inputs.insert(input);
             }
-            else 
-            {
-                pressedInputs.erase(input);
+            else {
+                pressed_inputs.erase(input);
             }
 
-            if (!isInputPressed(input, currentPressedInputs) && isInputPressed(input, pressedInputs))
-            {
-                orderedPressedInputs.push_back(input);
-                justPressedInputs.insert(input);
+            if (!is_input_pressed(input, current_pressed_inputs) &&
+                    is_input_pressed(input, pressed_inputs)) {
+
+                ordered_pressed_inputs.push_back(input);
+                just_pressed_inputs.insert(input);
             }
-            else if (isInputPressed(input, currentPressedInputs) && !isInputPressed(input, pressedInputs))
-            {
-                orderedPressedInputs.remove(input);
-                justReleasedInputs.insert(input);
+            else if (is_input_pressed(input, current_pressed_inputs) &&
+                     !is_input_pressed(input, pressed_inputs)) {
+
+                ordered_pressed_inputs.remove(input);
+                just_released_inputs.insert(input);
             }
         }
 
-        currentPressedInputs = pressedInputs;
+        current_pressed_inputs = pressed_inputs;
     }
 
-    void update()
-    {
-        isCharEntered = false;
-        updateCommon();
+    void update() {
+        is_char_entered = false;
+        update_common();
     }
 
-    void update(char newChar)
-    {
-        isCharEntered = true;
-        charEntered = newChar;
-        updateCommon();
+    void update(char new_char) {
+        is_char_entered = true;
+        char_entered = new_char;
+        update_common();
     }
 
-    Input getLastInput()
-    {
-        if (orderedPressedInputs.size() > 0)
-        {
-            return orderedPressedInputs.back();
+    Input get_last_input() {
+        if (ordered_pressed_inputs.size() > 0) {
+            return ordered_pressed_inputs.back();
         }
-        else
-        {
+        else {
             return Input::NONE;
         }
-        
+
     }
 
-    bool isSingleInputActive(Input input)
-    {
-        return isInputPressed(input, currentPressedInputs);
+    bool is_single_input_active(Input input) {
+        return is_input_pressed(input, current_pressed_inputs);
     }
 
-    bool hasInputJustBeenPressed(Input input)
-    {
-        return isInputPressed(input, justPressedInputs);
+    bool has_input_just_been_pressed(Input input) {
+        return is_input_pressed(input, just_pressed_inputs);
     }
 
-    bool hasInputJustBeenReleased(Input input)
-    {
-        return isInputPressed(input, justReleasedInputs);
+    bool has_input_just_been_released(Input input) {
+        return is_input_pressed(input, just_released_inputs);
     }
 
-    bool hasEnteredText()
-    {
-        return isCharEntered;
+    bool has_entered_text() {
+        return is_char_entered;
     }
 
-    char getCurrentChar()
-    {
-        if (isCharEntered)
-        {
-            return charEntered;
+    char get_current_char() {
+        if (is_char_entered) {
+            return char_entered;
         }
-        else
-        {
+        else {
             // TODO: change, do properly
-            throw -1;
+            throw - 1;
         }
     }
-} // namespace InputSystem
+}

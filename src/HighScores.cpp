@@ -4,90 +4,83 @@
 #include <cstdint>
 #include <algorithm>
 
-constexpr std::array<std::pair<const char*, uint32_t>, HighScores::NUM_HIGH_SCORES> HighScores::DEFAULT_SCORES;
+constexpr std::array<std::pair<const char *, uint32_t>,
+          HighScores::NUM_HIGH_SCORES> HighScores::DEFAULT_SCORES;
 
 HighScores::HighScores()
-: fileName(HSCORE_FILE)
-{
+    : file_name(HSCORE_FILE) {
     std::ifstream file;
-    file.open(fileName, std::ios::binary);
+    file.open(file_name, std::ios::binary);
 
-    if (!file)
-    {
-        createDefaultScores();
+    if (!file) {
+        create_default_scores();
         return;
     }
 
-    for (int i = 0; i < NUM_HIGH_SCORES; ++i)
-    {
-        std::array<char, PLAYER_NAME_SIZE> playerName;
-        file.read(playerName.data(), PLAYER_NAME_SIZE);
+    for (int i = 0; i < NUM_HIGH_SCORES; ++i) {
+        std::array<char, PLAYER_NAME_SIZE> player_name;
+        file.read(player_name.data(), PLAYER_NAME_SIZE);
 
-        if (!file)
-        {
-            createDefaultScores();
+        if (!file) {
+            create_default_scores();
             return;
         }
 
         uint32_t score;
-        file.read(reinterpret_cast<char*>(&score), sizeof(score));
+        file.read(reinterpret_cast<char *>(&score), sizeof(score));
 
-        if (!file)
-        {
-            createDefaultScores();
+        if (!file) {
+            create_default_scores();
             return;
         }
 
-        highScores[i] = std::make_pair(playerName, score);
+        high_scores[i] = std::make_pair(player_name, score);
     }
 
-    std::sort(highScores.begin(), highScores.end(), [](const std::pair<std::array<char, 4>, uint32_t> &left, const std::pair<std::array<char, 4>, uint32_t> &right) {
+    std::sort(high_scores.begin(), high_scores.end(), [](
+                  const std::pair<std::array<char, 4>, uint32_t> &left,
+    const std::pair<std::array<char, 4>, uint32_t> &right) {
+
         return left.second > right.second;
     });
 }
 
-std::array<std::pair<std::array<char, 4>, uint32_t>, HighScores::NUM_HIGH_SCORES> HighScores::getHighScores() const
-{
-    return highScores;
+std::array<std::pair<std::array<char, 4>, uint32_t>,
+HighScores::NUM_HIGH_SCORES> HighScores::get_high_scores() const {
+
+    return high_scores;
 }
 
-
-void HighScores::createDefaultScores()
-{
+void HighScores::create_default_scores() {
     std::ofstream file;
-    file.open(fileName, std::ios::binary);
+    file.open(file_name, std::ios::binary);
 
-    if (!file)
-    {
+    if (!file) {
         // TODO: throw exception
     }
 
-    for (int i = 0; i < NUM_HIGH_SCORES; ++i)
-    {
-        std::array<char, PLAYER_NAME_SIZE> playerName;
-        for (uint8_t j = 0; j < PLAYER_NAME_SIZE; ++j)
-        {
-            playerName[j] = DEFAULT_SCORES[i].first[j];
+    for (int i = 0; i < NUM_HIGH_SCORES; ++i) {
+        std::array<char, PLAYER_NAME_SIZE> player_name;
+        for (uint8_t j = 0; j < PLAYER_NAME_SIZE; ++j) {
+            player_name[j] = DEFAULT_SCORES[i].first[j];
         }
 
         file.write(DEFAULT_SCORES[i].first, PLAYER_NAME_SIZE);
-        file.write(reinterpret_cast<const char*>(&DEFAULT_SCORES[i].second), sizeof(DEFAULT_SCORES[i].second));
-        highScores[i].first = playerName;
-        highScores[i].second = DEFAULT_SCORES[i].second;
+        file.write(reinterpret_cast<const char *>(&DEFAULT_SCORES[i].second),
+                   sizeof(DEFAULT_SCORES[i].second));
+
+        high_scores[i].first = player_name;
+        high_scores[i].second = DEFAULT_SCORES[i].second;
     }
 }
 
-bool HighScores::isHighScore(uint32_t score) const
-{
-    return score >= highScores[NUM_HIGH_SCORES - 1].second; 
+bool HighScores::is_high_score(uint32_t score) const {
+    return score >= high_scores[NUM_HIGH_SCORES - 1].second;
 }
 
-int HighScores::highScorePosition(uint32_t score) const
-{
-    for (int i = 0; i < NUM_HIGH_SCORES; ++i)
-    {
-        if (score >= highScores[i].second)
-        {
+int HighScores::high_score_position(uint32_t score) const {
+    for (int i = 0; i < NUM_HIGH_SCORES; ++i) {
+        if (score >= high_scores[i].second) {
             return i + 1;
         }
     }
@@ -96,37 +89,40 @@ int HighScores::highScorePosition(uint32_t score) const
 }
 
 
-uint32_t HighScores::getTopScore() const
-{
-    return highScores[0].second;
+uint32_t HighScores::get_top_score() const {
+    return high_scores[0].second;
 }
 
 
-void HighScores::saveNewScore(const std::string &playerName, uint32_t newHscore)
-{
-    std::vector<std::pair<std::array<char, 4>, uint32_t>> hScores;
+void HighScores::save_new_score(const std::string &player_name, uint32_t newHscore) {
+    std::vector<std::pair<std::array<char, 4>, uint32_t>> hscores;
 
     std::array<char, 4> plName;
-    std::copy(std::begin(playerName), std::end(playerName), std::begin(plName));
+    std::copy(std::begin(player_name), std::end(player_name), std::begin(plName));
     plName.back() = '\0';
-    hScores.push_back(std::make_pair(plName, newHscore));
+    hscores.push_back(std::make_pair(plName, newHscore));
 
-    std::copy(std::begin(highScores), std::end(highScores), std::back_inserter(hScores));
-    std::sort(hScores.begin(), hScores.end(), [](const std::pair<std::array<char, 4>, uint32_t> &left, const std::pair<std::array<char, 4>, uint32_t> &right) {
+    std::copy(std::begin(high_scores), std::end(high_scores), std::back_inserter(hscores));
+
+    std::sort(hscores.begin(), hscores.end(), [](
+                  const std::pair<std::array<char, 4>, uint32_t> &left,
+    const std::pair<std::array<char, 4>, uint32_t> &right) {
+
         return left.second > right.second;
     });
 
     std::ofstream file;
-    file.open(fileName, std::ios::binary);
-    for (int i = 0; i < NUM_HIGH_SCORES; ++i)
-    {
-        std::array<char, PLAYER_NAME_SIZE> playerName;
-        for (uint8_t j = 0; j < PLAYER_NAME_SIZE; ++j)
-        {
-            playerName[j] = DEFAULT_SCORES[i].first[j];
+    file.open(file_name, std::ios::binary);
+
+    for (int i = 0; i < NUM_HIGH_SCORES; ++i) {
+        std::array<char, PLAYER_NAME_SIZE> player_name;
+        for (uint8_t j = 0; j < PLAYER_NAME_SIZE; ++j) {
+            player_name[j] = DEFAULT_SCORES[i].first[j];
         }
 
-        file.write(hScores[i].first.cbegin(), PLAYER_NAME_SIZE);
-        file.write(reinterpret_cast<const char*>(&hScores[i].second), sizeof(hScores[i].second));
+        file.write(hscores[i].first.cbegin(), PLAYER_NAME_SIZE);
+
+        file.write(reinterpret_cast<const char *>(&hscores[i].second),
+                   sizeof(hscores[i].second));
     }
 }

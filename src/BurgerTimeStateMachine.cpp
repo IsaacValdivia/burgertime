@@ -10,24 +10,21 @@
 #include "BT_sprites.hpp"
 
 
-FSM_INITIAL_STATE(BurgerTimeStateMachine, HighscoreDisplayScreenState)
+FSM_INITIAL_STATE(BurgerTimeStateMachine, Highscore_display_screen_state)
 
 BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController::get();
 GUI &BurgerTimeStateMachine::gui = GUI::get();
 
 
-bool BurgerTimeStateMachine::timedStateReact(int waitTime)
-{
-    if (hasInputJustBeenPressed(InputSystem::Input::PAUSE))
-    {
-        controller.restartTimer();
+bool BurgerTimeStateMachine::timed_state_react(int wait_time) {
+    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+        controller.restart_timer();
         return true;
     }
 
-    auto elapsedTime = controller.getElapsedTime();
-    if (elapsedTime.asSeconds() >= waitTime)
-    {
-        controller.restartTimer();
+    auto elapsed_time = controller.get_elapsed_time();
+    if (elapsed_time.as_seconds() >= wait_time) {
+        controller.restart_timer();
         return true;
     }
 
@@ -35,569 +32,549 @@ bool BurgerTimeStateMachine::timedStateReact(int waitTime)
 }
 
 
-void HighscoreDisplayScreenState::entry()
-{
-    controller.clearScreen();
+void Highscore_display_screen_state::entry() {
+    controller.clear_screen();
 
-    auto burgerTimeText = gui.createText("hScoreBurTime", "BURGER TIME", sf::Vector2u(280, 150), sf::Vector2f(0.70, 0.70), sf::Color::Red);
-    auto bestFivePlayersText = gui.createText("hScoreBestFivePlayers", "BEST FIVE PLAYERS", sf::Vector2u(180, 300), sf::Vector2f(0.70, 0.70));
+    auto burger_time_text = gui.create_test("hScoreBurTime", "BURGER TIME",
+                                            sf::Vector2u(280, 150),
+                                            sf::Vector2f(0.70, 0.70),
+                                            sf::Color::Red);
+
+    auto best_five_players_text = gui.create_test("hScoreBestFivePlayers",
+                                  "BEST FIVE PLAYERS",
+                                  sf::Vector2u(180, 300),
+                                  sf::Vector2f(0.70, 0.70));
 
 
-    HighScores highScores;
-    auto hScores = highScores.getHighScores();
+    HighScores high_scores;
+    auto h_scores = high_scores.get_high_scores();
 
-    for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
-    {
-        auto scoreStr = std::to_string(hScores[i].second);
+    for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i) {
+        auto score_str = std::to_string(h_scores[i].second);
 
-        std::string text = std::to_string(i + 1) + " " + hScores[i].first.data() + GUI::fixTextToRight(scoreStr, MAX_SCORE_CHARS) + " PTS";
-        auto hScoreText = gui.createText(std::string("hScorehScoreText") + std::to_string(i), text, sf::Vector2u(180, (450 + i * 100)), sf::Vector2f(0.70, 0.70));
+        std::string text = std::to_string(i + 1) + " " + h_scores[i].first.data()
+                           + GUI::fix_text_to_right(score_str, MAX_SCORE_CHARS) + " PTS";
 
-        controller.addDrawable(hScoreText);
+        auto h_score_text = gui.create_text(std::string("hScorehScoreText")
+                                            + std::to_string(i), text,
+                                            sf::Vector2u(180, (450 + i * 100)),
+                                            sf::Vector2f(0.70, 0.70));
+
+        controller.add_drawable(h_score_text);
     }
 
-    controller.addDrawable(burgerTimeText);
-    controller.addDrawable(bestFivePlayersText);
-    controller.restartTimer();
+    controller.add_drawable(burger_time_text);
+    controller.add_drawable(bestFivePlayersText);
+    controller.restart_timer();
 }
 
-void HighscoreDisplayScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
-        transit<ItemPointsScreenState>();
+void Highscore_display_screen_state::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
+        transit<Item_points_screen_state>();
     }
 }
 
 
-void ItemPointsScreenState::entry()
-{
+void Item_points_screen_state::entry() {
     // TODO: change magic numbers to constants and mb reduce code size
 
-    controller.clearScreen();
+    controller.clear_screen();
 
-    auto burgerTimeText = gui.createText("itemPointsBurTime", "BURGER TIME", sf::Vector2u(280, 150), sf::Vector2f(0.70, 0.70), sf::Color::Red);
+    auto burger_time_text = gui.create_test("itemPointsBurTime", "BURGER TIME",
+                                            sf::Vector2u(280, 150),
+                                            sf::Vector2f(0.70, 0.70),
+                                            sf::Color::Red);
 
-    auto scoreText = gui.createText("itemPointsScore", "-SCORE-", sf::Vector2u(340, 230), sf::Vector2f(0.70, 0.70));
+    auto score_text = gui.create_test("itemPointsScore", "-SCORE-",
+                                      sf::Vector2u(340, 230), sf::Vector2f(0.70, 0.70));
 
-    topBun[0] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*topBun[0], BT_sprites::Sprite::TOP_BREAD_1);
-    topBun[0]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
-    topBun[0]->setScale(2, 2);
+    top_bun[0] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*top_bun[0], BtSprites::Sprite::TOP_BREAD_1);
+    top_bun[0]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
+    top_bun[0]->setScale(2, 2);
 
-    topBun[1] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*topBun[1], BT_sprites::Sprite::TOP_BREAD_2);
-    topBun[1]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
-    topBun[1]->move(16, 0);
-    topBun[1]->setScale(2, 2);
+    top_bun[1] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*top_bun[1], BtSprites::Sprite::TOP_BREAD_2);
+    top_bun[1]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
+    top_bun[1]->move(16, 0);
+    top_bun[1]->setScale(2, 2);
 
-    topBun[2] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*topBun[2], BT_sprites::Sprite::TOP_BREAD_3);
-    topBun[2]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
-    topBun[2]->move(2 * 16, 0);
-    topBun[2]->setScale(2, 2);
+    top_bun[2] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*top_bun[2], BtSprites::Sprite::TOP_BREAD_3);
+    top_bun[2]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
+    top_bun[2]->move(2 * 16, 0);
+    top_bun[2]->setScale(2, 2);
 
-    topBun[3] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*topBun[3], BT_sprites::Sprite::TOP_BREAD_4);
-    topBun[3]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
-    topBun[3]->move(3 * 16, 0);
-    topBun[3]->setScale(2, 2);
+    top_bun[3] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*top_bun[3], BtSprites::Sprite::TOP_BREAD_4);
+    top_bun[3]->setPosition(20 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
+    top_bun[3]->move(3 * 16, 0);
+    top_bun[3]->setScale(2, 2);
 
     lettuce[0] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*lettuce[0], BT_sprites::Sprite::LETTUCE_1);
+    BtSprites::set_initial_sprite(*lettuce[0], BtSprites::Sprite::LETTUCE_1);
     lettuce[0]->setPosition(35 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     lettuce[0]->setScale(2, 2);
 
     lettuce[1] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*lettuce[1], BT_sprites::Sprite::LETTUCE_2);
+    BtSprites::set_initial_sprite(*lettuce[1], BtSprites::Sprite::LETTUCE_2);
     lettuce[1]->setPosition(35 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     lettuce[1]->move(16, 0);
     lettuce[1]->setScale(2, 2);
 
     lettuce[2] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*lettuce[2], BT_sprites::Sprite::LETTUCE_3);
+    BtSprites::set_initial_sprite(*lettuce[2], BtSprites::Sprite::LETTUCE_3);
     lettuce[2]->setPosition(35 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     lettuce[2]->move(2 * 16, 0);
     lettuce[2]->setScale(2, 2);
 
     lettuce[3] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*lettuce[3], BT_sprites::Sprite::LETTUCE_4);
+    BtSprites::set_initial_sprite(*lettuce[3], BtSprites::Sprite::LETTUCE_4);
     lettuce[3]->setPosition(35 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     lettuce[3]->move(3 * 16, 0);
     lettuce[3]->setScale(2, 2);
 
     cheese[0] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*cheese[0], BT_sprites::Sprite::CHEESE_1);
+    BtSprites::set_initial_sprite(*cheese[0], BtSprites::Sprite::CHEESE_1);
     cheese[0]->setPosition(50 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     cheese[0]->setScale(2, 2);
 
     cheese[1] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*cheese[1], BT_sprites::Sprite::CHEESE_2);
+    BtSprites::set_initial_sprite(*cheese[1], BtSprites::Sprite::CHEESE_2);
     cheese[1]->setPosition(50 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     cheese[1]->move(16, 0);
     cheese[1]->setScale(2, 2);
 
     cheese[2] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*cheese[2], BT_sprites::Sprite::CHEESE_3);
+    BtSprites::set_initial_sprite(*cheese[2], BtSprites::Sprite::CHEESE_3);
     cheese[2]->setPosition(50 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     cheese[2]->move(2 * 16, 0);
     cheese[2]->setScale(2, 2);
 
     cheese[3] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*cheese[3], BT_sprites::Sprite::CHEESE_4);
+    BtSprites::set_initial_sprite(*cheese[3], BtSprites::Sprite::CHEESE_4);
     cheese[3]->setPosition(50 * WINDOW_WIDTH / 100, 38 * WINDOW_HEIGHT / 100);
     cheese[3]->move(3 * 16, 0);
     cheese[3]->setScale(2, 2);
 
 
     burger[0] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*burger[0], BT_sprites::Sprite::BURGER_1);
+    BtSprites::set_initial_sprite(*burger[0], BtSprites::Sprite::BURGER_1);
     burger[0]->setPosition(20 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     burger[0]->setScale(2, 2);
 
     burger[1] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*burger[1], BT_sprites::Sprite::BURGER_2);
+    BtSprites::set_initial_sprite(*burger[1], BtSprites::Sprite::BURGER_2);
     burger[1]->setPosition(20 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     burger[1]->move(16, 0);
     burger[1]->setScale(2, 2);
 
     burger[2] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*burger[2], BT_sprites::Sprite::BURGER_3);
+    BtSprites::set_initial_sprite(*burger[2], BtSprites::Sprite::BURGER_3);
     burger[2]->setPosition(20 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     burger[2]->move(2 * 16, 0);
     burger[2]->setScale(2, 2);
 
     burger[3] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*burger[3], BT_sprites::Sprite::BURGER_4);
+    BtSprites::set_initial_sprite(*burger[3], BtSprites::Sprite::BURGER_4);
     burger[3]->setPosition(20 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     burger[3]->move(3 * 16, 0);
     burger[3]->setScale(2, 2);
 
     tomato[0] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*tomato[0], BT_sprites::Sprite::TOMATO_1);
+    BtSprites::set_initial_sprite(*tomato[0], BtSprites::Sprite::TOMATO_1);
     tomato[0]->setPosition(35 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     tomato[0]->setScale(2, 2);
 
     tomato[1] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*tomato[1], BT_sprites::Sprite::TOMATO_2);
+    BtSprites::set_initial_sprite(*tomato[1], BtSprites::Sprite::TOMATO_2);
     tomato[1]->setPosition(35 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     tomato[1]->move(16, 0);
     tomato[1]->setScale(2, 2);
 
     tomato[2] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*tomato[2], BT_sprites::Sprite::TOMATO_3);
+    BtSprites::set_initial_sprite(*tomato[2], BtSprites::Sprite::TOMATO_3);
     tomato[2]->setPosition(35 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     tomato[2]->move(2 * 16, 0);
     tomato[2]->setScale(2, 2);
 
     tomato[3] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*tomato[3], BT_sprites::Sprite::TOMATO_4);
+    BtSprites::set_initial_sprite(*tomato[3], BtSprites::Sprite::TOMATO_4);
     tomato[3]->setPosition(35 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
     tomato[3]->move(3 * 16, 0);
     tomato[3]->setScale(2, 2);
 
-    botBun[0] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*botBun[0], BT_sprites::Sprite::BOTTOM_BREAD_1);
-    botBun[0]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
-    botBun[0]->setScale(2, 2);
+    bot_bun[0] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*bot_bun[0], BtSprites::Sprite::BOTTOM_BREAD_1);
+    bot_bun[0]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
+    bot_bun[0]->setScale(2, 2);
 
-    botBun[1] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*botBun[1], BT_sprites::Sprite::BOTTOM_BREAD_2);
-    botBun[1]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
-    botBun[1]->move(16, 0);
-    botBun[1]->setScale(2, 2);
+    bot_bun[1] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*bot_bun[1], BtSprites::Sprite::BOTTOM_BREAD_2);
+    bot_bun[1]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
+    bot_bun[1]->move(16, 0);
+    bot_bun[1]->setScale(2, 2);
 
-    botBun[2] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*botBun[2], BT_sprites::Sprite::BOTTOM_BREAD_3);
-    botBun[2]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
-    botBun[2]->move(2 * 16, 0);
-    botBun[2]->setScale(2, 2);
+    bot_bun[2] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*bot_bun[2], BtSprites::Sprite::BOTTOM_BREAD_3);
+    bot_bun[2]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
+    bot_bun[2]->move(2 * 16, 0);
+    bot_bun[2]->setScale(2, 2);
 
-    botBun[3] = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*botBun[3], BT_sprites::Sprite::BOTTOM_BREAD_4);
-    botBun[3]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
-    botBun[3]->move(3 * 16, 0);
-    botBun[3]->setScale(2, 2);
+    bot_bun[3] = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*bot_bun[3], BtSprites::Sprite::BOTTOM_BREAD_4);
+    bot_bun[3]->setPosition(50 * WINDOW_WIDTH / 100, 45 * WINDOW_HEIGHT / 100);
+    bot_bun[3]->move(3 * 16, 0);
+    bot_bun[3]->setScale(2, 2);
 
+    auto fifty_pts_text = gui.create_test("itemPointsFiftyPts", "50 PTS",
+                                          sf::Vector2u(670, 410),
+                                          sf::Vector2f(0.70, 0.70));
 
-    auto fiftyPtsText = gui.createText("itemPointsFiftyPts", "50 PTS", sf::Vector2u(670, 410), sf::Vector2f(0.70, 0.70));
+    ice_cream = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*ice_cream, BtSprites::Sprite::ICE_CREAM);
+    ice_cream->setPosition(20 * WINDOW_WIDTH / 100, 55 * WINDOW_HEIGHT / 100);
+    ice_cream->setScale(2, 2);
 
-    iceCream = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*iceCream, BT_sprites::Sprite::ICE_CREAM);
-    iceCream->setPosition(20 * WINDOW_WIDTH / 100, 55 * WINDOW_HEIGHT / 100);
-    iceCream->setScale(2, 2);
-
-    pt500 = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*pt500, BT_sprites::Sprite::P_500);
-    pt500->setPosition(20 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
-    pt500->setScale(2, 2);
+    pt_500 = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*pt_500, BtSprites::Sprite::P_500);
+    pt_500->setPosition(20 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
+    pt_500->setScale(2, 2);
 
     coffee = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*coffee, BT_sprites::Sprite::COFFEE);
+    BtSprites::set_initial_sprite(*coffee, BtSprites::Sprite::COFFEE);
     coffee->setPosition(30 * WINDOW_WIDTH / 100, 55 * WINDOW_HEIGHT / 100);
     coffee->setScale(2, 2);
 
-    pt1000 = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*pt1000, BT_sprites::Sprite::P_1000);
-    pt1000->setPosition(30 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
-    pt1000->setScale(2, 2);
+    pt_1000 = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*pt_1000, BtSprites::Sprite::P_1000);
+    pt_1000->setPosition(30 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
+    pt_1000->setScale(2, 2);
 
     fries = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*fries, BT_sprites::Sprite::FRIES);
+    BtSprites::set_initial_sprite(*fries, BtSprites::Sprite::FRIES);
     fries->setPosition(40 * WINDOW_WIDTH / 100, 55 * WINDOW_HEIGHT / 100);
     fries->setScale(2, 2);
 
-    pt1500 = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*pt1500, BT_sprites::Sprite::P_1500);
-    pt1500->setPosition(40 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
-    pt1500->setScale(2, 2);
+    pt_1500 = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*pt_1500, BtSprites::Sprite::P_1500);
+    pt_1500->setPosition(40 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
+    pt_1500->setScale(2, 2);
 
-    auto bonusPepperText = gui.createText("itemPointsBonusPepper", "-BONUS 1", sf::Vector2u(480, 580), sf::Vector2f(0.70, 0.70));
+    auto bonus_pepper_text = gui.create_test("itemPointsBonusPepper", "-BONUS 1",
+                             sf::Vector2u(480, 580),
+                             sf::Vector2f(0.70, 0.70));
 
     pepper = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*pepper, BT_sprites::Sprite::PEPPER);
+    BtSprites::set_initial_sprite(*pepper, BtSprites::Sprite::PEPPER);
     pepper->setPosition(80 * WINDOW_WIDTH / 100, 58 * WINDOW_HEIGHT / 100);
     pepper->setScale(2, 2);
 
-    auto bonusLifeText = gui.createText("itemPointsBonusLife", "BONUS  FOR EVERY 20000PTS", sf::Vector2u(30, 800), sf::Vector2f(0.70, 0.70));
+    auto bonus_life_text = gui.create_test("itemPointsBonusLife",
+                                           "BONUS  FOR EVERY 20000PTS",
+                                           sf::Vector2u(30, 800),
+                                           sf::Vector2f(0.70, 0.70));
 
     chef = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*chef, BT_sprites::Sprite::PLAYER_STILL_FRONT);
+    BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_STILL_FRONT);
     chef->setPosition(22 * WINDOW_WIDTH / 100, 78 * WINDOW_HEIGHT / 100);
     chef->setScale(2, 2);
 
-    controller.addDrawable(burgerTimeText);
-    controller.addDrawable(scoreText);
-    controller.addDrawable(topBun[0]);
-    controller.addDrawable(topBun[1]);
-    controller.addDrawable(topBun[2]);
-    controller.addDrawable(topBun[3]);
-    controller.addDrawable(lettuce[0]);
-    controller.addDrawable(lettuce[1]);
-    controller.addDrawable(lettuce[2]);
-    controller.addDrawable(lettuce[3]);
-    controller.addDrawable(cheese[0]);
-    controller.addDrawable(cheese[1]);
-    controller.addDrawable(cheese[2]);
-    controller.addDrawable(cheese[3]);
-    controller.addDrawable(burger[0]);
-    controller.addDrawable(burger[1]);
-    controller.addDrawable(burger[2]);
-    controller.addDrawable(burger[3]);
-    controller.addDrawable(tomato[0]);
-    controller.addDrawable(tomato[1]);
-    controller.addDrawable(tomato[2]);
-    controller.addDrawable(tomato[3]);
-    controller.addDrawable(botBun[0]);
-    controller.addDrawable(botBun[1]);
-    controller.addDrawable(botBun[2]);
-    controller.addDrawable(botBun[3]);
-    controller.addDrawable(fiftyPtsText);
-    controller.addDrawable(iceCream);
-    controller.addDrawable(pt500);
-    controller.addDrawable(coffee);
-    controller.addDrawable(pt1000);
-    controller.addDrawable(fries);
-    controller.addDrawable(pt1500);
-    controller.addDrawable(bonusPepperText);
-    controller.addDrawable(pepper);
-    controller.addDrawable(bonusLifeText);
-    controller.addDrawable(chef);
-    controller.restartTimer();
+    controller.add_drawable(burger_time_text);
+    controller.add_drawable(scoreText);
+    controller.add_drawable(top_bun[0]);
+    controller.add_drawable(top_bun[1]);
+    controller.add_drawable(top_bun[2]);
+    controller.add_drawable(top_bun[3]);
+    controller.add_drawable(lettuce[0]);
+    controller.add_drawable(lettuce[1]);
+    controller.add_drawable(lettuce[2]);
+    controller.add_drawable(lettuce[3]);
+    controller.add_drawable(cheese[0]);
+    controller.add_drawable(cheese[1]);
+    controller.add_drawable(cheese[2]);
+    controller.add_drawable(cheese[3]);
+    controller.add_drawable(burger[0]);
+    controller.add_drawable(burger[1]);
+    controller.add_drawable(burger[2]);
+    controller.add_drawable(burger[3]);
+    controller.add_drawable(tomato[0]);
+    controller.add_drawable(tomato[1]);
+    controller.add_drawable(tomato[2]);
+    controller.add_drawable(tomato[3]);
+    controller.add_drawable(bot_bun[0]);
+    controller.add_drawable(bot_bun[1]);
+    controller.add_drawable(bot_bun[2]);
+    controller.add_drawable(bot_bun[3]);
+    controller.add_drawable(fiftyPtsText);
+    controller.add_drawable(iceCream);
+    controller.add_drawable(pt_500);
+    controller.add_drawable(coffee);
+    controller.add_drawable(pt1000);
+    controller.add_drawable(fries);
+    controller.add_drawable(pt1500);
+    controller.add_drawable(bonusPepperText);
+    controller.add_drawable(pepper);
+    controller.add_drawable(bonusLifeText);
+    controller.add_drawable(chef);
+    controller.restart_timer();
 }
 
-void ItemPointsScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
+void Item_points_screen_state::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<CharacterScreenState>();
     }
 }
 
+void CharacterScreenState::entry() {
+    controller.clear_screen();
 
-void CharacterScreenState::entry()
-{
-    controller.clearScreen();
+    auto text = gui.create_test("characterTODO", "TODO: Character Screen");
 
-    auto text = gui.createText("characterTODO", "TODO: Character Screen");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
+    controller.add_drawable(text);
+    controller.restart_timer();
 }
 
-void CharacterScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
+void CharacterScreenState::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<FirstTutorialVidScreenState>();
     }
 }
 
 
-void FirstTutorialVidScreenState::entry()
-{
-    controller.clearScreen();
+void FirstTutorialVidScreenState::entry() {
+    controller.clear_screen();
 
-    auto text = gui.createText("firstTutorialVidTODO", "TODO: First Tutorial Video");
+    auto text = gui.create_test("firstTutorialVidTODO", "TODO: First Tutorial Video");
 
-    controller.addDrawable(text);
-    controller.restartTimer();
+    controller.add_drawable(text);
+    controller.restart_timer();
 }
 
-void FirstTutorialVidScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
+void FirstTutorialVidScreenState::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<SecondTutorialVidScreenState>();
     }
 }
 
+void SecondTutorialVidScreenState::entry() {
+    controller.clear_screen();
 
-void SecondTutorialVidScreenState::entry()
-{
-    controller.clearScreen();
+    auto text = gui.create_test("secondTutorialVidTODO", "TODO: Second Tutorial Video");
 
-    auto text = gui.createText("secondTutorialVidTODO", "TODO: Second Tutorial Video");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
+    controller.add_drawable(text);
+    controller.restart_timer();
 }
 
-void SecondTutorialVidScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
+void SecondTutorialVidScreenState::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<TutorialScreenState>();
     }
 }
 
+void TutorialScreenState::entry() {
+    controller.clear_screen();
 
-void TutorialScreenState::entry()
-{
-    controller.clearScreen();
+    auto text = gui.create_test("tutorialScreenTODO", "TODO: Tutorial Screen");
 
-    auto text = gui.createText("tutorialScreenTODO", "TODO: Tutorial Screen");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
+    controller.add_drawable(text);
+    controller.restart_timer();
 }
 
-void TutorialScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
+void TutorialScreenState::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<ThirdTutorialVidScreenState>();
     }
 }
 
 
-void ThirdTutorialVidScreenState::entry()
-{
-    controller.clearScreen();
+void ThirdTutorialVidScreenState::entry() {
+    controller.clear_screen();
 
-    auto text = gui.createText("thirdTutorialVidTODO", "TODO: Third Tutorial Video");
+    auto text = gui.create_test("thirdTutorialVidTODO", "TODO: Third Tutorial Video");
 
-    controller.addDrawable(text);
-    controller.restartTimer();
+    controller.add_drawable(text);
+    controller.restart_timer();
 }
 
-void ThirdTutorialVidScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
+void ThirdTutorialVidScreenState::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<MainScreenState>();
     }
 }
 
 
-void MainScreenState::entry()
-{
+void MainScreenState::entry() {
     MainScreenStateMachine::reset();
     MainScreenStateMachine::start();
 }
 
-void MainScreenState::react(const ExecuteEvent &event)
-{
+void MainScreenState::react(const ExecuteEvent &event) {
     MainScreenStateMachine::dispatch(event);
 
-    if (MainScreenStateMachine::is_in_state<FinishedStartState>())
-    {
+    if (MainScreenStateMachine::is_in_state<FinishedStartState>()) {
         transit<PlayingState>();
     }
 
-    if (MainScreenStateMachine::is_in_state<FinishedExitState>())
-    {
-        transit<FinishedState>();
+    if (MainScreenStateMachine::is_in_state<FinishedExitState>()) {
+        transit<Finished_state>();
     }
 }
 
-
-void PlayingState::entry()
-{
+void PlayingState::entry() {
     PlayingStateMachine::reset();
     PlayingStateMachine::start();
 }
 
-void PlayingState::react(const ExecuteEvent &event)
-{
-    if (PlayingStateMachine::is_in_state<GameOverStatePlaying>())
-    {
+void PlayingState::react(const ExecuteEvent &event) {
+    if (PlayingStateMachine::is_in_state<GameOverStatePlaying>()) {
         HighScores hscores;
-        if (hscores.isHighScore(PlayingStateMachine::getCurrentScore()))
-        {
+        if (hscores.is_high_score(PlayingStateMachine::get_current_score())) {
             transit<EnterHighscoreState>();
         }
-        else
-        {
+        else {
             transit<GameOverScreenState>();
         }
     }
-    else
-    {
+    else {
         PlayingStateMachine::dispatch(event);
     }
     // TODO: mas
 }
 
+constexpr std::array<const char *, GameOverScreenState::MAX_TEXTS> GameOverScreenState::DIFFERENT_TEXTS;
 
-constexpr std::array<const char*, GameOverScreenState::MAX_TEXTS> GameOverScreenState::DIFFERENT_TEXTS;
+void GameOverScreenState::entry() {
+    controller.clear_screen();
 
-void GameOverScreenState::entry()
-{
-    controller.clearScreen();
+    auto text = gui.create_test("gameOverText", DIFFERENT_TEXTS[0], sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
 
-    auto text = gui.createText("gameOverText", DIFFERENT_TEXTS[0], sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
-
-    controller.addDrawable(text);
-    currentText = 1;
-    controller.restartTimer();
+    controller.add_drawable(text);
+    current_text = 1;
+    controller.restart_timer();
 }
 
-void GameOverScreenState::react(const ExecuteEvent &)
-{
-    auto elapsedTime = controller.getElapsedTime();
+void GameOverScreenState::react(const ExecuteEvent &) {
+    auto elapsed_time = controller.get_elapsed_time();
 
-    if (currentText == MAX_TEXTS)
-    {
-        if (elapsedTime.asSeconds() >= 1)
-        {
+    if (current_text == MAX_TEXTS) {
+        if (elapsed_time.as_seconds() >= 1) {
             // TODO: change
             transit<MainScreenState>();
             return;
         }
     }
-    else if (elapsedTime.asSeconds() >= ANIMATION_FREQ)
-    {
-        auto text = gui.getText("gameOverText").lock();
-        text->setString(DIFFERENT_TEXTS[currentText]);
-        currentText++;
-        controller.restartTimer();
+    else if (elapsed_time.as_seconds() >= ANIMATION_FREQ) {
+        auto text = gui.get_text("gameOverText").lock();
+        text->setString(DIFFERENT_TEXTS[current_text]);
+        current_text++;
+        controller.restart_timer();
     }
 }
 
+uint32_t EnterHighScoreState::new_high_score;
 
-uint32_t EnterHighscoreState::newHighscore;
+void EnterHighScoreState::entry() {
+    set_high_score(PlayingStateMachine::get_current_score());
+    char_position = 0;
+    controller.clear_screen();
 
-void EnterHighscoreState::entry()
-{
-    setHighScore(PlayingStateMachine::getCurrentScore());
-    charPosition = 0;
-    controller.clearScreen();
+    auto burger_time_text = gui.create_test("enterHighScoreBurTime", "BURGER TIME",
+                                            sf::Vector2u(280, 150),
+                                            sf::Vector2f(0.7, 0.7),
+                                            sf::Color::Red);
 
-    auto burgerTimeText = gui.createText("enterHighScoreBurTime", "BURGER TIME", sf::Vector2u(280, 150), sf::Vector2f(0.7, 0.7), sf::Color::Red);
+    auto help_text = gui.create_test("enterHighScoreHelp", ENTER_NAME_STR,
+                                     sf::Vector2u(220, 300), sf::Vector2f(0.7, 0.7));
 
-    auto helpText = gui.createText("enterHighScoreHelp", ENTER_NAME_STR, sf::Vector2u(220, 300), sf::Vector2f(0.7, 0.7));
+    HighScores high_scores;
+    auto hScores = high_scores.get_high_scores();
 
-    HighScores highScores;
-    auto hScores = highScores.getHighScores();
+    high_score_position = high_scores.high_score_position(new_high_score) - 1;
+    bool has_written_new_score = false;
 
-    highScorePosition = highScores.highScorePosition(newHighscore) - 1;
-    bool hasWrittenNewScore = false;
-
-    for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i)
-    {
-        uint32_t highScore;
-        std::string playerName;
-        if (i == highScorePosition)
-        {
-            highScore = newHighscore;
-            playerName = "_  ";
-            hasWrittenNewScore = true;
+    for (int i = 0; i < HighScores::NUM_HIGH_SCORES; ++i) {
+        uint32_t high_score;
+        std::string player_name;
+        if (i == high_score_position) {
+            high_score = new_high_score;
+            player_name = "_  ";
+            has_written_new_score = true;
         }
-        else
-        {
+        else {
             int pos = i;
-            if (hasWrittenNewScore)
-            {
+            if (has_written_new_score) {
                 pos -= 1;
             }
-            highScore = hScores[pos].second;
-            playerName = hScores[pos].first.data();
+            high_score = hScores[pos].second;
+            player_name = hScores[pos].first.data();
         }
 
-        auto scoreStr = gui.fixTextToRight(std::to_string(highScore), MAX_SCORE_CHARS);
+        auto score_str = gui.fix_text_to_right(std::to_string(high_score),
+                                               MAX_SCORE_CHARS);
 
-        auto hScoreText = gui.createText(HIGH_SCORE_TEXT_BASE + std::to_string(i), std::to_string(i + 1) + " " + playerName + scoreStr + " PTS", sf::Vector2u(180, (450 + i * 100)), sf::Vector2f(0.7, 0.7));
-        controller.addDrawable(hScoreText.lock());
+        auto h_score_text = gui.create_test(HIGH_SCORE_TEXT_BASE + std::to_string(i),
+                                            std::to_string(i + 1) + " " +
+                                            player_name + score_str +
+                                            " PTS",
+                                            sf::Vector2u(180, (450 + i * 100)),
+                                            sf::Vector2f(0.7, 0.7));
+
+        controller.add_drawable(h_score_text.lock());
     }
 
-    controller.addDrawable(burgerTimeText);
-    controller.addDrawable(helpText);
-    controller.restartTimer();
+    controller.add_drawable(burger_time_text);
+    controller.add_drawable(help_text);
+    controller.restart_timer();
 }
 
-void EnterHighscoreState::react(const ExecuteEvent &)
-{
-    auto helpText = gui.getText("enterHighScoreHelp").lock();
+void EnterHighScoreState::react(const ExecuteEvent &) {
+    auto help_text = gui.get_text("enterHighScoreHelp").lock();
 
-    auto newHighScoreText = gui.getText(HIGH_SCORE_TEXT_BASE + std::to_string(highScorePosition)).lock();
+    auto new_high_score_text = gui.get_text(HIGH_SCORE_TEXT_BASE +
+                                            std::to_string(high_score_position)).lock();
 
-    auto currentStr = newHighScoreText->getString();
-    if (charPosition > 0 && InputSystem::hasInputJustBeenPressed(InputSystem::Input::DELETE))
-    {
-        if (charPosition < HighScores::PLAYER_NAME_SIZE - 1)
-        {
-            currentStr[2 + charPosition] = ' ';
+    auto current_str = new_high_score_text->getString();
+    if (char_position > 0 &&
+            InputSystem::has_input_just_been_pressed(InputSystem::Input::DELETE)) {
+
+        if (char_position < HighScores::PLAYER_NAME_SIZE - 1) {
+            current_str[2 + char_position] = ' ';
         }
-        charPosition--;
-        currentStr[2 + charPosition] = '_';
+
+        char_position--;
+        current_str[2 + char_position] = '_';
     }
 
-    if (charPosition < HighScores::PLAYER_NAME_SIZE - 1 && InputSystem::hasEnteredText())
-    {
-        char newChar = InputSystem::getCurrentChar();
-        currentStr[2 + charPosition] = newChar;
-        if (charPosition < HighScores::PLAYER_NAME_SIZE - 2)
-        {
-            currentStr[2 + charPosition + 1] = '_';
+    if (char_position < HighScores::PLAYER_NAME_SIZE - 1 && InputSystem::has_entered_text()) {
+        char new_char = InputSystem::get_current_char();
+        current_str[2 + char_position] = new_char;
+        if (char_position < HighScores::PLAYER_NAME_SIZE - 2) {
+            current_str[2 + char_position + 1] = '_';
         }
-        charPosition++;
+        char_position++;
     }
 
-    if (charPosition == HighScores::PLAYER_NAME_SIZE - 1)
-    {
+    if (char_position == HighScores::PLAYER_NAME_SIZE - 1) {
         Audio::play(Audio::Track::ENTRY_SELECTED);
-        helpText->setString("CONFIRM? (PEPPER)");
-        helpText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
-        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER))
-        {
-            HighScores highScores;
-            highScores.saveNewScore(currentStr.substring(2, 4), newHighscore);
+        help_text->setString("CONFIRM? (PEPPER)");
+        help_text->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
+        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PEPPER)) {
+            HighScores high_scores;
+            high_scores.save_new_score(current_str.substring(2, 4), new_high_score);
             // TODO: save new highscores etc etc
             transit<MainScreenState>();
         }
     }
-    else
-    {
-        helpText->setString(ENTER_NAME_STR);
-        helpText->setPosition(22 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
+    else {
+        help_text->setString(ENTER_NAME_STR);
+        help_text->setPosition(22 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
     }
-    
 
-    newHighScoreText->setString(currentStr);
+
+    new_high_score_text->setString(current_str);
 }
 
-void EnterHighscoreState::setHighScore(uint32_t highScore)
-{
-    newHighscore = highScore;
+void EnterHighScoreState::set_high_score(uint32_t high_score) {
+    new_high_score = high_score;
 }

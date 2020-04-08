@@ -4,102 +4,94 @@
 FSM_INITIAL_STATE(MainScreenStateMachine, EnterStateMainScreen)
 
 BurgerTimeController &MainScreenStateMachine::controller = BurgerTimeController::get();
+
 GUI &MainScreenStateMachine::gui = GUI::get();
-std::shared_ptr<sf::CircleShape> MainScreenStateMachine::selectionTriangle = nullptr;
 
-void EnterStateMainScreen::entry()
-{
-    controller.clearScreen();
+std::shared_ptr<sf::CircleShape> MainScreenStateMachine::selection_triangle = nullptr;
 
-    auto burgerTimeText = gui.createText("enterStateMainBurTime", "BURGER TIME", sf::Vector2u(280, 150), sf::Vector2f(0.7, 0.7), sf::Color::Red);
+void EnterStateMainScreen::entry() {
+    controller.clear_screen();
 
-    auto startText = gui.createText("enterStateMainStart", "START", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
+    auto burger_time_text = gui.create_text("enterStateMainBurTime", "BURGER TIME",
+                                            sf::Vector2u(280, 150),
+                                            sf::Vector2f(0.7, 0.7),
+                                            sf::Color::Red);
 
-    auto optionsText = gui.createText("enterStateMainOptions", "OPTIONS", sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+    auto start_text = gui.create_text("enterStateMainStart", "START",
+                                      sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
 
-    auto exitText = gui.createText("enterStateMainExit", "EXIT", sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+    auto options_text = gui.create_text("enterStateMainOptions", "OPTIONS",
+                                        sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
 
-    selectionTriangle = std::make_shared<sf::CircleShape>(10, 3);
-    selectionTriangle->setFillColor(sf::Color::White);
-    selectionTriangle->setRotation(90);
+    auto exit_text = gui.create_text("enterStateMainExit", "EXIT",
+                                     sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
 
-    controller.addDrawable(burgerTimeText);
-    controller.addDrawable(startText);
-    controller.addDrawable(optionsText);
-    controller.addDrawable(exitText);
-    controller.addDrawable(selectionTriangle);
+    selection_triangle = std::make_shared<sf::CircleShape>(10, 3);
+    selection_triangle->setFillColor(sf::Color::White);
+    selection_triangle->setRotation(90);
+
+    controller.add_drawable(burger_time_text);
+    controller.add_drawable(start_text);
+    controller.add_drawable(options_text);
+    controller.add_drawable(exit_text);
+    controller.add_drawable(selection_triangle);
 }
 
-void EnterStateMainScreen::react(const ExecuteEvent &)
-{
+void EnterStateMainScreen::react(const ExecuteEvent &) {
     transit<StartOptionState>();
 }
 
-
-
-void StartOptionState::entry()
-{
-    selectionTriangle->setPosition(START_SELECTION_POSITION.first, START_SELECTION_POSITION.second);
+void StartOptionState::entry() {
+    selection_triangle->setPosition(START_SELECTION_POSITION.first,
+                                    START_SELECTION_POSITION.second);
 }
 
-void StartOptionState::react(const ExecuteEvent &)
-{
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
-    {
+void StartOptionState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::PEPPER)) {
         transit<FinishedStartState>();
         Audio::play(Audio::Track::COIN_INSERTED);
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP))
-    {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<ExitOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN))
-    {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<BindingsOptionState>();
     }
 }
 
 
-void BindingsOptionState::entry()
-{
-    selectionTriangle->setPosition(BINDINGS_SELECTION_POSITION.first, BINDINGS_SELECTION_POSITION.second);
+void BindingsOptionState::entry() {
+    selection_triangle->setPosition(BINDINGS_SELECTION_POSITION.first,
+                                    BINDINGS_SELECTION_POSITION.second);
 }
 
-void BindingsOptionState::react(const ExecuteEvent &)
-{
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
-    {
+void BindingsOptionState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::PEPPER)) {
         // TODO
         // transit<FinishedExitState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP))
-    {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<StartOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN))
-    {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<ExitOptionState>();
     }
 }
 
 
-void ExitOptionState::entry()
-{
-    selectionTriangle->setPosition(EXIT_SELECTION_POSITION.first, EXIT_SELECTION_POSITION.second);
+void ExitOptionState::entry() {
+    selection_triangle->setPosition(EXIT_SELECTION_POSITION.first,
+                                    EXIT_SELECTION_POSITION.second);
 }
 
-void ExitOptionState::react(const ExecuteEvent &)
-{
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
-    {
+void ExitOptionState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::PEPPER)) {
         transit<FinishedExitState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP))
-    {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<BindingsOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN))
-    {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<StartOptionState>();
     }
 }

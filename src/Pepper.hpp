@@ -8,7 +8,6 @@
 
 #include "Constants.hpp"
 
-
 class Pepper : public SpritedEntity {
 private:
     static constexpr int NUM_SPRITES_ANIMATION = 4;
@@ -17,16 +16,17 @@ private:
 
     static constexpr float sprite_scale = 2;
 
-    static const BT_sprites::Sprite initial_sprite[Direction::NUM_DIRECTIONS];
+    static const BtSprites::Sprite initial_sprite[Direction::NUM_DIRECTIONS];
 
     const Direction type;
 
-    BT_sprites::Sprite current_sprite;
+    BtSprites::Sprite current_sprite;
 
     std::function<void()> pepper_finished_func;
 
 public:
-    Pepper(const sf::Vector2f &init_pos, const Direction type, const std::function<void()> &pepper_finished_func);
+    Pepper(const sf::Vector2f &init_pos, const Direction type,
+           const std::function<void()> &pepper_finished_func);
 
-    void update(float delta_t) override;
+    void update(const float delta_t) override;
 };

@@ -15,7 +15,7 @@ private:
     static constexpr auto MID_BASKET_PATH = "img/mid_basket.png";
     static constexpr auto RIGHT_BASKET_PATH = "img/right_basket.png";
 
-public:    
+public:
     // Tile codes for regular, inner tiles
     static const char FLOOR = '_';
     static const char GO_UP = '^';
@@ -48,9 +48,9 @@ public:
     Tile(float _x, float _y, uint8_t _row, uint8_t _col, char _content, bool _right);
     Tile(const Tile &other);
 
-    Tile& operator=(const Tile& other);
+    Tile &operator=(const Tile &other);
 
-    bool operator<(const Tile& other) const;
+    bool operator<(const Tile &other) const;
 
     bool operator==(const Tile &other) const;
 
@@ -61,7 +61,7 @@ public:
     bool isGoUp() const;
     bool isGoDown() const;
     bool isGoBoth() const;
-    bool isConnector() const;
+    bool is_connector() const;
     bool isStairs() const;
     bool isBasketEdge() const;
     bool isBasket() const;

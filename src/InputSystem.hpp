@@ -2,10 +2,8 @@
 
 #include <cstdint>
 
-namespace InputSystem
-{
-    enum class Input
-    {
+namespace InputSystem {
+    enum class Input {
         NONE,
         UP,
         DOWN,
@@ -17,18 +15,65 @@ namespace InputSystem
         NUM_INPUTS
     };
 
+    /**
+     * @brief Main control function
+     *
+     */
     void update();
-    void update(char newChar);
 
-    Input getLastInput();
+    /**
+     * @brief Main control function
+     *
+     * @param new_char
+     */
+    void update(char new_char);
 
-    bool isSingleInputActive(Input input);
+    /**
+     * @brief Get the Last Input received
+     *
+     * @return Input
+     */
+    Input get_last_input();
 
-    bool hasInputJustBeenPressed(Input input);
+    /**
+     * @brief Checks if the input has been pressed
+     *
+     * @param input
+     * @return true
+     * @return false
+     */
+    bool is_single_input_active(Input input);
 
-    bool hasInputJustBeenReleased(Input input);
+    /**
+     * @brief Checks if the input has been pressed
+     *
+     * @param input
+     * @return true
+     * @return false
+     */
+    bool has_input_just_been_pressed(Input input);
 
-    bool hasEnteredText();
+    /**
+     * @brief Checks if the input has been released
+     *
+     * @param input
+     * @return true
+     * @return false
+     */
+    bool has_input_just_been_released(Input input);
 
-    char getCurrentChar();
-} // namespace InputSystem
+    /**
+     * @brief Checks if a character has been entered
+     *
+     * @return true
+     * @return false
+     */
+    bool has_entered_text();
+
+    /**
+     * @brief Get current character entered
+     *
+     * @return char
+     */
+    char get_current_char();
+}
