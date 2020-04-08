@@ -318,6 +318,7 @@ void EnterStatePlaying::entry()
     controller.clearScreen();
     gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
 
+    gameInfo->hasJustEntered = true;
     gameInfo->currentMap = 0;
     gameInfo->currentIngredients = 0;
     gameInfo->pointsToExtraLife = 20000;
@@ -401,9 +402,15 @@ void NormalStatePlaying::checkMainMusic()
 {
     if (!mainMusicPlayed)
     {
-        auto elapsedTime = controller.getElapsedTime();
-        if (elapsedTime.asSeconds() >= 4)
-        {
+        if (gameInfo->hasJustEntered) {
+            auto elapsedTime = controller.getElapsedTime();
+            if (elapsedTime.asSeconds() >= 4)
+            {
+                mainMusicPlayed = true;
+                gameInfo->hasJustEntered = false;
+                Audio::play(Audio::Track::MAIN);
+            }
+        } else {
             mainMusicPlayed = true;
             Audio::play(Audio::Track::MAIN);
         }
@@ -611,6 +618,9 @@ void DeadStatePlaying::react(const ExecuteEvent &event)
 
 void WinStatePlaying::entry()
 {
+    Audio::stopBackground();
+    Audio::play(Audio::Track::WIN);
+    
     controller.restartTimer();
     gameInfo->player->win();
     gameInfo->currentMap = (gameInfo->currentMap + 1) % gameInfo->maps.size();

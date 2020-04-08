@@ -47,6 +47,7 @@ void StartOptionState::react(const ExecuteEvent &)
     if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
     {
         transit<FinishedStartState>();
+        Audio::play(Audio::Track::COIN_INSERTED);
     }
     else if (hasInputJustBeenPressed(InputSystem::Input::UP))
     {

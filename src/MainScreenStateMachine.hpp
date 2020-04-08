@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include "Constants.hpp"
 #include "BurgerTimeController.hpp"
+#include "Audio.hpp"
 
 class MainScreenStateMachine : public tinyfsm::MooreMachine<MainScreenStateMachine>
 {

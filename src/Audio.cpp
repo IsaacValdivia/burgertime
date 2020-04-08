@@ -6,7 +6,7 @@
 
 namespace Audio {
     namespace {
-        static constexpr size_t NUM_AUDIO_FILES = 17;
+        static constexpr size_t NUM_AUDIO_FILES = 18;
 
         struct Sounds {
             sf::SoundBuffer sound_buffer;
@@ -35,9 +35,14 @@ namespace Audio {
             {.filename = "audio/16_stepping_on_burger.ogg", .loop = false},
             {.filename = "audio/17_win.ogg", .loop = false}
         };
+
+        static bool queued_intro;
+        static bool queued_main;
     }
 
     void init() {
+        queued_intro = false;
+        queued_main = false;
         for (size_t i = 0; i < NUM_AUDIO_FILES; ++i) {
             if (!sounds[i].sound_buffer.loadFromFile(sounds[i].filename)) {
                 fprintf(stderr, "Error while loading audio files\n");

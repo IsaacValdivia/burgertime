@@ -576,6 +576,7 @@ void EnterHighscoreState::react(const ExecuteEvent &)
 
     if (charPosition == HighScores::PLAYER_NAME_SIZE - 1)
     {
+        Audio::play(Audio::Track::ENTRY_SELECTED);
         helpText->setString("CONFIRM? (PEPPER)");
         helpText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
         if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER))
