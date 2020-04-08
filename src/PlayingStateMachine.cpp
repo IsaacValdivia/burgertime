@@ -83,7 +83,7 @@ void PlayingStateMachine::LevelCounter::addLevel(uint32_t level)
 
 PlayingStateMachine::LevelCounter::LevelCounter() : currentLevel(1)
 {
-    gui.createText("playingStateLevel", GUI::fixTextToRight(std::to_string(currentLevel), 3), sf::Vector2u(800, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
+    gui.createText("playingStateLevel", GUI::fixTextToRight(std::to_string(currentLevel), 3), sf::Vector2u(802, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
 }
 
 
@@ -487,7 +487,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event)
     {
         const auto &enemy = *it;
 
-        if (!enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) 
+        if (enemy->is_alive() && !enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) 
         {
 #if true
             if (gameInfo->livesCounter.hasLives())

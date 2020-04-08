@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
+#include <SFML/Window.hpp>
 
 namespace InputSystem
 {
@@ -31,4 +33,9 @@ namespace InputSystem
     bool hasEnteredText();
 
     char getCurrentChar();
+
+    void setInputBindings(const std::map<Input, sf::Keyboard::Key> &inputBindings);
+
+    std::map<Input, sf::Keyboard::Key> getInputBindings();
+
 } // namespace InputSystem

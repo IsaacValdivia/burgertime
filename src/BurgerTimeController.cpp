@@ -10,7 +10,7 @@
 #include "BurgerTimeStateMachine.hpp"
 
 BurgerTimeController::BurgerTimeController() : 
-    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close), gui(GUI::get())
+    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close), gui(GUI::get()), config(Config::get())
 {
 }
 
@@ -128,8 +128,7 @@ void BurgerTimeController::update(float deltaT)
         if (event.type == sf::Event::Closed) 
         {
             // TODO: change
-            window.setSize(sf::Vector2u(2 * WINDOW_WIDTH, 2 * WINDOW_HEIGHT));
-            // window.close();
+            window.close();
         }
         else if (event.type == sf::Event::TextEntered)
         {
@@ -180,4 +179,26 @@ void BurgerTimeController::draw()
 bool BurgerTimeController::hasGameFinished() const
 {
     return BurgerTimeStateMachine::is_in_state<FinishedState>();
+}
+
+void BurgerTimeController::set_resolution(Config::Resolution new_resolution)
+{
+    sf::Vector2u resolutionSize;
+    switch (new_resolution)
+    {
+        case Config::Resolution::x250x250:
+            resolutionSize.x = 250;
+            resolutionSize.y = 250;
+            break;
+        case Config::Resolution::x550x550:
+            resolutionSize.x = 550;
+            resolutionSize.y = 550;
+            break;
+        case Config::Resolution::x1000x1000:
+            resolutionSize.x = 1000;
+            resolutionSize.y = 1000;
+            break;
+    }
+    window.setSize(resolutionSize);
+    config.set_resolution(new_resolution);
 }

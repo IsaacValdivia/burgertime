@@ -49,31 +49,7 @@ class ItemPointsScreenState : public BurgerTimeStateMachine
     std::shared_ptr<sf::Sprite> chef;
 };
 
-class CharacterScreenState : public BurgerTimeStateMachine
-{
-    void entry() override;
-    void react(const ExecuteEvent &) override;
-};
-
-class FirstTutorialVidScreenState : public BurgerTimeStateMachine
-{
-    void entry() override;
-    void react(const ExecuteEvent &) override;
-};
-
-class SecondTutorialVidScreenState : public BurgerTimeStateMachine
-{
-    void entry() override;
-    void react(const ExecuteEvent &) override;
-};
-
 class TutorialScreenState : public BurgerTimeStateMachine
-{
-    void entry() override;
-    void react(const ExecuteEvent &) override;
-};
-
-class ThirdTutorialVidScreenState : public BurgerTimeStateMachine
 {
     void entry() override;
     void react(const ExecuteEvent &) override;

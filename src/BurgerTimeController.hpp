@@ -4,6 +4,7 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include "GUI.hpp"
+#include "Config.hpp"
 
 class BurgerTimeController
 {
@@ -22,6 +23,7 @@ public:
 
     sf::Time getElapsedTime();
 
+    void set_resolution(Config::Resolution new_resolution);
 
 private:
     BurgerTimeController();
@@ -39,6 +41,7 @@ private:
     bool hasGameFinished() const;
 
     GUI &gui;
+    Config &config;
 
     sf::RenderWindow window;
 

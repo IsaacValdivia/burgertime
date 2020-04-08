@@ -310,63 +310,6 @@ void ItemPointsScreenState::react(const ExecuteEvent &)
 {
     if (BurgerTimeStateMachine::timedStateReact(5))
     {
-        transit<CharacterScreenState>();
-    }
-}
-
-
-void CharacterScreenState::entry()
-{
-    controller.clearScreen();
-
-    auto text = gui.createText("characterTODO", "TODO: Character Screen");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
-}
-
-void CharacterScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
-        transit<FirstTutorialVidScreenState>();
-    }
-}
-
-
-void FirstTutorialVidScreenState::entry()
-{
-    controller.clearScreen();
-
-    auto text = gui.createText("firstTutorialVidTODO", "TODO: First Tutorial Video");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
-}
-
-void FirstTutorialVidScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
-        transit<SecondTutorialVidScreenState>();
-    }
-}
-
-
-void SecondTutorialVidScreenState::entry()
-{
-    controller.clearScreen();
-
-    auto text = gui.createText("secondTutorialVidTODO", "TODO: Second Tutorial Video");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
-}
-
-void SecondTutorialVidScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
         transit<TutorialScreenState>();
     }
 }
@@ -383,25 +326,6 @@ void TutorialScreenState::entry()
 }
 
 void TutorialScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(5))
-    {
-        transit<ThirdTutorialVidScreenState>();
-    }
-}
-
-
-void ThirdTutorialVidScreenState::entry()
-{
-    controller.clearScreen();
-
-    auto text = gui.createText("thirdTutorialVidTODO", "TODO: Third Tutorial Video");
-
-    controller.addDrawable(text);
-    controller.restartTimer();
-}
-
-void ThirdTutorialVidScreenState::react(const ExecuteEvent &)
 {
     if (BurgerTimeStateMachine::timedStateReact(5))
     {

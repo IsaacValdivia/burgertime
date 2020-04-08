@@ -1,9 +1,7 @@
 #include "InputSystem.hpp"
 
 #include <list>
-#include <map>
 #include <set>
-#include <SFML/Window.hpp>
 
 namespace InputSystem
 {
@@ -25,6 +23,16 @@ namespace InputSystem
         static std::set<Input> justReleasedInputs;
         static bool isCharEntered = false;
         static char charEntered;
+    }
+
+    void setInputBindings(const std::map<Input, sf::Keyboard::Key> &inputBindings)
+    {
+        inputMappings = inputBindings;
+    }
+
+    std::map<Input, sf::Keyboard::Key> getInputBindings()
+    {
+        return inputMappings;
     }
 
     bool isInputPressed(Input input, const std::set<Input> &pressedInputs)
