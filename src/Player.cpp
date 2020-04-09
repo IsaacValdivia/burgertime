@@ -246,7 +246,6 @@ bool Player::has_won() const {
 }
 
 void Player::win() {
-    Audio::play(Audio::Track::WIN);
     won = true;
 }
 

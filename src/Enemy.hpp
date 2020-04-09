@@ -45,7 +45,7 @@ private:
     static constexpr float dying_sprite_duration = 0.16;
     static constexpr float pepper_sprite_animation = 0.27;
 
-    static constexpr int rand_mov_prob = 0;
+    static constexpr float rand_mov_prob_normalizer = 0.20;
 
     static constexpr float pepper_duration = 4;
 
@@ -79,7 +79,7 @@ private:
 
     void move(float &move_x, float &move_y, float delta_t);
 
-    void random_move(const float delta_t);
+    void random_move(const float delta_t, const Tile &current);
 public:
     Enemy(const Type &type, const sf::Vector2f &init_pos, const Sprite_state_machine sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia, const Direction initial_direction, const std::function<void(unsigned int)> &points_added);
 

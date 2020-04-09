@@ -105,6 +105,8 @@ protected:
         ScoreCounter scoreCounter;
         LevelCounter levelCounter;
         size_t currentMap;
+
+        bool hasJustEntered;
     };
 
     void changeGameInfo();
@@ -141,6 +143,7 @@ class NormalStatePlaying : public PlayingStateMachine
     void checkMainMusic();
 
     bool mainMusicPlayed;
+    bool hasEnteredLevelFirstTime;
 };
 
 class WinStatePlaying : public PlayingStateMachine

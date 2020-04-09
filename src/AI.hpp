@@ -4,14 +4,17 @@
 #include "Map.hpp"
 #include "Constants.hpp"
 
-class AI
-{
+class AI {
 public:
+    static constexpr auto MAX_DISTANCE_BETWEEN_TILES = Map::MAX_ROWS + Map::MAX_COLS;
+
     AI(const std::shared_ptr<Map> map, const std::shared_ptr<const Tile> newGoalTile);
 
     Direction getNextMove(const std::shared_ptr<const Tile> startTile) const;
 
     void setGoalTile(const std::shared_ptr<const Tile> newGoalTile);
+
+    float distance_to_goal(const std::shared_ptr<const Tile> from) const;
 
 private:
     float h(const std::shared_ptr<const Tile> from, const std::shared_ptr<const Tile> to) const;
@@ -19,6 +22,6 @@ private:
     Direction nextMoveDirection(const std::map<std::shared_ptr<const Tile>, std::shared_ptr<const Tile>> cameFrom, const std::shared_ptr<const Tile> current) const;
 
     std::shared_ptr<Map> map;
-    
+
     std::shared_ptr<const Tile> goalTile;
 };

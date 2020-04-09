@@ -1,5 +1,6 @@
 #include "Enemy.hpp"
 #include <iostream>
+#include <set>
 #include <stdlib.h>
 #include <time.h>
 
@@ -522,70 +523,36 @@ void Enemy::move(float &move_x, float &move_y, float delta_t) {
     }
 }
 
-void Enemy::random_move(const float delta_t) {
+void Enemy::random_move(const float delta_t, const Tile &current) {
 
     Direction backup_dir = direction;
 
+    std::set<Direction> available_dirs = map->availableFromDirection(current, backup_dir);
     std::vector<Direction> posible_dirs;
 
-    float move_x;
-    float move_y;
-
-    if (backup_dir != Direction::RIGHT) {
-
-        direction = Direction::LEFT;
-
-        move(move_x, move_y, delta_t);
-
-        if (map->can_entity_move(move_x, move_y, *this)) {
-            posible_dirs.push_back(direction);
-        }
-
+    if (backup_dir != Direction::RIGHT && available_dirs.find(Direction::LEFT) != available_dirs.end()) {
+        posible_dirs.push_back(Direction::LEFT);
+        fprintf(stderr, "LEFT\n");
     }
 
-    if (backup_dir != Direction::LEFT) {
-
-        direction = Direction::RIGHT;
-
-        move(move_x, move_y, delta_t);
-
-        if (map->can_entity_move(move_x, move_y, *this)) {
-            posible_dirs.push_back(direction);
-        }
-
+    if (backup_dir != Direction::LEFT && available_dirs.find(Direction::RIGHT) != available_dirs.end()) {
+        posible_dirs.push_back(Direction::RIGHT);
+        fprintf(stderr, "RIGHT\n");
     }
 
-    if (backup_dir != Direction::UP) {
-
-        direction = Direction::DOWN;
-
-        move(move_x, move_y, delta_t);
-
-        if (map->can_entity_move(move_x, move_y, *this)) {
-            posible_dirs.push_back(direction);
-        }
+    if (backup_dir != Direction::UP && available_dirs.find(Direction::DOWN) != available_dirs.end()) {
+        posible_dirs.push_back(Direction::DOWN);
+        fprintf(stderr, "DOWN\n");
     }
 
-    if (backup_dir != Direction::DOWN) {
-
-        direction = Direction::UP;
-
-        move(move_x, move_y, delta_t);
-
-        if (map->can_entity_move(move_x, move_y, *this)) {
-            posible_dirs.push_back(direction);
-        }
-
+    if (backup_dir != Direction::DOWN && available_dirs.find(Direction::UP) != available_dirs.end()) {
+        posible_dirs.push_back(Direction::UP);
+        fprintf(stderr, "UP\n");
     }
 
-    if (posible_dirs.size() == 0) {
-        direction = backup_dir;
-    }
-    else {
+    if (posible_dirs.size() > 0) {
         srand(time(NULL));
         int rand_num = rand() % posible_dirs.size();
-        //fprintf(stderr, "rand = %d", rand_num);
-        //fprintf(stderr, "size = %d", posible_dirs.size());
 
         direction = posible_dirs.at(rand_num);
     }
@@ -683,11 +650,22 @@ void Enemy::update(float delta_t) {
                 srand(time(NULL));
                 int rand_num = rand() % 100;
 
-                if (rand_num > rand_mov_prob) {
-                    direction = ia.getNextMove(t);
+                float goal_distance = ia.distance_to_goal(t);
+
+                goal_distance /= AI::MAX_DISTANCE_BETWEEN_TILES;
+                goal_distance *= 100;
+
+                goal_distance /= rand_mov_prob_normalizer;
+
+
+                if (rand_num > goal_distance) {
+                    random_move(delta_t, *t);
+                    fprintf(stderr, "random = %d\n", rand_num);
+                    fprintf(stderr, "distance = %f\n", goal_distance);
                 }
                 else {
-                    random_move(delta_t);
+                    direction = ia.getNextMove(t);
+                    fprintf(stderr, "IA\n");
                 }
 
                 aStarDirection = direction;
