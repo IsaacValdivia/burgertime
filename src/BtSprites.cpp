@@ -1,7 +1,8 @@
-#include "BT_sprites.hpp"
+#include "BtSprites.hpp"
+
 #include "Constants.hpp"
 
-namespace BT_sprites {
+namespace BtSprites {
     static const int DIMENSIONS = 4;
 
     static const int padding_x_idx = 0;
@@ -172,10 +173,10 @@ namespace BT_sprites {
     };
 
     /**
-     * Auxiliar function to init textures.
+     * @brief Create a texture object
      *
-     * @param path_to_sprite
-     * @return sf::Texture
+     * @param path_to_sprite path to texture
+     * @return sf::Texture sfml texture
      */
     sf::Texture create_texture(const std::string &path_to_sprite) {
         sf::Texture texture;
@@ -194,42 +195,40 @@ namespace BT_sprites {
 
     void update_sprite(sf::Sprite &sp, const Sprite new_sprite) {
         sp.setTextureRect(sf::IntRect(
-                            containers[new_sprite][padding_x_idx],
-                            containers[new_sprite][padding_y_idx],
-                            containers[new_sprite][x_idx],
-                            containers[new_sprite][y_idx]));
+                              containers[new_sprite][padding_x_idx],
+                              containers[new_sprite][padding_y_idx],
+                              containers[new_sprite][x_idx],
+                              containers[new_sprite][y_idx]));
     }
 
     Sprite get_sprite_points(const int points) {
-        switch (points)
-        {
-        case 300:
-            return P_300;
-        case 600:
-            return P_600;
-        case 900:
-            return P_900;
-        case 500:
-            return P_500;
-        case 1000:
-            return P_1000;
-        case 1500:
-            return P_1500;
-        case 100:
-            return P_100;
-        case 200:
-            return P_200;
-        case 2000:
-            return P_2000;
-        case 4000:
-            return P_4000;
-        case 8000:
-            return P_8000;
-        case 16000:
-            return P_16000;
-        default:
-            fprintf(stderr, "ERROR POINTS");
-            break;
+        switch (points) {
+            case 300:
+                return P_300;
+            case 600:
+                return P_600;
+            case 900:
+                return P_900;
+            case 500:
+                return P_500;
+            case 1000:
+                return P_1000;
+            case 1500:
+                return P_1500;
+            case 100:
+                return P_100;
+            case 200:
+                return P_200;
+            case 2000:
+                return P_2000;
+            case 4000:
+                return P_4000;
+            case 8000:
+                return P_8000;
+            case 16000:
+                return P_16000;
+            default:
+                return (Sprite)0;
         }
     }
 };

@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace BT_sprites {
+namespace BtSprites {
     enum Sprite {
         /*
          * Regular size sprites.
@@ -161,9 +161,27 @@ namespace BT_sprites {
         PEPPER_BACK_4,
     };
 
+    /**
+     * @brief Set the initial sprite object
+     *
+     * @param sp sprite
+     * @param new_sprite sprite
+     */
     void set_initial_sprite(sf::Sprite &sp, const Sprite new_sprite);
 
+    /**
+     * @brief Updates the sprite to new_sprite
+     *
+     * @param sp sprite
+     * @param new_sprite new_sprite
+     */
     void update_sprite(sf::Sprite &sp, const Sprite new_sprite);
 
+    /**
+     * @brief Returns the sprite resembling the number of points points
+     *
+     * @param points points vinculated to sprite
+     * @return Sprite
+     */
     Sprite get_sprite_points(const int points);
 };

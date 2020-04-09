@@ -1,13 +1,15 @@
 #include "Pepper.hpp"
 
-const BT_sprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
-    BT_sprites::Sprite::PEPPER_LEFT_1,
-    BT_sprites::Sprite::PEPPER_LEFT_1,
-    BT_sprites::Sprite::PEPPER_BACK_1,
-    BT_sprites::Sprite::PEPPER_FRONT_1,
+const BtSprites::Sprite Pepper::initial_sprite[Direction::NUM_DIRECTIONS] = {
+    BtSprites::Sprite::PEPPER_LEFT_1,
+    BtSprites::Sprite::PEPPER_LEFT_1,
+    BtSprites::Sprite::PEPPER_BACK_1,
+    BtSprites::Sprite::PEPPER_FRONT_1,
 };
 
-Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, const std::function<void()> &pepper_finished_func)
+Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type,
+               const std::function<void()> &pepper_finished_func)
+
     : SpritedEntity(init_pos, initial_sprite[type]),
       type(type),
       current_sprite(initial_sprite[type]),
@@ -20,7 +22,7 @@ Pepper::Pepper(const sf::Vector2f &init_pos, const Direction type, const std::fu
     }
 };
 
-void Pepper::update(float delta_t) {
+void Pepper::update(const float delta_t) {
     acc_delta_t += delta_t;
 
     if (acc_delta_t < animation_duration) {
@@ -35,7 +37,7 @@ void Pepper::update(float delta_t) {
         return;
     }
 
-    current_sprite = (BT_sprites::Sprite)(current_sprite + 1);
+    current_sprite = (BtSprites::Sprite)(current_sprite + 1);
 
-    BT_sprites::update_sprite(sprite, current_sprite);
+    BtSprites::update_sprite(sprite, current_sprite);
 }

@@ -1,290 +1,290 @@
 #include "PlayingStateMachine.hpp"
-#include "InputSystem.hpp"
-#include "Enemy.hpp"
-#include "BurgerTimeStateMachine.hpp"
+
 #include "Audio.hpp"
+#include "BurgerTimeStateMachine.hpp"
+#include "Enemy.hpp"
 #include "HighScores.hpp"
-#include <iostream>
+#include "InputSystem.hpp"
+#include "AI.hpp"
+
 #include <algorithm>
 #include <filesystem>
-#include <set>
+#include <iostream>
 #include <random>
+#include <set>
 
 namespace fs = std::filesystem;
 
-void PlayingStateMachine::PepperCounter::changePepper(int change)
-{
-    if (currentPepper + change >= 0)
-    {
-        currentPepper += change;
-        gui.getText("playingStatePepper").lock()->setString(GUI::fixTextToRight(std::to_string(currentPepper), 3));
+void PlayingStateMachine::PepperCounter::change_pepper(int change) {
+    if (current_pepper + change >= 0) {
+        current_pepper += change;
+        gui.get_text("playingStatePepper").lock()->setString(
+            GUI::fix_text_to_right(std::to_string(current_pepper), 3));
     }
 }
 
-bool PlayingStateMachine::PepperCounter::hasPepper() const
-{
-    return currentPepper != 0;
+bool PlayingStateMachine::PepperCounter::has_pepper() const {
+    return current_pepper != 0;
 }
 
-PlayingStateMachine::PepperCounter::PepperCounter() : currentPepper(5)
-{
-    gui.createText("playingStatePepper", GUI::fixTextToRight(std::to_string(currentPepper), 3), sf::Vector2u(763, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+PlayingStateMachine::PepperCounter::PepperCounter() : current_pepper(5) {
+    gui.create_text("playingStatePepper", GUI::fix_text_to_right(
+                        std::to_string(current_pepper), 3), sf::Vector2u(763, 48),
+                    sf::Vector2f(0.5, 0.5), sf::Color::White);
 }
 
-
-void PlayingStateMachine::LivesCounter::changeLives(int change)
-{
-    currentLives += change;
-    gui.getText("playingStateLives").lock()->setString(GUI::fixTextToRight(std::to_string(currentLives), 3));
+void PlayingStateMachine::LivesCounter::change_lives(int change) {
+    current_lives += change;
+    gui.get_text("playingStateLives").lock()->setString(
+        GUI::fix_text_to_right(std::to_string(current_lives), 3));
 }
 
-bool PlayingStateMachine::LivesCounter::hasLives() const
-{
-    return currentLives != 0;
+bool PlayingStateMachine::LivesCounter::has_lives() const {
+    return current_lives != 0;
 }
 
-PlayingStateMachine::LivesCounter::LivesCounter() : currentLives(3)
-{
-    gui.createText("playingStateLives", GUI::fixTextToRight(std::to_string(currentLives), 3), sf::Vector2u(1, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
+PlayingStateMachine::LivesCounter::LivesCounter() : current_lives(3) {
+    gui.create_text("playingStateLives",
+                    GUI::fix_text_to_right(std::to_string(current_lives), 3),
+                    sf::Vector2u(1, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
 }
 
+void PlayingStateMachine::ScoreCounter::add_points(uint32_t points) {
+    current_score += points;
 
-void PlayingStateMachine::ScoreCounter::addPoints(uint32_t points)
-{
-    currentScore += points;
+    if (current_score > current_top_score) {
 
-    if (currentScore > currentTopScore)
-    {
-        currentTopScore = currentScore;
-        gui.getText("playingStateTopScore").lock()->setString(GUI::fixTextToRight(std::to_string(currentScore), MAX_SCORE_CHARS));
+        current_top_score = current_score;
+
+        gui.get_text("playingStateTopScore").lock()->setString(
+            GUI::fix_text_to_right(std::to_string(current_score), MAX_SCORE_CHARS));
     }
 
-    gui.getText("playingStateScore").lock()->setString(GUI::fixTextToRight(std::to_string(currentScore), MAX_SCORE_CHARS));
+    gui.get_text("playingStateScore").lock()->setString(
+        GUI::fix_text_to_right(std::to_string(current_score), MAX_SCORE_CHARS));
 }
 
-uint32_t PlayingStateMachine::ScoreCounter::getScore() const
-{
-    return currentScore;
+uint32_t PlayingStateMachine::ScoreCounter::get_score() const {
+    return current_score;
 }
 
+PlayingStateMachine::ScoreCounter::ScoreCounter() :
+    current_score(0), current_top_score(HighScores().get_top_score()) {
 
-PlayingStateMachine::ScoreCounter::ScoreCounter() : currentScore(0), currentTopScore(HighScores().getTopScore())
-{
-    gui.createText("playingStateScore", GUI::fixTextToRight(std::to_string(currentScore), MAX_SCORE_CHARS), sf::Vector2u(50, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
-    gui.createText("playingStateTopScore", GUI::fixTextToRight(std::to_string(currentTopScore), MAX_SCORE_CHARS), sf::Vector2u(300, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+    gui.create_text("playingStateScore", GUI::fix_text_to_right(
+                        std::to_string(current_score), MAX_SCORE_CHARS),
+                    sf::Vector2u(50, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
+
+    gui.create_text("playingStateTopScore", GUI::fix_text_to_right(
+                        std::to_string(current_top_score), MAX_SCORE_CHARS),
+                    sf::Vector2u(300, 48), sf::Vector2f(0.5, 0.5), sf::Color::White);
 }
 
+void PlayingStateMachine::LevelCounter::add_level(uint32_t level) {
+    current_level += level;
 
-void PlayingStateMachine::LevelCounter::addLevel(uint32_t level)
-{
-    currentLevel += level;
-    gui.getText("playingStateLevel").lock()->setString(GUI::fixTextToRight(std::to_string(currentLevel), 3));
+    gui.get_text("playingStateLevel").lock()->setString(GUI::fix_text_to_right(
+                std::to_string(current_level), 3));
 }
 
-PlayingStateMachine::LevelCounter::LevelCounter() : currentLevel(1)
-{
+PlayingStateMachine::LevelCounter::LevelCounter() : currentLevel(1) {
     gui.createText("playingStateLevel", GUI::fixTextToRight(std::to_string(currentLevel), 3), sf::Vector2u(802, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
 }
-
 
 FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
 
 BurgerTimeController &PlayingStateMachine::controller = BurgerTimeController::get();
 GUI &PlayingStateMachine::gui = GUI::get();
 
-void PlayingStateMachine::addPepper(const sf::Vector2f &launchPosition, Direction direction)
-{
-    if (current_state_ptr->gameInfo->pepperCounter.hasPepper())
-    {
+void PlayingStateMachine::add_pepper(const sf::Vector2f &launch_position,
+                                     Direction direction) {
+
+    if (current_state_ptr->game_info->pepper_counter.has_pepper()) {
         Audio::play(Audio::Track::PEPPER);
 
-        current_state_ptr->gameInfo->pepperCounter.changePepper(-1);
-        current_state_ptr->deletePepper();
-        current_state_ptr->gameInfo->pepper = std::make_shared<Pepper>(launchPosition, direction, std::bind(&PlayingStateMachine::deletePepper, this));
-        controller.addDrawable(current_state_ptr->gameInfo->pepper);
-    }
-    else
-    {
-        // TODO: exception
+        current_state_ptr->game_info->pepper_counter.change_pepper(-1);
+        current_state_ptr->delete_pepper();
+        current_state_ptr->game_info->pepper = std::make_shared<Pepper>(
+                launch_position, direction,
+                std::bind(&PlayingStateMachine::delete_pepper, this));
+
+        controller.add_drawable(current_state_ptr->game_info->pepper);
     }
 }
 
-bool PlayingStateMachine::hasPepper() const
-{
-    return current_state_ptr->gameInfo->pepperCounter.hasPepper();
+bool PlayingStateMachine::has_pepper() const {
+    return current_state_ptr->game_info->pepper_counter.has_pepper();
 }
 
-void PlayingStateMachine::addPlayerAndEnemies()
-{
-    gameInfo->enemies.clear();
-    auto &map = gameInfo->maps[gameInfo->currentMap];
+void PlayingStateMachine::add_player_and_enemies() {
+    game_info->enemies.clear();
+    auto &map = game_info->maps[game_info->current_map];
 
-    const auto &playerSpawnTile = map->tile_data[map->chef_spawn.x][map->chef_spawn.y];
+    const auto &player_spawn_tile = map->get_chef_initial_tile();
 
-    sf::Vector2f initPos = playerSpawnTile->shape.getPosition();
-    initPos.y -= playerSpawnTile->height;
-    gameInfo->player = std::make_shared<Player>(initPos, map,
-        std::bind(&PlayingStateMachine::addPepper, this, std::placeholders::_1, std::placeholders::_2),
-        std::bind(&PlayingStateMachine::hasPepper, this)
-    );
+    sf::Vector2f init_pos = player_spawn_tile->get_position();
+    init_pos.y -= player_spawn_tile->get_height();
+    game_info->player = std::make_shared<Player>(init_pos, map,
+                        std::bind(&PlayingStateMachine::add_pepper, this,
+                                  std::placeholders::_1, std::placeholders::_2),
+                        std::bind(&PlayingStateMachine::has_pepper, this)
+                                                );
 
-    gameInfo->ai = std::make_shared<AI>(map, playerSpawnTile);
+    game_info->ai = std::make_shared<AI>(map, player_spawn_tile);
 
     float offset = 1;
-    for (const auto &enemySpawn : map->enemy_spawns)
-    {
-        const auto &initialTile = map->tile_data[enemySpawn.second.x][enemySpawn.second.y];
-        spawnEnemy(static_cast<Enemy::Type>(enemySpawn.first), *initialTile, offset);
+    for (const auto &enemy_spawn : map->get_enemies_spawns()) {
+        spawn_enemy(static_cast<Enemy::Type>(enemy_spawn.first), *enemy_spawn.second, offset);
         offset += 1.2;
     }
 }
 
-void PlayingStateMachine::spawnEnemy(const Enemy::Type &type, const Tile &initialTile, float offset)
-{
-    auto &map = gameInfo->maps[gameInfo->currentMap];
-    // TODO: ia
-    gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, gameInfo->ai, std::placeholders::_1));
-    // gameInfo->player->connect_player_moved(std::bind(&AI::setGoalTile, &gameInfo->ias.back(), std::placeholders::_1));
+void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
+                                      const Tile &initial_tile, float offset) {
 
-    auto initialPos = initialTile.shape.getPosition();
-    Direction initialDir;
-    if (abs(gameInfo->curtains[0]->getPosition().x - initialPos.x) < abs(gameInfo->curtains[1]->getPosition().x - initialPos.x))
-    {
-        initialDir = Direction::RIGHT;
-        initialPos.x -= offset * 5 * Tile::TILE_WIDTH;
+    auto &map = game_info->maps[game_info->current_map];
+    // TODO: ia
+    game_info->player->connect_player_moved(std::bind(&AI::set_goal_tile,
+                                            game_info->ai,
+                                            std::placeholders::_1));
+
+    // game_info->player->connect_player_moved(std::bind(&AI::set_goal_tile,
+    // &game_info->ias.back(), std::placeholders::_1));
+
+    auto initial_pos = initial_tile.get_position();
+    Direction initial_dir;
+    if (abs(game_info->curtains[0]->getPosition().x - initial_pos.x) <
+            abs(game_info->curtains[1]->getPosition().x - initial_pos.x)) {
+
+        initial_dir = Direction::RIGHT;
+        initial_pos.x -= offset * 5 * Tile::TILE_WIDTH;
     }
-    else
-    {
-        initialDir = Direction::LEFT;
-        initialPos.x += offset * 5 * Tile::TILE_WIDTH;
+    else {
+        initial_dir = Direction::LEFT;
+        initial_pos.x += offset * 5 * Tile::TILE_WIDTH;
     }
-    initialPos.y -= initialTile.height;
+    initial_pos.y -= initial_tile.get_height();
 
     // sf::Vector2
-    const Enemy::Sprite_state_machine *enemySprites;
-
-    switch (type)	
-    {	
-        case Enemy::Type::SAUSAGE:	
-            enemySprites = Enemy::sausage_sprite_state_machine;	
-            break;	
-        case Enemy::Type::PICKLE:	
-            enemySprites = Enemy::pickle_sprite_state_machine;	
-            break;	
-        case Enemy::Type::EGG:	
-            enemySprites = Enemy::egg_sprite_state_machine;	
-            break;	
-    }	
-
-    gameInfo->enemies.push_back(std::make_shared<Enemy>(type, initialPos, enemySprites, map, *gameInfo->ai, initialDir, std::bind(&PlayingStateMachine::addPoints, this, std::placeholders::_1)));
+    game_info->enemies.push_back(std::make_shared<Enemy>(type, initial_pos,
+                                 map, *game_info->ai, initial_dir,
+                                 std::bind(&PlayingStateMachine::add_points,
+                                           this, std::placeholders::_1)));
 }
 
 
-void PlayingStateMachine::deletePepper()
-{
-    current_state_ptr->gameInfo->pepper = nullptr;
+void PlayingStateMachine::delete_pepper() {
+    current_state_ptr->game_info->pepper = nullptr;
 }
 
-void PlayingStateMachine::changeGameInfo()
-{
-    current_state_ptr->setGameInfo(std::move(gameInfo));
+void PlayingStateMachine::change_game_info() {
+    current_state_ptr->set_game_info(std::move(game_info));
 }
 
-void PlayingStateMachine::setGameInfo(std::unique_ptr<GameInfo> newGameInfo)
-{
-    gameInfo = std::move(newGameInfo);
+void PlayingStateMachine::set_game_info(std::unique_ptr<GameInfo> new_game_info) {
+    game_info = std::move(new_game_info);
 }
 
-void PlayingStateMachine::ingredientCollision()
-{
-    auto &map = gameInfo->maps[gameInfo->currentMap];
-    for (auto &ingredient : map->ing_data)
-    {
-        int enemiesSurfing = 0;
+void PlayingStateMachine::ingredient_collision() {
+    auto &map = game_info->maps[game_info->current_map];
+    for (auto &ingredient : map->get_ing_data()) {
+        int enemies_surfing = 0;
 
-        if (ingredient.isFalling())
-        {
-            const auto tiles = map->entityOnTiles(ingredient);
-            if (tiles.size() > 1)
-            {
-                if (tiles[1]->isSteppableHor())
-                {
-                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 8), Ingredient::FLOOR);
+        if (ingredient.is_falling()) {
+            const auto tiles = map->entity_on_tiles(ingredient);
+            if (tiles.size() > 1) {
+                if (tiles[1]->is_steppable_hor()) {
+                    ingredient.land(tiles[1]->get_position().y
+                                    + (Tile::TILE_HEIGHT - 8), Ingredient::FLOOR);
                 }
-                else if (tiles[1]->isBasket() || tiles[1]->isBasketEdge())
-                {
-                    ingredient.land(tiles[1]->shape.getPosition().y + (Tile::TILE_HEIGHT - 12), Ingredient::STATIC_ING_BASKET);
+                else if (tiles[1]->is_basket() || tiles[1]->is_basket_edge()) {
+                    ingredient.land(tiles[1]->get_position().y
+                                    + (Tile::TILE_HEIGHT - 12),
+                                    Ingredient::STATIC_ING_BASKET);
                 }
             }
 
-            for (auto &other : map->ing_data)
-            {
-                if (&other != &ingredient)
-                {
-                    if (other.intersectsWith(ingredient) && (other.isIdle() || other.isStatic()))
-                    {
-                        addPoints(50);
-                        auto state = other.isStatic() ? Ingredient::STATIC_ING_BASKET : Ingredient::INGREDIENT;
-                        // other.land(tiles[1]->shape.getPosition().y +
+            for (auto &other : map->get_ing_data()) {
+                if (&other != &ingredient) {
+                    if (other.intersects_with(ingredient) && (other.is_idle() ||
+                            other.is_static())) {
+
+                        add_points(50);
+                        auto state = other.is_static() ?
+                                     Ingredient::STATIC_ING_BASKET :
+                                     Ingredient::INGREDIENT;
+
+                        // other.land(tiles[1]->get_position().y +
                         // 10, Ingredient::INGREDIENT);
                         // std::cout << "other state " << other.state << std::endl;
-                        ingredient.land(other.getCollisionShape().top - (Tile::TILE_HEIGHT - 8), state);
+
+                        ingredient.land(other.get_collision_shape().top -
+                                        (Tile::TILE_HEIGHT - 8), state);
+
                         other.drop();
                         break;
                     }
                 }
             }
 
-            for (auto &enemy : gameInfo->enemies)
-            {
-                if (ingredient.intersectsWith(*enemy) && enemy->is_alive())
-                {
-                    if (ingredient.getCollisionShape().top < enemy->getCollisionShape().top)
-                    {
+            for (auto &enemy : game_info->enemies) {
+                if (ingredient.intersects_with(*enemy) && enemy->is_alive()) {
+
+                    if (ingredient.get_collision_shape().top <
+                            enemy->get_collision_shape().top) {
+
                         enemy->die();
                     }
                 }
             }
         }
 
-        for (auto &enemy : gameInfo->enemies)
-        {
-            if (ingredient.intersectsWith(*enemy) && ingredient.getCollisionShape().top >= enemy->getCollisionShape().top)
-            {
-                enemiesSurfing++;
+        for (auto &enemy : game_info->enemies) {
+            if (ingredient.intersects_with(*enemy) &&
+                    ingredient.get_collision_shape().top >=
+                    enemy->get_collision_shape().top) {
+
+                enemies_surfing++;
             }
         }
 
-        if (ingredient.testStatic())
-        {
-            gameInfo->currentIngredients++;
+        if (ingredient.test_static()) {
+            game_info->current_ingredients++;
         }
 
-        if (gameInfo->player->goingXdirection())
-        {
-            if (ingredient.stepped(gameInfo->player->getCollisionShape(), 1 + enemiesSurfing * 2))
-            {
-                bool firstSurfer = true;
-                int surfPoints = std::pow(2, enemiesSurfing - 1) * 500;
+        if (game_info->player->going_x_direction()) {
+            if (ingredient.stepped(game_info->player->get_collision_shape(),
+                                   1 + enemies_surfing * 2)) {
+
+                bool first_surfer = true;
+                int surf_points = std::pow(2, enemies_surfing - 1) * 500;
+
                 Audio::play(Audio::Track::BURGER_GOING_DOWN);
-                addPoints(50);
-                for (auto &enemy : gameInfo->enemies)
-                {
-                    if (!enemy->isSurfing() && ingredient.intersectsWith(*enemy) && ingredient.getCollisionShape().top >= enemy->getCollisionShape().top)
-                    {
+                add_points(50);
+
+                for (auto &enemy : game_info->enemies) {
+                    if (!enemy->is_surfing() && ingredient.intersects_with(*enemy)
+                            && ingredient.get_collision_shape().top >=
+                            enemy->get_collision_shape().top) {
+
                         auto connections = ingredient.connect_enemy_surfer(
-                            std::bind(&Enemy::move_by_signal, enemy, std::placeholders::_1),
-                            std::bind(&Enemy::stop_surfing, enemy));
-                        if (firstSurfer)
-                        {
-                            enemy->start_surfing(std::move(connections.first), std::move(connections.second), surfPoints);
-                            firstSurfer = false;
+                                               std::bind(&Enemy::move_by_signal,
+                                                         enemy,
+                                                         std::placeholders::_1),
+                                               std::bind(&Enemy::stop_surfing,
+                                                         enemy));
+                        if (first_surfer) {
+                            enemy->start_surfing(std::move(connections.first),
+                                                 std::move(connections.second),
+                                                 surf_points);
+
+                            first_surfer = false;
                         }
-                        else
-                        {
-                            enemy->start_surfing(std::move(connections.first), std::move(connections.second), 0);
+                        else {
+                            enemy->start_surfing(std::move(connections.first),
+                                                 std::move(connections.second),
+                                                 0);
                         }
-                        
                     }
                 }
             }
@@ -292,354 +292,358 @@ void PlayingStateMachine::ingredientCollision()
     }
 }
 
-void PlayingStateMachine::addPoints(unsigned int points)
-{
-    current_state_ptr->gameInfo->scoreCounter.addPoints(points);
-    current_state_ptr->gameInfo->pointsToExtraLife -= points;
+void PlayingStateMachine::add_points(unsigned int points) {
+    current_state_ptr->game_info->score_counter.add_points(points);
+    current_state_ptr->game_info->points_to_extra_life -= points;
 
-    if (current_state_ptr->gameInfo->pointsToExtraLife <= 0)
-    {
+    if (current_state_ptr->game_info->points_to_extra_life <= 0) {
         Audio::play(Audio::Track::ONE_UP);
-        current_state_ptr->gameInfo->livesCounter.changeLives(1);
-        current_state_ptr->gameInfo->pointsToExtraLife = 20000 - current_state_ptr->gameInfo->pointsToExtraLife;
+        current_state_ptr->game_info->lives_counter.change_lives(1);
+        current_state_ptr->game_info->points_to_extra_life =
+            20000 - current_state_ptr->game_info->points_to_extra_life;
     }
 }
 
-uint32_t PlayingStateMachine::getCurrentScore()
-{
-    return current_state_ptr->gameInfo->scoreCounter.getScore();
+uint32_t PlayingStateMachine::get_current_score() {
+    return current_state_ptr->game_info->score_counter.get_score();
 }
 
-
-void EnterStatePlaying::entry()
-{
+void EnterStatePlaying::entry() {
     Audio::play(Audio::Track::LEVEL_INTRO);
 
-    controller.clearScreen();
-    gameInfo = std::unique_ptr<GameInfo>(new GameInfo);
+    controller.clear_screen();
+    game_info = std::unique_ptr<GameInfo>(new GameInfo);
 
-    gameInfo->hasJustEntered = true;
-    gameInfo->currentMap = 0;
-    gameInfo->currentIngredients = 0;
-    gameInfo->pointsToExtraLife = 20000;
+    game_info->has_just_entered = true;
+    game_info->current_map = 0;
+    game_info->current_ingredients = 0;
+    game_info->points_to_extra_life = 20000;
 
-    gameInfo->curtains[0] = std::make_shared<sf::RectangleShape>();
-    gameInfo->curtains[0]->setFillColor(sf::Color::Black);
-    gameInfo->curtains[0]->setPosition(sf::Vector2f(0, 0));
-    gameInfo->curtains[0]->setSize(sf::Vector2f(2 * Tile::TILE_WIDTH, WINDOW_HEIGHT));
-    gameInfo->curtains[1] = std::make_shared<sf::RectangleShape>();
-    gameInfo->curtains[1]->setFillColor(sf::Color::Black);
-    gameInfo->curtains[1]->setPosition(sf::Vector2f(WINDOW_WIDTH - 2 * Tile::TILE_WIDTH, 0));
-    gameInfo->curtains[1]->setSize(sf::Vector2f(2 * Tile::TILE_WIDTH, WINDOW_HEIGHT));
+    game_info->curtains[0] = std::make_shared<sf::RectangleShape>();
+    game_info->curtains[0]->setFillColor(sf::Color::Black);
+    game_info->curtains[0]->setPosition(sf::Vector2f(0, 0));
+    game_info->curtains[0]->setSize(sf::Vector2f(2 * Tile::TILE_WIDTH,
+                                    WINDOW_HEIGHT));
 
-    gui.createText("playingStateOneUp", "1UP", sf::Vector2u(150, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
-    gui.createText("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20), sf::Vector2f(0.5, 0.5), sf::Color::Red);
+    game_info->curtains[1] = std::make_shared<sf::RectangleShape>();
+    game_info->curtains[1]->setFillColor(sf::Color::Black);
 
-    gameInfo->pepperText = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*gameInfo->pepperText, BT_sprites::Sprite::PEPPER);
-    gameInfo->pepperText->setPosition(780 * WINDOW_WIDTH / 1000, 16 * WINDOW_HEIGHT / 1000);
-    gameInfo->pepperText->setScale(2, 2);
+    game_info->curtains[1]->setPosition(sf::Vector2f(WINDOW_WIDTH - 2 *
+                                        Tile::TILE_WIDTH, 0));
 
-    gameInfo->livesSprite = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*gameInfo->livesSprite, BT_sprites::Sprite::LIVES);
-    gameInfo->livesSprite->setPosition(80 * WINDOW_WIDTH / 1000, 815 * WINDOW_HEIGHT / 1000);
-    gameInfo->livesSprite->setScale(2, 2);
+    game_info->curtains[1]->setSize(sf::Vector2f(2 * Tile::TILE_WIDTH,
+                                    WINDOW_HEIGHT));
 
-    gameInfo->levelSprite = std::make_shared<sf::Sprite>();
-    BT_sprites::set_initial_sprite(*gameInfo->levelSprite, BT_sprites::Sprite::MINI_BURGER_1);
-    gameInfo->levelSprite->setPosition(880 * WINDOW_WIDTH / 1000, 815 * WINDOW_HEIGHT / 1000);
-    gameInfo->levelSprite->setScale(2, 2);
+    gui.create_text("playingStateOneUp", "1UP", sf::Vector2u(150, 20),
+                    sf::Vector2f(0.5, 0.5), sf::Color::Red);
+
+    gui.create_text("playingStateHiScore", "HI-SCORE", sf::Vector2u(300, 20),
+                    sf::Vector2f(0.5, 0.5), sf::Color::Red);
+
+    game_info->pepper_text = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*game_info->pepper_text,
+                                  BtSprites::Sprite::PEPPER);
+
+    game_info->pepper_text->setPosition(780 * WINDOW_WIDTH / 1000,
+                                        16 * WINDOW_HEIGHT / 1000);
+
+    game_info->pepper_text->setScale(2, 2);
+
+    game_info->lives_sprite = std::make_shared<sf::Sprite>();
+
+    BtSprites::set_initial_sprite(*game_info->lives_sprite,
+                                  BtSprites::Sprite::LIVES);
+
+    game_info->lives_sprite->setPosition(80 * WINDOW_WIDTH / 1000,
+                                         815 * WINDOW_HEIGHT / 1000);
+
+    game_info->lives_sprite->setScale(2, 2);
+
+    game_info->level_sprite = std::make_shared<sf::Sprite>();
+
+    BtSprites::set_initial_sprite(*game_info->level_sprite,
+                                  BtSprites::Sprite::MINI_BURGER_1);
+
+    game_info->level_sprite->setPosition(880 * WINDOW_WIDTH / 1000,
+                                         815 * WINDOW_HEIGHT / 1000);
+
+    game_info->level_sprite->setScale(2, 2);
 
 
-    std::set<std::string> mapStems;
-    for (const auto &mapFile : fs::directory_iterator(MAPS_FOLDER))
-    {
-        if (mapFile.is_regular_file())
-        {
-            mapStems.insert(MAPS_FOLDER + std::string("/") + mapFile.path().stem().string());
+    std::set<std::string> map_stems;
+    for (const auto &map_file : fs::directory_iterator(MAPS_FOLDER)) {
+        if (map_file.is_regular_file()) {
+            map_stems.insert(MAPS_FOLDER + std::string("/") +
+                             map_file.path().stem().string());
         }
     }
-    std::vector<std::string> mapNames(mapStems.begin(), mapStems.end());
-    std::sort(mapNames.begin(), mapNames.end());
+    std::vector<std::string> map_names(map_stems.begin(), map_stems.end());
+    std::sort(map_names.begin(), map_names.end());
 
-    for (const auto &mapName : mapNames)
-    {
-        gameInfo->maps.push_back(std::make_shared<Map>(mapName));
+    for (const auto &map_name : map_names) {
+        game_info->maps.push_back(std::make_shared<Map>(map_name));
     }
 }
 
-
-
-void EnterStatePlaying::react(const ExecuteEvent &event)
-{
-    transit<GameReadyScreenState>(std::bind(&EnterStatePlaying::changeGameInfo, this));
+void EnterStatePlaying::react(const ExecuteEvent &event) {
+    transit<GameReadyScreenState>(std::bind(&EnterStatePlaying::change_game_info,
+                                            this));
 }
 
+void GameReadyScreenState::entry() {
+    controller.clear_screen();
 
-void GameReadyScreenState::entry()
-{
-    controller.clearScreen();
+    auto text = gui.create_text("gameReadyText", "GAME READY",
+                                sf::Vector2u(250, 500), sf::Vector2f(0.8, 0.8));
 
-    auto text = gui.createText("gameReadyText", "GAME READY", sf::Vector2u(250, 500), sf::Vector2f(0.8, 0.8));
-    addPlayerAndEnemies();
+    add_player_and_enemies();
 
-    controller.addDrawable(text);
-    controller.restartTimer();
+    controller.add_drawable(text);
+    controller.restart_timer();
 }
 
-void GameReadyScreenState::react(const ExecuteEvent &)
-{
-    if (BurgerTimeStateMachine::timedStateReact(1))
-    {
+void GameReadyScreenState::react(const ExecuteEvent &) {
+    if (BurgerTimeStateMachine::timed_state_react(1)) {
         // TODO: change
-        transit<NormalStatePlaying>(std::bind(&GameReadyScreenState::changeGameInfo, this));
-        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
+        transit<NormalStatePlaying>(std::bind(
+                                        &GameReadyScreenState::change_game_info,
+                                        this));
+
+        // transit<EnterHighscoreState>(std::bind(
+        //&EnterHighscoreState::setHighScore, 999999));
     }
 }
 
+void NormalStatePlaying::check_main_music() {
+    if (!main_music_played) {
+        if (game_info->has_just_entered) {
 
-void NormalStatePlaying::checkMainMusic()
-{
-    if (!mainMusicPlayed)
-    {
-        if (gameInfo->hasJustEntered) {
-            auto elapsedTime = controller.getElapsedTime();
-            if (elapsedTime.asSeconds() >= 4)
-            {
-                mainMusicPlayed = true;
-                gameInfo->hasJustEntered = false;
+            auto elapsed_time = controller.get_elapsed_time();
+
+            if (elapsed_time.asSeconds() >= 4) {
+                main_music_played = true;
+                game_info->has_just_entered = false;
                 Audio::play(Audio::Track::MAIN);
             }
-        } else {
-            mainMusicPlayed = true;
+        }
+        else {
+            main_music_played = true;
             Audio::play(Audio::Track::MAIN);
         }
     }
-} 
+}
 
-void NormalStatePlaying::entry()
-{
-    controller.clearScreen();
-    mainMusicPlayed = false;
+void NormalStatePlaying::entry() {
+    controller.clear_screen();
+    main_music_played = false;
 
-    auto &map = gameInfo->maps[gameInfo->currentMap];
-    for (auto &ingredient : map->ing_data)
-    {
-        ingredient.resetSteps();
-        ingredient.fix_position_up();
+    auto &map = game_info->maps[game_info->current_map];
+    for (auto &ingredient : map->get_ing_data()) {
+        ingredient.reset();
     }
 
-    const auto &itemSpawnTile = map->tile_data[map->item_spawn.second.x][map->item_spawn.second.y];
+    const auto &item_spawn_tile = map->get_item_initial_tile();
 
-    sf::Vector2f initPos = itemSpawnTile->shape.getPosition();
-    // initPos.y -= itemSpawnTile->height;
+    sf::Vector2f init_pos = item_spawn_tile->get_position();
+    // init_pos.y -= item_spawn_tile->height;
 
-    BT_sprites::Sprite init_sprite;
+    BtSprites::Sprite init_sprite;
     int points;
-    switch (map->item_spawn.first)
-    {
+    switch (map->get_item_type()) {
         case Map::ICE_CREAM:
-            init_sprite = BT_sprites::Sprite::ICE_CREAM;
+            init_sprite = BtSprites::Sprite::ICE_CREAM;
             points = 500;
             break;
         case Map::COFFEE:
-            init_sprite = BT_sprites::Sprite::COFFEE;
+            init_sprite = BtSprites::Sprite::COFFEE;
             points = 1000;
             break;
         case Map::FRIES:
-            init_sprite = BT_sprites::Sprite::FRIES;
+            init_sprite = BtSprites::Sprite::FRIES;
             points = 1500;
             break;
     }
 
-    gameInfo->bonus = std::make_shared<Bonus>(initPos, init_sprite, points);
+    game_info->bonus = std::make_shared<Bonus>(init_pos, init_sprite, points);
 
+    controller.add_drawable(game_info->maps[game_info->current_map]);
+    controller.add_drawable(game_info->bonus);
 
-    controller.addDrawable(gameInfo->maps[gameInfo->currentMap]);
-    controller.addDrawable(gameInfo->bonus);
-    for (const auto &enemy : gameInfo->enemies)
-    {
-        controller.addDrawable(enemy);
+    for (const auto &enemy : game_info->enemies) {
+        controller.add_drawable(enemy);
     }
-    controller.addDrawable(gameInfo->player);
-    controller.addDrawable(gameInfo->pepperText);
-    controller.addDrawable(gameInfo->livesSprite);
-    controller.addDrawable(gameInfo->levelSprite);
-    controller.addDrawable(gui.getText("playingStateOneUp"));
-    controller.addDrawable(gui.getText("playingStateHiScore"));
-    controller.addDrawable(gui.getText("playingStatePepper"));
-    controller.addDrawable(gui.getText("playingStateScore"));
-    controller.addDrawable(gui.getText("playingStateTopScore"));
-    controller.addDrawable(gui.getText("playingStateLives"));
-    controller.addDrawable(gui.getText("playingStateLevel"));
-    controller.addDrawable(gameInfo->curtains[0]);
-    controller.addDrawable(gameInfo->curtains[1]);
+
+    controller.add_drawable(game_info->player);
+    controller.add_drawable(game_info->pepper_text);
+    controller.add_drawable(game_info->lives_sprite);
+    controller.add_drawable(game_info->level_sprite);
+    controller.add_drawable(gui.get_text("playingStateOneUp"));
+    controller.add_drawable(gui.get_text("playingStateHiScore"));
+    controller.add_drawable(gui.get_text("playingStatePepper"));
+    controller.add_drawable(gui.get_text("playingStateScore"));
+    controller.add_drawable(gui.get_text("playingStateTopScore"));
+    controller.add_drawable(gui.get_text("playingStateLives"));
+    controller.add_drawable(gui.get_text("playingStateLevel"));
+    controller.add_drawable(game_info->curtains[0]);
+    controller.add_drawable(game_info->curtains[1]);
 }
 
-void NormalStatePlaying::react(const ExecuteEvent &event)
-{
-    checkMainMusic();
+void NormalStatePlaying::react(const ExecuteEvent &event) {
+    check_main_music();
 
-    auto &map = gameInfo->maps[gameInfo->currentMap];
+    auto &map = game_info->maps[game_info->current_map];
 
-    if (gameInfo->bonus->intersectsWith(*gameInfo->player))
-    {
-        gameInfo->bonus->has_been_claimed();
-        addPoints(gameInfo->bonus->get_points());
-        gameInfo->pepperCounter.changePepper(1);
+    if (game_info->bonus->intersects_with(*game_info->player)) {
+        game_info->bonus->has_been_claimed();
+        add_points(game_info->bonus->get_points());
+        game_info->pepper_counter.change_pepper(1);
     }
 
-    static std::set<int> initialPositions;
-    for (auto it = gameInfo->enemies.begin(); it != gameInfo->enemies.end(); ++it)
-    {
+    static std::set<int> initial_positions;
+    for (auto it = game_info->enemies.begin();
+            it != game_info->enemies.end(); ++it) {
+
         const auto &enemy = *it;
 
-        if (enemy->is_alive() && !enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) 
-        {
+        if (enemy->is_alive() && !enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) {
 #if true
-            if (gameInfo->livesCounter.hasLives())
-            {
-                transit<DeadStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
+            if (game_info->lives_counter.has_lives()) {
+                transit<DeadStatePlaying>(std::bind(
+                                              &NormalStatePlaying::change_game_info,
+                                              this));
                 return;
             }
 #endif
         }
-        else if (enemy->completelyDead())
-        {
+        else if (enemy->completely_dead()) {
             static std::random_device rd;
             static std::mt19937 gen(rd());
-            static std::uniform_int_distribution<> spawnsDis(0, map->enemy_spawns.size() - 1);
-            static std::uniform_int_distribution<> offsetDis(2, 4);
 
-            auto enemySpawnsIt = map->enemy_spawns.begin();
+            static std::uniform_int_distribution<> spawns_dis(0,
+                    map->get_enemies_spawns().size() - 1);
 
-            int initPos;
-            do
-            {
-                initPos = spawnsDis(gen);
-            } while (initialPositions.find(initPos) != initialPositions.end());
+            static std::uniform_int_distribution<> offset_dis(2, 4);
 
-            initialPositions.insert(initPos);
+            auto enemy_spawns_it = map->get_enemies_spawns().begin();
 
-            std::advance(enemySpawnsIt, initPos);
-            const auto &initialTilePos = (*enemySpawnsIt).second;
-            const auto &initialTile = map->tile_data[initialTilePos.x][initialTilePos.y];
-            spawnEnemy(enemy->getType(), *initialTile, offsetDis(gen));
+            int init_pos;
+            do {
+                init_pos = spawns_dis(gen);
+            }
+            while (initial_positions.find(init_pos) != initial_positions.end());
 
-            it = gameInfo->enemies.erase(it);
+            initial_positions.insert(init_pos);
+
+            std::advance(enemy_spawns_it, init_pos);
+            const auto &initial_tile = (*enemy_spawns_it).second;
+
+            spawn_enemy(enemy->get_type(), *initial_tile, offset_dis(gen));
+
+            it = game_info->enemies.erase(it);
             --it;
 
-            controller.addDrawable(gameInfo->enemies.back());
+            controller.add_drawable(game_info->enemies.back());
         }
     }
-    initialPositions.clear();
+    initial_positions.clear();
 
-    ingredientCollision();
+    ingredient_collision();
 
-    if (gameInfo->currentIngredients == map->ing_data.size())
-    {
-        transit<WinStatePlaying>(std::bind(&NormalStatePlaying::changeGameInfo, this));
+    if (game_info->current_ingredients == map->get_ing_data().size()) {
+        transit<WinStatePlaying>(std::bind(&NormalStatePlaying::change_game_info,
+                                           this));
         return;
     }
 
-    if (gameInfo->pepper)
-    {
-        for (const auto &enemy : gameInfo->enemies)
-        {
-            if (gameInfo->pepper->intersectsWith(*enemy)) {
-                // TODO: algo?
-               enemy->pepper();
+    if (game_info->pepper) {
+        for (const auto &enemy : game_info->enemies) {
+            if (game_info->pepper->intersects_with(*enemy)) {
+                enemy->pepper();
             }
         }
     }
 
-    gameInfo->bonus->update(event.deltaT);
+    game_info->bonus->update(event.delta_t);
 
-    gameInfo->player->update(event.deltaT);
+    game_info->player->update(event.delta_t);
 
-    for (const auto &enemy : gameInfo->enemies)
-    {
-        enemy->update(event.deltaT);
+    for (const auto &enemy : game_info->enemies) {
+        enemy->update(event.delta_t);
     }
 
-    for (auto &ingredient : map->ing_data)
-    {
-        ingredient.update(event.deltaT);
+    for (auto &ingredient : map->get_ing_data()) {
+        ingredient.update(event.delta_t);
     }
 
-    if (gameInfo->pepper)
-    {
-        gameInfo->pepper->update(event.deltaT);
+    if (game_info->pepper) {
+        game_info->pepper->update(event.delta_t);
     }
 }
 
 
-void DeadStatePlaying::entry()
-{
-    Audio::stopBackground();
+void DeadStatePlaying::entry() {
+    Audio::stop_background();
     Audio::play(Audio::Track::DIE);
 
-    controller.restartTimer();
-    gameInfo->livesCounter.changeLives(-1);
-    gameInfo->player->die();
+    controller.restart_timer();
+    game_info->lives_counter.change_lives(-1);
+    game_info->player->die();
 }
 
-void DeadStatePlaying::react(const ExecuteEvent &event)
-{
-    if (BurgerTimeStateMachine::timedStateReact(4))
-    {
-        if (!gameInfo->livesCounter.hasLives())
-        {
-            transit<GameOverStatePlaying>(std::bind(&DeadStatePlaying::changeGameInfo, this));
+void DeadStatePlaying::react(const ExecuteEvent &event) {
+    if (BurgerTimeStateMachine::timed_state_react(4)) {
+        if (!game_info->lives_counter.has_lives()) {
+            transit<GameOverStatePlaying>(std::bind(
+                                              &DeadStatePlaying::change_game_info,
+                                              this));
         }
-        else
-        {
-            transit<GameReadyScreenState>(std::bind(&DeadStatePlaying::changeGameInfo, this));
+        else {
+            transit<GameReadyScreenState>(std::bind(
+                                              &DeadStatePlaying::change_game_info,
+                                              this));
         }
 
         // TODO: change
         // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
     }
-    else
-    {
-        auto &map = gameInfo->maps[gameInfo->currentMap];
+    else {
+        auto &map = game_info->maps[game_info->current_map];
 
-        ingredientCollision();
+        ingredient_collision();
 
-        gameInfo->player->update(event.deltaT);
+        game_info->player->update(event.delta_t);
 
-        for (auto &ingredient : map->ing_data)
-        {
-            ingredient.update(event.deltaT);
+        for (auto &ingredient : map->get_ing_data()) {
+            ingredient.update(event.delta_t);
         }
     }
 }
 
-
-void WinStatePlaying::entry()
-{
-    Audio::stopBackground();
+void WinStatePlaying::entry() {
+    Audio::stop_background();
     Audio::play(Audio::Track::WIN);
-    
-    controller.restartTimer();
-    gameInfo->player->win();
-    gameInfo->currentMap = (gameInfo->currentMap + 1) % gameInfo->maps.size();
-    gameInfo->currentIngredients = 0;
+
+    controller.restart_timer();
+    game_info->player->win();
+    game_info->current_map = (game_info->current_map + 1) % game_info->maps.size();
+    game_info->current_ingredients = 0;
 }
 
-void WinStatePlaying::react(const ExecuteEvent &event)
-{
-    if (BurgerTimeStateMachine::timedStateReact(4))
-    {
+void WinStatePlaying::react(const ExecuteEvent &event) {
+    if (BurgerTimeStateMachine::timed_state_react(4)) {
         // TODO: change
         Audio::play(Audio::Track::LEVEL_INTRO);
-        gameInfo->levelCounter.addLevel(1);
+        game_info->level_counter.add_level(1);
 
-        transit<GameReadyScreenState>(std::bind(&WinStatePlaying::changeGameInfo, this));
-        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
+        transit<GameReadyScreenState>(std::bind(
+                                          &WinStatePlaying::change_game_info,
+                                          this));
+
+        // transit<EnterHighscoreState>(std::bind(
+        // &EnterHighscoreState::setHighScore,
+        // 999999));
     }
-    else
-    {
-        gameInfo->player->update(event.deltaT);
+    else {
+        game_info->player->update(event.delta_t);
     }
 }

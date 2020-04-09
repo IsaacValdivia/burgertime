@@ -1,4 +1,0 @@
-3_high_scores
-4_entry_selected
-5_coin_inserted
-6_one_up

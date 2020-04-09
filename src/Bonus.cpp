@@ -1,7 +1,9 @@
 #include "Bonus.hpp"
+
 #include "Audio.hpp"
 
-Bonus::Bonus(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const int points)
+Bonus::Bonus(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
+             const int points)
     :
     SpritedEntity(init_pos, init_sprite),
     points(points),
@@ -16,7 +18,7 @@ void Bonus::has_been_claimed() {
 
     Audio::play(Audio::Track::PEPPER_UP);
 
-    BT_sprites::update_sprite(sprite, BT_sprites::get_sprite_points(points));
+    BtSprites::update_sprite(sprite, BtSprites::get_sprite_points(points));
 }
 
 void Bonus::draw(sf::RenderTarget &target, sf::RenderStates states) const {
@@ -25,9 +27,9 @@ void Bonus::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     }
 }
 
-bool Bonus::intersectsWith(const Entity &entity) const {
+bool Bonus::intersects_with(const Entity &entity) const {
     if (state == SHOW) {
-        return getCollisionShape().intersects(entity.getCollisionShape());
+        return get_collision_shape().intersects(entity.get_collision_shape());
     }
     return false;
 }
@@ -36,14 +38,14 @@ int Bonus::get_points() const {
     return points;
 }
 
-void Bonus::update(float delta_t) {
+void Bonus::update(const float delta_t) {
     acc_delta_t += delta_t;
 
     switch (state) {
         case HIDE:
             if (acc_delta_t >= respawn_time) {
                 state = SHOW;
-                
+
                 Audio::play(Audio::Track::NEW_INGREDIENT);
 
                 acc_delta_t = 0;
@@ -60,7 +62,7 @@ void Bonus::update(float delta_t) {
             if (acc_delta_t >= giving_points_duration) {
                 state = HIDE;
 
-                BT_sprites::update_sprite(sprite, initial_sprite);
+                BtSprites::update_sprite(sprite, initial_sprite);
 
                 acc_delta_t = 0;
             }

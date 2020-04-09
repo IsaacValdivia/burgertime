@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SpritedEntity.hpp"
 #include "Constants.hpp"
+#include "SpritedEntity.hpp"
 
 #include <memory>
 
@@ -17,33 +17,38 @@ protected:
     Direction direction; // Current direction.
     Direction mirror_state;
 
-    std::shared_ptr<Map> map; // Pointer to map.
+    const std::shared_ptr<const Map> map; // Pointer to map.
 
-    const BT_sprites::Sprite first_sprite; // Initial sprite.
+    BtSprites::Sprite first_sprite; // Initial sprite.
 
+    /**
+     * Flips actor vertically (vertical mirror)
+     *
+     */
     void mirror();
 public:
     /**
-     * [description]
-     * 
-     * @param init_pos 
-     * @param init_sprite 
-     * @param first_sprite 
-     * @param map 
+     * Constructor for Actor
+     *
+     * @param init_pos Initial position (x,y)
+     * @param init_sprite Initial sprite
+     * @param first_sprite First sprite
+     * @param map Pointer to map on which it will be generated
      */
-    Actor(const sf::Vector2f &init_pos, const BT_sprites::Sprite init_sprite, const BT_sprites::Sprite first_sprite, std::shared_ptr<Map> map);
+    Actor(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
+          const BtSprites::Sprite first_sprite, const std::shared_ptr<const Map> map);
 
     /**
-     * Returns a e
-     * 
-     * @return sf::FloatRect 
+     * Returns a shape enclosing the Actor, representing its hitbox
+     *
+     * @return sf::FloatRect
      */
-    sf::FloatRect getCollisionShape() const override;
+    sf::FloatRect get_collision_shape() const override;
 
     /**
      * Checks alive field
-     * 
-     * @return bool 
+     *
+     * @return bool
      */
     bool is_alive() const;
 
