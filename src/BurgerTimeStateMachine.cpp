@@ -16,9 +16,10 @@ BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController:
 GUI &BurgerTimeStateMachine::gui = GUI::get();
 
 
-bool BurgerTimeStateMachine::timedStateReact(int waitTime) {
-    if (hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
-        controller.restartTimer();
+bool BurgerTimeStateMachine::timed_state_react(int wait_time) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+        controller.restart_timer();
+        return true;
     }
 
     auto elapsed_time = controller.get_elapsed_time();
@@ -318,26 +319,10 @@ void ItemPointsScreenState::entry() {
 }
 
 void ItemPointsScreenState::react(const ExecuteEvent &) {
-    if (BurgerTimeStateMachine::timedStateReact(5)) {
-        transit<TutorialScreenState>();
-    }
-}
-
-void TutorialScreenState::entry() {
-    controller.clear_screen();
-
-    auto text = gui.create_text("tutorialScreenTODO", "TODO: Tutorial Screen");
-
-    controller.add_drawable(text);
-    controller.restart_timer();
-}
-
-void TutorialScreenState::react(const ExecuteEvent &) {
-    if (BurgerTimeStateMachine::timedStateReact(5)) {
+    if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<MainScreenState>();
     }
 }
-
 
 void MainScreenState::entry() {
     MainScreenStateMachine::reset();
@@ -365,7 +350,7 @@ void PlayingState::react(const ExecuteEvent &event) {
     if (PlayingStateMachine::is_in_state<GameOverStatePlaying>()) {
         HighScores hscores;
         if (hscores.is_high_score(PlayingStateMachine::get_current_score())) {
-            transit<EnterHighScoreState>();
+            transit<EnterHighscoreState>();
         }
         else {
             transit<GameOverScreenState>();
@@ -407,9 +392,10 @@ void GameOverScreenState::react(const ExecuteEvent &) {
     }
 }
 
-uint32_t EnterHighScoreState::new_high_score;
 
-void EnterHighScoreState::entry() {
+uint32_t EnterHighscoreState::new_high_score;
+
+void EnterHighscoreState::entry() {
     set_high_score(PlayingStateMachine::get_current_score());
     char_position = 0;
     controller.clear_screen();
@@ -463,7 +449,7 @@ void EnterHighScoreState::entry() {
     controller.restart_timer();
 }
 
-void EnterHighScoreState::react(const ExecuteEvent &) {
+void EnterHighscoreState::react(const ExecuteEvent &) {
     auto help_text = gui.get_text("enterHighScoreHelp").lock();
 
     auto new_high_score_text = gui.get_text(HIGH_SCORE_TEXT_BASE +
@@ -492,11 +478,11 @@ void EnterHighScoreState::react(const ExecuteEvent &) {
 
     if (char_position == HighScores::PLAYER_NAME_SIZE - 1) {
         Audio::play(Audio::Track::ENTRY_SELECTED);
-        helpText->setString("CONFIRM? (PEPPER)");
-        helpText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
-        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+        help_text->setString("CONFIRM? (PEPPER)");
+        help_text->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
+        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ACTION)) {
             HighScores highScores;
-            highScores.saveNewScore(currentStr.substring(2, 4), newHighscore);
+            highScores.save_new_score(current_str.substring(2, 4), new_high_score);
             // TODO: save new highscores etc etc
             transit<MainScreenState>();
         }
@@ -510,6 +496,6 @@ void EnterHighScoreState::react(const ExecuteEvent &) {
     new_high_score_text->setString(current_str);
 }
 
-void EnterHighScoreState::set_high_score(uint32_t high_score) {
+void EnterHighscoreState::set_high_score(uint32_t high_score) {
     new_high_score = high_score;
 }

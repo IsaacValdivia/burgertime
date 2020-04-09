@@ -87,8 +87,10 @@ void PlayingStateMachine::LevelCounter::add_level(uint32_t level) {
                 std::to_string(current_level), 3));
 }
 
-PlayingStateMachine::LevelCounter::LevelCounter() : currentLevel(1) {
-    gui.createText("playingStateLevel", GUI::fixTextToRight(std::to_string(currentLevel), 3), sf::Vector2u(802, 860), sf::Vector2f(0.5, 0.5), sf::Color::White);
+PlayingStateMachine::LevelCounter::LevelCounter() : current_level(1) {
+    gui.create_text("playingStateLevel", GUI::fix_text_to_right(
+                        std::to_string(current_level), 3), sf::Vector2u(802, 860),
+                    sf::Vector2f(0.5, 0.5), sf::Color::White);
 }
 
 FSM_INITIAL_STATE(PlayingStateMachine, EnterStatePlaying)
@@ -410,7 +412,7 @@ void GameReadyScreenState::react(const ExecuteEvent &) {
                                         this));
 
         // transit<EnterHighscoreState>(std::bind(
-        //&EnterHighscoreState::setHighScore, 999999));
+        //&EnterHighscoreState::set_high_score, 999999));
     }
 }
 
@@ -505,7 +507,8 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
 
         const auto &enemy = *it;
 
-        if (enemy->is_alive() && !enemy->isSurfing() && !enemy->isPeppered() && gameInfo->player->intersectsWith(*enemy)) {
+        if (enemy->is_alive() && !enemy->is_surfing() && !enemy->is_peppered() &&
+                game_info->player->intersects_with(*enemy)) {
 #if true
             if (game_info->lives_counter.has_lives()) {
                 transit<DeadStatePlaying>(std::bind(
@@ -604,7 +607,7 @@ void DeadStatePlaying::react(const ExecuteEvent &event) {
         }
 
         // TODO: change
-        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::setHighScore, 999999));
+        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::set_high_score, 999999));
     }
     else {
         auto &map = game_info->maps[game_info->current_map];
@@ -640,7 +643,7 @@ void WinStatePlaying::react(const ExecuteEvent &event) {
                                           this));
 
         // transit<EnterHighscoreState>(std::bind(
-        // &EnterHighscoreState::setHighScore,
+        // &EnterHighscoreState::set_high_score,
         // 999999));
     }
     else {

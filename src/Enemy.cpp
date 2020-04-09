@@ -502,8 +502,6 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
       after_dead(false),
       points_added(points_added) {
 
-    fprintf(stderr, "ADIOS");
-
     switch (get_type()) {
         case Enemy::Type::SAUSAGE:
             sprite_state_machine = sausage_sprite_state_machine;

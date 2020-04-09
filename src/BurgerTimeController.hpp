@@ -9,18 +9,7 @@
 #include "Config.hpp"
 
 class BurgerTimeController {
-public:
-    static BurgerTimeController &get();
-
-    void run();
-
-    ~BurgerTimeController();
-
-    void set_resolution(Config::Resolution new_resolution);
-
 private:
-    GUI &gui; // GUI Object
-
     sf::RenderWindow window; // Window
 
     std::list<std::weak_ptr<sf::Drawable>> drawables_on_screen; // All drawables on screen
@@ -119,4 +108,11 @@ public:
      * @return sf::Time Time elapsed
      */
     sf::Time get_elapsed_time();
+
+    /**
+     * @brief Sets a new resolution for the game
+     *
+     * @param new_resolution new resolution to set
+     */
+    void set_resolution(Config::Resolution new_resolution);
 };

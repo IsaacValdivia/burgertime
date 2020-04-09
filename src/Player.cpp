@@ -276,7 +276,9 @@ void Player::update(const float delta_t) {
         InputSystem::Input inputToProcess = InputSystem::get_last_input();
 
         // PEPPER
-        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PEPPER) && has_pepper()) {
+        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ACTION) &&
+                has_pepper()) {
+
             new_action = PEPPER;
 
             sf::Vector2f pepper_pos(sprite.getPosition().x, sprite.getPosition().y);

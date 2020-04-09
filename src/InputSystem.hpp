@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <map>
 #include <fstream>
+#include <map>
 #include <SFML/Window.hpp>
 
 namespace InputSystem {
@@ -18,50 +18,140 @@ namespace InputSystem {
         NUM_INPUTS
     };
 
-    // TODO
-    void updateLastKey(sf::Keyboard::Key newKey);
-
-    void update();
+    /**
+     * TODO
+     *
+     * @param newKey
+     */
+    void update_last_key(sf::Keyboard::Key newKey);
 
     /**
      * @brief Main control function
      *
-     * @param new_char new character
      */
-    void update(const char new_char);
+    void update();
 
     /**
-     * @brief Get the Last Input received
+     * @brief Main control functions
      *
-     * @return Input object
+     * @param newChar
+     */
+    void update(char newChar);
+
+    /**
+     * @brief Get the last input
+     *
+     * @return Input
      */
     Input get_last_input();
 
     /**
-     * @brief Checks if the input has been pressed
+     * @brief Get the last key
      *
-     * @param input key/input pressed
-     * @return true
-     * @return false
+     * @return sf::Keyboard::Key
      */
-    bool is_single_input_active(const Input input);
+    sf::Keyboard::Key get_last_key();
 
     /**
-     * @brief Checks if the input has been pressed
+     * @brief Resets last key pressed
      *
-     * @param input key/input
-     * @return true
-     * @return false
      */
-    bool has_input_just_been_pressed(const Input input);
+    void reset_last_key();
 
     /**
-     * @brief Checks if the input has been released
+     * @brief Returns if a key is binded
      *
-     * @param input key/input
+     * @param key
      * @return true
      * @return false
      */
-    bool has_input_just_been_released(const Input input);
+    bool is_key_binded(sf::Keyboard::Key key);
 
+    /**
+     * @brief Checks if single input is active
+     *
+     * @param input
+     * @return true
+     * @return false
+     */
+    bool is_single_input_active(Input input);
 
+    /**
+     * @brief Checks if input has just been pressed
+     *
+     * @param input
+     * @return true
+     * @return false
+     */
+    bool has_input_just_been_pressed(Input input);
+
+    /**
+     * @brief Checks if input has been released
+     *
+     * @param input
+     * @return true
+     * @return false
+     */
+    bool has_input_just_been_released(Input input);
+
+    /**
+     * @brief Checks if text has been entered
+     *
+     * @return true
+     * @return false
+     */
+    bool has_entered_text();
+
+    /**
+     * @brief Get the current char
+     *
+     * @return char
+     */
+    char get_current_char();
+
+    /**
+     * @brief Set input binding
+     *
+     * @param inp
+     * @param newKey
+     */
+    void set_input_binding(Input inp, sf::Keyboard::Key newKey);
+
+    /**
+     * @brief Set input binding
+     *
+     * @param inp
+     * @return sf::Keyboard::Key
+     */
+    sf::Keyboard::Key set_input_binding(Input inp);
+
+    /**
+     * @brief Converts key to string
+     *
+     * @param key
+     * @return std::string
+     */
+    std::string keyboard_key_to_string(sf::Keyboard::Key key);
+
+    /**
+     * @brief Writes bindings to a file
+     *
+     * @param file
+     */
+    void write_bindings(std::ofstream &file);
+
+    /**
+     * @brief Reads bindings from a file
+     *
+     * @param file
+     */
+    void read_bindings(std::ifstream &file);
+
+    /**
+     * @brief Converts an input to a key
+     *
+     * @param inp
+     * @return sf::Keyboard::Key
+     */
+    sf::Keyboard::Key input_to_key(Input inp);
+}

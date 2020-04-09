@@ -2,7 +2,7 @@
 CC=g++-8
 
 CFLAGS+=-MD -MP # Autogenerate dependencies.
-CFLAGS+=-O0 -ggdb -std=c++17
+CFLAGS+=-O3 -ggdb -std=c++17
 CFLAGS+=-Iinclude
 
 LIBS=-lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lstdc++fs

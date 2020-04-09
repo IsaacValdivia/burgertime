@@ -8,6 +8,9 @@
 #include <tinyfsm.hpp>
 
 class BurgerTimeStateMachine : public tinyfsm::MooreMachine<BurgerTimeStateMachine> {
+protected:
+    static BurgerTimeController &controller;
+    static GUI &gui;
 public:
     /**
      * @brief Main control function
@@ -15,48 +18,21 @@ public:
      */
     void react(const tinyfsm::Event &) {};
 
-    /**
-     * @brief Main control function
-     *
-     */
     virtual void react(const ExecuteEvent &) {};
 
     /**
-     * @brief Checks whether paused has been pressed and restarts the timer if
-     *        wait_time has been reached
+     * @brief Reacts and refreshes timer if wait_time has elapsed
      *
-     * @param wait_time time elapsed
+     * @param wait_time
      * @return true
      * @return false
      */
     static bool timed_state_react(int wait_time);
-
-protected:
-    static BurgerTimeController &controller; // reference to controller object
-    static GUI &gui; // reference to gui object
 };
 
-/**
- * @brief State machine for highscores screen
- *
- */
 class HighscoreDisplayScreenState : public BurgerTimeStateMachine {
     /**
-     * @brief Called when initial state is entered
-     *
-     */
-    void entry() override;
-    void react(const ExecuteEvent &) override;
-
-};
-
-/**
- * @brief State machine for item points screen
- *
- */
-class ItemPointsScreenState : public BurgerTimeStateMachine {
-    /**
-     * @brief Called when initial state is entered
+     * @brief Entry state function
      *
      */
     void entry() override;
@@ -67,7 +43,20 @@ class ItemPointsScreenState : public BurgerTimeStateMachine {
      */
     void react(const ExecuteEvent &) override;
 
-    // Arrays of different Sprites for the item animations
+};
+
+class ItemPointsScreenState : public BurgerTimeStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+
     std::array<std::shared_ptr<sf::Sprite>, 4> top_bun;
     std::array<std::shared_ptr<sf::Sprite>, 4> lettuce;
     std::array<std::shared_ptr<sf::Sprite>, 4> cheese;
@@ -84,16 +73,11 @@ class ItemPointsScreenState : public BurgerTimeStateMachine {
     std::shared_ptr<sf::Sprite> chef;
 };
 
-class TutorialScreenState : public BurgerTimeStateMachine {
-    void entry() override;
-    /**
-     * @brief Main control function
-     *
-     */
-    void react(const ExecuteEvent &) override;
-};
-
 class MainScreenState : public BurgerTimeStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
     void entry() override;
     /**
      * @brief Main control function
@@ -102,13 +86,9 @@ class MainScreenState : public BurgerTimeStateMachine {
     void react(const ExecuteEvent &) override;
 };
 
-/**
- * @brief State machine for main game screen
- *
- */
 class PlayingState : public BurgerTimeStateMachine {
     /**
-     * @brief Called when initial state is entered
+     * @brief Entry state function
      *
      */
     void entry() override;
@@ -119,13 +99,9 @@ class PlayingState : public BurgerTimeStateMachine {
     void react(const ExecuteEvent &) override;
 };
 
-/**
- * @brief State machine for game over screen
- *
- */
 class GameOverScreenState : public BurgerTimeStateMachine {
     /**
-     * @brief Called when initial state is entered
+     * @brief Entry state function
      *
      */
     void entry() override;
@@ -135,8 +111,8 @@ class GameOverScreenState : public BurgerTimeStateMachine {
      */
     void react(const ExecuteEvent &) override;
 
-    static constexpr auto MAX_TEXTS = 8; // Max number of different texts
-    static constexpr auto ANIMATION_FREQ = 0.2; // Seconds per text
+    static constexpr auto MAX_TEXTS = 8;
+    static constexpr auto ANIMATION_FREQ = 0.2;
     static constexpr std::array<const char *, MAX_TEXTS> DIFFERENT_TEXTS = {
         "G",
         "GA",
@@ -151,15 +127,12 @@ class GameOverScreenState : public BurgerTimeStateMachine {
     int current_text;
 };
 
-/**
- * @brief State machine for entering highscores
- *
- */
-class EnterHighScoreState : public BurgerTimeStateMachine {
-public:
-    static void set_high_score(uint32_t new_high_score);
-
+class EnterHighscoreState : public BurgerTimeStateMachine {
 private:
+    /**
+     * @brief Entry state function
+     *
+     */
     void entry() override;
     /**
      * @brief Main control function
@@ -169,14 +142,18 @@ private:
 
     static constexpr auto ENTER_NAME_STR = "ENTER YOUR NAME";
     static constexpr auto HIGH_SCORE_TEXT_BASE = "enterHighScore_";
+
     static uint32_t new_high_score;
     int high_score_position;
     int char_position;
+
+public:
+    /**
+     * @brief Sets new highscore
+     *
+     * @param new_high_score
+     */
+    static void set_high_score(uint32_t new_high_score);
 };
 
-/**
- * @brief State machine for end of game
- *
- */
-class FinishedState : public BurgerTimeStateMachine {
-};
+class FinishedState : public BurgerTimeStateMachine {};

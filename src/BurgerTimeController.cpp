@@ -119,7 +119,7 @@ void BurgerTimeController::update(float delta_t) {
             }
         }
         else if (event.type == sf::Event::KeyPressed) {
-            InputSystem::updateLastKey(event.key.code);
+            InputSystem::update_last_key(event.key.code);
 
         }
     }

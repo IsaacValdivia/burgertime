@@ -5,62 +5,59 @@
 FSM_INITIAL_STATE(MainScreenStateMachine, EnterStateMainScreen)
 
 BurgerTimeController &MainScreenStateMachine::controller = BurgerTimeController::get();
-
 GUI &MainScreenStateMachine::gui = GUI::get();
-
-std::shared_ptr<sf::CircleShape> MainScreenStateMachine::selection_triangle = nullptr;
 
 void EnterStateMainScreen::entry() {
     controller.clear_screen();
 
     auto burger_time_text = gui.create_text("enterStateMainBurTime", "BURGER TIME",
-                                            sf::Vector2u(280, 150),
-                                            sf::Vector2f(0.7, 0.7),
+                                            sf::Vector2u(280, 150), sf::Vector2f(0.7, 0.7),
                                             sf::Color::Red);
 
-    auto startText = gui.createText("enterStateMainStart", "START", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto optionsText = gui.createText("enterStateMainOptions", "OPTIONS", sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto exitText = gui.createText("enterStateMainExit", "EXIT", sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+    auto start_text = gui.create_text("enterStateMainStart", "START",
+                                      sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
+    auto options_text = gui.create_text("enterStateMainOptions", "OPTIONS",
+                                        sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+    auto exit_text = gui.create_text("enterStateMainExit", "EXIT",
+                                     sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
 
-    controller.addDrawable(burgerTimeText);
-    controller.addDrawable(startText);
-    controller.addDrawable(optionsText);
-    controller.addDrawable(exitText);
+    controller.add_drawable(burger_time_text);
+    controller.add_drawable(start_text);
+    controller.add_drawable(options_text);
+    controller.add_drawable(exit_text);
 }
 
 void EnterStateMainScreen::react(const ExecuteEvent &) {
     transit<StartOptionState>();
 }
 
-
 void StartOptionState::entry() {
-    gui.getText("enterStateMainStart").lock()->setFillColor(sf::Color::Cyan);
-    gui.getText("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
-    gui.getText("enterStateMainExit").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::White);
 }
 
 void StartOptionState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+    if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
         transit<FinishedStartState>();
         Audio::play(Audio::Track::COIN_INSERTED);
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<ExitOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<ConfigOptionState>();
     }
 }
 
-
 void ConfigOptionState::entry() {
-    gui.getText("enterStateMainStart").lock()->setFillColor(sf::Color::White);
-    gui.getText("enterStateMainOptions").lock()->setFillColor(sf::Color::Cyan);
-    gui.getText("enterStateMainExit").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::White);
 }
 
 void ConfigOptionState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+    if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
         transit<InsideConfigOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
@@ -71,18 +68,22 @@ void ConfigOptionState::react(const ExecuteEvent &) {
     }
 }
 
-
 void InsideConfigOptionState::entry() {
-    controller.clearScreen();
+    controller.clear_screen();
 
-    auto bindingsText = gui.createText("insideConfigMainBindings", "BINDINGS", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto resolutionText = gui.createText("insideConfigMainResolution", "RESOLUTION", sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto backText = gui.createText("insideConfigMainBack", "BACK", sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+    auto bindings_text = gui.create_text("insideConfigMainBindings", "BINDINGS",
+                                         sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
 
-    controller.addDrawable(gui.getText("enterStateMainBurTime"));
-    controller.addDrawable(bindingsText);
-    controller.addDrawable(resolutionText);
-    controller.addDrawable(backText);
+    auto resolution_text = gui.create_text("insideConfigMainResolution", "RESOLUTION",
+                                           sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+
+    auto back_text = gui.create_text("insideConfigMainBack", "BACK", sf::Vector2u(320, 500),
+                                     sf::Vector2f(0.8, 0.8));
+
+    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(bindings_text);
+    controller.add_drawable(resolution_text);
+    controller.add_drawable(back_text);
 }
 
 void InsideConfigOptionState::react(const ExecuteEvent &) {
@@ -91,149 +92,200 @@ void InsideConfigOptionState::react(const ExecuteEvent &) {
 
 
 void BindingsScreenInsideState::entry() {
-    controller.clearScreen();
+    controller.clear_screen();
 
-    currentOption = UP;
-    isReadingKey = false;
+    current_option = UP;
+    is_reading_key = false;
 
-    auto up = gui.createText("bindingsScreenUp", "UP", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
-    auto upKey = gui.createText("bindingsScreenUpKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::UP)), sf::Vector2u(700, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
-    auto down = gui.createText("bindingsScreenDown", "DOWN", sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto downKey = gui.createText("bindingsScreenDownKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::DOWN)), sf::Vector2u(700, 400), sf::Vector2f(0.8, 0.8));
-    auto left = gui.createText("bindingsScreenLeft", "LEFT", sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
-    auto leftKey = gui.createText("bindingsScreenLeftKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::LEFT)), sf::Vector2u(700, 500), sf::Vector2f(0.8, 0.8));
-    auto right = gui.createText("bindingsScreenRight", "RIGHT", sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
-    auto rightKey = gui.createText("bindingsScreenRightKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::RIGHT)), sf::Vector2u(700, 600), sf::Vector2f(0.8, 0.8));
-    auto action = gui.createText("bindingsScreenAction", "ACTION", sf::Vector2u(320, 700), sf::Vector2f(0.8, 0.8));
-    auto actionKey = gui.createText("bindingsScreenActionKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::ACTION)), sf::Vector2u(700, 700), sf::Vector2f(0.8, 0.8));
-    auto exit = gui.createText("bindingsScreenExit", "EXIT", sf::Vector2u(320, 800), sf::Vector2f(0.8, 0.8));
-    auto exitKey = gui.createText("bindingsScreenExitKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::EXIT)), sf::Vector2u(700, 800), sf::Vector2f(0.8, 0.8));
-    auto back = gui.createText("bindingsScreenBack", "BACK", sf::Vector2u(320, 900), sf::Vector2f(0.8, 0.8));
+    auto up = gui.create_text("bindingsScreenUp", "UP", sf::Vector2u(320, 300),
+                              sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
 
-    controller.addDrawable(gui.getText("enterStateMainBurTime"));
-    controller.addDrawable(up);
-    controller.addDrawable(upKey);
-    controller.addDrawable(down);
-    controller.addDrawable(downKey);
-    controller.addDrawable(left);
-    controller.addDrawable(leftKey);
-    controller.addDrawable(right);
-    controller.addDrawable(rightKey);
-    controller.addDrawable(action);
-    controller.addDrawable(actionKey);
-    controller.addDrawable(exit);
-    controller.addDrawable(exitKey);
-    controller.addDrawable(back);
+    auto up_key = gui.create_text("bindingsScreenUpKey",
+                                  InputSystem::keyboard_key_to_string(
+                                      InputSystem::input_to_key(
+                                          InputSystem::Input::UP)),
+                                  sf::Vector2u(700, 300),
+                                  sf::Vector2f(0.8, 0.8),
+                                  sf::Color::Cyan);
+
+    auto down = gui.create_text("bindingsScreenDown", "DOWN",
+                                sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+
+    auto down_key = gui.create_text("bindingsScreenDownKey",
+                                    InputSystem::keyboard_key_to_string(
+                                        InputSystem::input_to_key(
+                                            InputSystem::Input::DOWN)),
+                                    sf::Vector2u(700, 400),
+                                    sf::Vector2f(0.8, 0.8));
+
+    auto left = gui.create_text("bindingsScreenLeft", "LEFT",
+                                sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+    auto left_key = gui.create_text("bindingsScreenLeftKey",
+                                    InputSystem::keyboard_key_to_string(
+                                        InputSystem::input_to_key(
+                                            InputSystem::Input::LEFT)),
+                                    sf::Vector2u(700, 500),
+                                    sf::Vector2f(0.8, 0.8));
+
+    auto right = gui.create_text("bindingsScreenRight", "RIGHT",
+                                 sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
+
+    auto right_key = gui.create_text("bindingsScreenRightKey",
+                                     InputSystem::keyboard_key_to_string(
+                                         InputSystem::input_to_key(
+                                                 InputSystem::Input::RIGHT)),
+                                     sf::Vector2u(700, 600),
+                                     sf::Vector2f(0.8, 0.8));
+
+    auto action = gui.create_text("bindingsScreenAction", "ACTION",
+                                  sf::Vector2u(320, 700), sf::Vector2f(0.8, 0.8));
+    auto action_key = gui.create_text("bindingsScreenActionKey",
+                                      InputSystem::keyboard_key_to_string(
+                                          InputSystem::input_to_key(
+                                                  InputSystem::Input::ACTION)),
+                                      sf::Vector2u(700, 700), sf::Vector2f(0.8, 0.8));
+
+    auto exit = gui.create_text("bindingsScreenExit", "EXIT",
+                                sf::Vector2u(320, 800), sf::Vector2f(0.8, 0.8));
+
+    auto exit_key = gui.create_text("bindingsScreenExitKey",
+                                    InputSystem::keyboard_key_to_string(
+                                        InputSystem::input_to_key(InputSystem::Input::EXIT)),
+                                    sf::Vector2u(700, 800), sf::Vector2f(0.8, 0.8));
+
+    auto back = gui.create_text("bindingsScreenBack", "BACK",
+                                sf::Vector2u(320, 900), sf::Vector2f(0.8, 0.8));
+
+    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(up);
+    controller.add_drawable(up_key);
+    controller.add_drawable(down);
+    controller.add_drawable(down_key);
+    controller.add_drawable(left);
+    controller.add_drawable(left_key);
+    controller.add_drawable(right);
+    controller.add_drawable(right_key);
+    controller.add_drawable(action);
+    controller.add_drawable(action_key);
+    controller.add_drawable(exit);
+    controller.add_drawable(exit_key);
+    controller.add_drawable(back);
 }
 
 void BindingsScreenInsideState::react(const ExecuteEvent &) {
-    bool updateColor = false;
-    sf::Color newColor;
-    if (isReadingKey && hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
-        isReadingKey = false;
-        updateColor = true;
-        newColor = sf::Color::Cyan;
+    bool update_color = false;
+    sf::Color new_color;
+    if (is_reading_key && has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+        is_reading_key = false;
+        update_color = true;
+        new_color = sf::Color::Cyan;
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<InsideConfigOptionState>();
         return;
     }
-    else if (isReadingKey) {
-        auto newKey = InputSystem::getLastKey();
+    else if (is_reading_key) {
+        auto new_key = InputSystem::get_last_key();
 
-        if (!InputSystem::isKeyBinded(newKey) && newKey != sf::Keyboard::Key::Unknown && newKey != lastReadKey) {
-            const char *optionText;
-            switch (currentOption) {
+        if (!InputSystem::is_key_binded(new_key) &&
+                new_key != sf::Keyboard::Key::Unknown && new_key != last_read_key) {
+
+            const char *option_text;
+            switch (current_option) {
                 case UP:
-                    InputSystem::setInputBinding(InputSystem::Input::UP, newKey);
-                    optionText = "bindingsScreenUpKey";
+                    InputSystem::set_input_binding(InputSystem::Input::UP, new_key);
+                    option_text = "bindingsScreenUpKey";
                     break;
                 case DOWN:
-                    InputSystem::setInputBinding(InputSystem::Input::DOWN, newKey);
-                    optionText = "bindingsScreenDownKey";
+                    InputSystem::set_input_binding(InputSystem::Input::DOWN, new_key);
+                    option_text = "bindingsScreenDownKey";
                     break;
                 case LEFT:
-                    InputSystem::setInputBinding(InputSystem::Input::LEFT, newKey);
-                    optionText = "bindingsScreenLeftKey";
+                    InputSystem::set_input_binding(InputSystem::Input::LEFT, new_key);
+                    option_text = "bindingsScreenLeftKey";
                     break;
                 case RIGHT:
-                    InputSystem::setInputBinding(InputSystem::Input::RIGHT, newKey);
-                    optionText = "bindingsScreenRightKey";
+                    InputSystem::set_input_binding(InputSystem::Input::RIGHT, new_key);
+                    option_text = "bindingsScreenRightKey";
                     break;
                 case ACTION:
-                    InputSystem::setInputBinding(InputSystem::Input::ACTION, newKey);
-                    optionText = "bindingsScreenActionKey";
+                    InputSystem::set_input_binding(InputSystem::Input::ACTION, new_key);
+                    option_text = "bindingsScreenActionKey";
                     break;
                 case EXIT:
-                    InputSystem::setInputBinding(InputSystem::Input::EXIT, newKey);
-                    optionText = "bindingsScreenExitKey";
+                    InputSystem::set_input_binding(InputSystem::Input::EXIT, new_key);
+                    option_text = "bindingsScreenExitKey";
                     break;
             }
 
-            gui.getText(optionText).lock()->setString(InputSystem::keyboardKeyToString(newKey));
-            lastReadKey = newKey;
-            isReadingKey = false;
-            updateColor = true;
-            newColor = sf::Color::Cyan;
+            gui.get_text(option_text).lock()->setString(
+                InputSystem::keyboard_key_to_string(new_key));
+
+            last_read_key = new_key;
+            is_reading_key = false;
+            update_color = true;
+            new_color = sf::Color::Cyan;
             Config::get().write_file();
         }
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
-        isReadingKey = true;
-        InputSystem::resetLastKey();
-        lastReadKey = InputSystem::getLastKey();
-        if (currentOption == BACK) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+        is_reading_key = true;
+        InputSystem::reset_last_key();
+        last_read_key = InputSystem::get_last_key();
+        if (current_option == BACK) {
             transit<InsideConfigOptionState>();
             return;
         }
-        updateColor = true;
-        newColor = sf::Color::Green;
+        update_color = true;
+        new_color = sf::Color::Green;
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP)) {
-        isReadingKey = false;
-        updateColor = true;
-        newColor = sf::Color::Cyan;
-        currentOption = static_cast<CurrentOption>(((currentOption - 1) + NUM_OPTIONS) % NUM_OPTIONS);
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+        is_reading_key = false;
+        update_color = true;
+        new_color = sf::Color::Cyan;
+        current_option = static_cast<CurrentOption>(((current_option - 1)
+                         + NUM_OPTIONS) % NUM_OPTIONS);
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN)) {
-        isReadingKey = false;
-        updateColor = true;
-        newColor = sf::Color::Cyan;
-        currentOption = static_cast<CurrentOption>((currentOption + 1) % NUM_OPTIONS);
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+        is_reading_key = false;
+        update_color = true;
+        new_color = sf::Color::Cyan;
+        current_option = static_cast<CurrentOption>((current_option + 1) %
+                         NUM_OPTIONS);
     }
 
-    if (updateColor) {
+    if (update_color) {
         for (const auto &optString : OPTION_STRINGS) {
-            gui.getText(optString).lock()->setFillColor(sf::Color::White);
+            gui.get_text(optString).lock()->setFillColor(sf::Color::White);
         }
 
-        switch (currentOption) {
+        switch (current_option) {
             case UP:
-                gui.getText("bindingsScreenUp").lock()->setFillColor(newColor);
-                gui.getText("bindingsScreenUpKey").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenUp").lock()->setFillColor(new_color);
+                gui.get_text("bindingsScreenUpKey").lock()->setFillColor(new_color);
                 break;
             case DOWN:
-                gui.getText("bindingsScreenDown").lock()->setFillColor(newColor);
-                gui.getText("bindingsScreenDownKey").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenDown").lock()->setFillColor(new_color);
+                gui.get_text("bindingsScreenDownKey").lock()->setFillColor(new_color);
                 break;
             case LEFT:
-                gui.getText("bindingsScreenLeft").lock()->setFillColor(newColor);
-                gui.getText("bindingsScreenLeftKey").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenLeft").lock()->setFillColor(new_color);
+                gui.get_text("bindingsScreenLeftKey").lock()->setFillColor(new_color);
                 break;
             case RIGHT:
-                gui.getText("bindingsScreenRight").lock()->setFillColor(newColor);
-                gui.getText("bindingsScreenRightKey").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenRight").lock()->setFillColor(new_color);
+                gui.get_text("bindingsScreenRightKey").lock()->setFillColor(new_color);
                 break;
             case ACTION:
-                gui.getText("bindingsScreenAction").lock()->setFillColor(newColor);
-                gui.getText("bindingsScreenActionKey").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenAction").lock()->setFillColor(new_color);
+                gui.get_text("bindingsScreenActionKey").lock()->setFillColor(new_color);
                 break;
             case EXIT:
-                gui.getText("bindingsScreenExit").lock()->setFillColor(newColor);
-                gui.getText("bindingsScreenExitKey").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenExit").lock()->setFillColor(new_color);
+                gui.get_text("bindingsScreenExitKey").lock()->setFillColor(new_color);
                 break;
             case BACK:
-                gui.getText("bindingsScreenBack").lock()->setFillColor(newColor);
+                gui.get_text("bindingsScreenBack").lock()->setFillColor(new_color);
                 break;
         }
     }
@@ -241,90 +293,94 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
 
 
 void BindingsOptionState::entry() {
-    gui.getText("insideConfigMainBindings").lock()->setFillColor(sf::Color::Cyan);
-    gui.getText("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
-    gui.getText("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
 }
 
 void BindingsOptionState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
         transit<BindingsScreenInsideState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<BackOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<ResolutionOptionState>();
     }
 }
 
 
-void ResolutionScreenInsideState::changeResolutionsText() const {
+void ResolutionScreenInsideState::change_resolutions_text() const {
     Config::Resolution cursor_resolution = Config::get().get_resolution();
 
-    gui.getText("resolutionScreen250").lock()->setFillColor(sf::Color::White);
-    gui.getText("resolutionScreen550").lock()->setFillColor(sf::Color::White);
-    gui.getText("resolutionScreen1000").lock()->setFillColor(sf::Color::White);
-    gui.getText("resolutionScreenBack").lock()->setFillColor(sf::Color::White);
+    gui.get_text("resolutionScreen250").lock()->setFillColor(sf::Color::White);
+    gui.get_text("resolutionScreen550").lock()->setFillColor(sf::Color::White);
+    gui.get_text("resolutionScreen1000").lock()->setFillColor(sf::Color::White);
+    gui.get_text("resolutionScreenBack").lock()->setFillColor(sf::Color::White);
 
     switch (cursor_resolution) {
         case Config::Resolution::x250x250:
-            gui.getText("resolutionScreen250").lock()->setFillColor(sf::Color::Green);
+            gui.get_text("resolutionScreen250").lock()->setFillColor(sf::Color::Green);
             break;
         case Config::Resolution::x550x550:
-            gui.getText("resolutionScreen550").lock()->setFillColor(sf::Color::Green);
+            gui.get_text("resolutionScreen550").lock()->setFillColor(sf::Color::Green);
             break;
         case Config::Resolution::x1000x1000:
-            gui.getText("resolutionScreen1000").lock()->setFillColor(sf::Color::Green);
+            gui.get_text("resolutionScreen1000").lock()->setFillColor(sf::Color::Green);
             break;
     }
 
-    if (!isInExit) {
+    if (!is_in_exit) {
         switch (current_resolution) {
             case Config::Resolution::x250x250:
-                gui.getText("resolutionScreen250").lock()->setFillColor(sf::Color::Cyan);
+                gui.get_text("resolutionScreen250").lock()->setFillColor(sf::Color::Cyan);
                 break;
             case Config::Resolution::x550x550:
-                gui.getText("resolutionScreen550").lock()->setFillColor(sf::Color::Cyan);
+                gui.get_text("resolutionScreen550").lock()->setFillColor(sf::Color::Cyan);
                 break;
             case Config::Resolution::x1000x1000:
-                gui.getText("resolutionScreen1000").lock()->setFillColor(sf::Color::Cyan);
+                gui.get_text("resolutionScreen1000").lock()->setFillColor(sf::Color::Cyan);
                 break;
         }
     }
     else {
-        gui.getText("resolutionScreenBack").lock()->setFillColor(sf::Color::Cyan);
+        gui.get_text("resolutionScreenBack").lock()->setFillColor(sf::Color::Cyan);
     }
 }
 
 void ResolutionScreenInsideState::entry() {
-    controller.clearScreen();
+    controller.clear_screen();
 
-    auto res250 = gui.createText("resolutionScreen250", "250x250", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto res550 = gui.createText("resolutionScreen550", "550x550", sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto res1000 = gui.createText("resolutionScreen1000", "1000x1000", sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
-    auto back = gui.createText("resolutionScreenBack", "BACK", sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
+    auto res250 = gui.create_text("resolutionScreen250", "250x250",
+                                  sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
+    auto res550 = gui.create_text("resolutionScreen550", "550x550",
+                                  sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+    auto res1000 = gui.create_text("resolutionScreen1000", "1000x1000",
+                                   sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+    auto back = gui.create_text("resolutionScreenBack", "BACK",
+                                sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
 
-    controller.addDrawable(gui.getText("enterStateMainBurTime"));
-    controller.addDrawable(res250);
-    controller.addDrawable(res550);
-    controller.addDrawable(res1000);
-    controller.addDrawable(back);
+    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(res250);
+    controller.add_drawable(res550);
+    controller.add_drawable(res1000);
+    controller.add_drawable(back);
 
-    isInExit = false;
+    is_in_exit = false;
     current_resolution = Config::get().get_resolution();
 }
 
 void ResolutionScreenInsideState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<InsideConfigOptionState>();
         return;
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
-        if (!isInExit) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+        if (!is_in_exit) {
             controller.set_resolution(current_resolution);
 
             auto &config = Config::get();
@@ -336,12 +392,12 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
             return;
         }
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP)) {
-        if (!isInExit) {
-            isInExit = false;
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+        if (!is_in_exit) {
+            is_in_exit = false;
             switch (current_resolution) {
                 case Config::Resolution::x250x250:
-                    isInExit = true;
+                    is_in_exit = true;
                     break;
                 case Config::Resolution::x550x550:
                     current_resolution = Config::Resolution::x250x250;
@@ -352,13 +408,13 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
             }
         }
         else {
-            isInExit = false;
+            is_in_exit = false;
             current_resolution = Config::Resolution::x1000x1000;
         }
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN)) {
-        if (!isInExit) {
-            isInExit = false;
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+        if (!is_in_exit) {
+            is_in_exit = false;
             switch (current_resolution) {
                 case Config::Resolution::x250x250:
                     current_resolution = Config::Resolution::x550x550;
@@ -367,75 +423,75 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
                     current_resolution = Config::Resolution::x1000x1000;
                     break;
                 case Config::Resolution::x1000x1000:
-                    isInExit = true;
+                    is_in_exit = true;
                     break;
             }
         }
         else {
-            isInExit = false;
+            is_in_exit = false;
             current_resolution = Config::Resolution::x250x250;
         }
     }
 
-    changeResolutionsText();
+    change_resolutions_text();
 }
 
 
 void ResolutionOptionState::entry() {
-    gui.getText("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
-    gui.getText("insideConfigMainResolution").lock()->setFillColor(sf::Color::Cyan);
-    gui.getText("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
 }
 
 void ResolutionOptionState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
         transit<ResolutionScreenInsideState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<BindingsOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<BackOptionState>();
     }
 }
 
 
 void BackOptionState::entry() {
-    gui.getText("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
-    gui.getText("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
-    gui.getText("insideConfigMainBack").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::Cyan);
 }
 
 void BackOptionState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::EXIT)) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
         transit<EnterStateMainScreen>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<ResolutionOptionState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<BindingsOptionState>();
     }
 }
 
 
 void ExitOptionState::entry() {
-    gui.getText("enterStateMainStart").lock()->setFillColor(sf::Color::White);
-    gui.getText("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
-    gui.getText("enterStateMainExit").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::Cyan);
 }
 
 void ExitOptionState::react(const ExecuteEvent &) {
-    if (hasInputJustBeenPressed(InputSystem::Input::ACTION)) {
+    if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
         transit<FinishedExitState>();
     }
-    else if (hasInputJustBeenPressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<ConfigOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {

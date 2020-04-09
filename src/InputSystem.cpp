@@ -5,7 +5,7 @@
 
 namespace InputSystem {
     namespace {
-        static std::map<Input, sf::Keyboard::Key> input_mappings = {
+        static std::map<Input, sf::Keyboard::Key> input_bindings = {
             {Input::UP, sf::Keyboard::Key::W},
             {Input::DOWN, sf::Keyboard::Key::S},
             {Input::LEFT, sf::Keyboard::Key::A},
@@ -119,64 +119,57 @@ namespace InputSystem {
             {sf::Keyboard::Key::Pause, "PAUSE"},
         };
 
-        static std::list<Input> orderedPressedInputs;
-        static std::set<Input> currentPressedInputs;
-        static std::set<Input> justPressedInputs;
-        static std::set<Input> justReleasedInputs;
-        static sf::Keyboard::Key lastKey;
-        static bool isCharEntered = false;
-        static char charEntered;
+        static std::list<Input> ordered_pressed_inputs;
+        static std::set<Input> current_pressed_inputs;
+        static std::set<Input> just_pressed_inputs;
+        static std::set<Input> just_released_inputs;
+        static sf::Keyboard::Key last_key;
+        static bool is_char_entered = false;
+        static char char_entered;
     }
 
-    std::string keyboardKeyToString(sf::Keyboard::Key key)
-    {
+    void update_last_key(sf::Keyboard::Key new_key) {
+        last_key = new_key;
+    }
+
+    std::string keyboard_key_to_string(sf::Keyboard::Key key) {
         return KEY_TO_STRING[key];
     }
 
-    sf::Keyboard::Key inputToKey(Input inp)
-    {
-        return inputBindings[inp];
+    sf::Keyboard::Key input_to_key(Input inp) {
+        return input_bindings[inp];
     }
 
-    void setInputBinding(Input inp, sf::Keyboard::Key newKey)
-    {
-        inputBindings[inp] = newKey;
+    void set_input_binding(Input inp, sf::Keyboard::Key new_key) {
+        input_bindings[inp] = new_key;
     }
 
-    void writeBindings(std::ofstream &file)
-    {
-        for (const auto &binding : inputBindings)
-        {
-            file.write(reinterpret_cast<const char*>(&binding.first), sizeof(binding.first));
-            file.write(reinterpret_cast<const char*>(&binding.second), sizeof(binding.second));
+    void write_bindings(std::ofstream &file) {
+        for (const auto &binding : input_bindings) {
+            file.write(reinterpret_cast<const char *>(&binding.first), sizeof(binding.first));
+            file.write(reinterpret_cast<const char *>(&binding.second), sizeof(binding.second));
         }
     }
 
-    void readBindings(std::ifstream &file)
-    {
-        for (int i = 0; i < inputBindings.size(); ++i)
-        {
+    void read_bindings(std::ifstream &file) {
+        for (int i = 0; i < input_bindings.size(); ++i) {
             Input input;
             sf::Keyboard::Key key;
 
-            file.read(reinterpret_cast<char*>(&input), sizeof(input));
-            file.read(reinterpret_cast<char*>(&key), sizeof(key));
+            file.read(reinterpret_cast<char *>(&input), sizeof(input));
+            file.read(reinterpret_cast<char *>(&key), sizeof(key));
 
-            inputBindings[input] = key;
+            input_bindings[input] = key;
         }
     }
 
-    bool isInputPressed(Input input, const std::set<Input> &pressedInputs)
-    {
-        return pressedInputs.find(input) != pressedInputs.end();
+    bool isInputPressed(Input input, const std::set<Input> &pressed_inputs) {
+        return pressed_inputs.find(input) != pressed_inputs.end();
     }
 
-    bool isKeyBinded(sf::Keyboard::Key key)
-    {
-        for (const auto &inp : inputBindings)
-        {
-            if (inp.second == key)
-            {
+    bool is_key_binded(sf::Keyboard::Key key) {
+        for (const auto &inp : input_bindings) {
+            if (inp.second == key) {
                 return true;
             }
         }
@@ -184,43 +177,38 @@ namespace InputSystem {
         return false;
     }
 
-    void updateLastKey(sf::Keyboard::Key newKey)
-    {
-        lastKey = newKey;
+    void updateLastKey(sf::Keyboard::Key new_key) {
+        last_key = new_key;
     }
 
-    void resetLastKey()
-    {
-        lastKey = sf::Keyboard::Key::Unknown;
+    void reset_last_key() {
+        last_key = sf::Keyboard::Key::Unknown;
     }
 
-    void updateCommon()
-    {
-        std::set<Input> pressedInputs;
-        justPressedInputs.clear();
-        justReleasedInputs.clear();
+    void update_common() {
+        std::set<Input> pressed_inputs;
+        just_pressed_inputs.clear();
+        just_released_inputs.clear();
 
-        for (const auto &mapping : inputBindings)
-        {
+        for (const auto &mapping : input_bindings) {
             Input input = mapping.first;
             sf::Keyboard::Key key = mapping.second;
 
             if (sf::Keyboard::isKeyPressed(key)) {
                 pressed_inputs.insert(input);
             }
-            else
-            {
-                pressedInputs.erase(input);
+            else {
+                pressed_inputs.erase(input);
             }
 
-            if (!is_input_pressed(input, current_pressed_inputs) &&
-                    is_input_pressed(input, pressed_inputs)) {
+            if (!isInputPressed(input, current_pressed_inputs) &&
+                    isInputPressed(input, pressed_inputs)) {
 
                 ordered_pressed_inputs.push_back(input);
                 just_pressed_inputs.insert(input);
             }
-            else if (is_input_pressed(input, current_pressed_inputs) &&
-                     !is_input_pressed(input, pressed_inputs)) {
+            else if (isInputPressed(input, current_pressed_inputs) &&
+                     !isInputPressed(input, pressed_inputs)) {
 
                 ordered_pressed_inputs.remove(input);
                 just_released_inputs.insert(input);
@@ -235,9 +223,9 @@ namespace InputSystem {
         update_common();
     }
 
-    void update(const char new_char) {
+    void update(char newChar) {
         is_char_entered = true;
-        char_entered = new_char;
+        char_entered = newChar;
         update_common();
     }
 
@@ -251,21 +239,20 @@ namespace InputSystem {
 
     }
 
-    sf::Keyboard::Key getLastKey()
-    {
-        return lastKey;
+    sf::Keyboard::Key get_last_key() {
+        return last_key;
     }
 
-    bool is_single_input_active(const Input input) {
-        return is_input_pressed(input, current_pressed_inputs);
+    bool is_single_input_active(Input input) {
+        return isInputPressed(input, current_pressed_inputs);
     }
 
-    bool has_input_just_been_pressed(const Input input) {
-        return is_input_pressed(input, just_pressed_inputs);
+    bool has_input_just_been_pressed(Input input) {
+        return isInputPressed(input, just_pressed_inputs);
     }
 
-    bool has_input_just_been_released(const Input input) {
-        return is_input_pressed(input, just_released_inputs);
+    bool has_input_just_been_released(Input input) {
+        return isInputPressed(input, just_released_inputs);
     }
 
     bool has_entered_text() {
@@ -277,7 +264,8 @@ namespace InputSystem {
             return char_entered;
         }
         else {
-            return '\0';
+            // TODO: change, do properly
+            throw - 1;
         }
     }
 }
