@@ -25,7 +25,7 @@ namespace InputSystem {
         static char char_entered;
     }
 
-    bool is_input_pressed(Input input, const std::set<Input> &pressed_inputs) {
+    bool is_input_pressed(const Input input, const std::set<Input> &pressed_inputs) {
         return pressed_inputs.find(input) != pressed_inputs.end();
     }
 
@@ -67,7 +67,7 @@ namespace InputSystem {
         update_common();
     }
 
-    void update(char new_char) {
+    void update(const char new_char) {
         is_char_entered = true;
         char_entered = new_char;
         update_common();
@@ -80,18 +80,17 @@ namespace InputSystem {
         else {
             return Input::NONE;
         }
-
     }
 
-    bool is_single_input_active(Input input) {
+    bool is_single_input_active(const Input input) {
         return is_input_pressed(input, current_pressed_inputs);
     }
 
-    bool has_input_just_been_pressed(Input input) {
+    bool has_input_just_been_pressed(const Input input) {
         return is_input_pressed(input, just_pressed_inputs);
     }
 
-    bool has_input_just_been_released(Input input) {
+    bool has_input_just_been_released(const Input input) {
         return is_input_pressed(input, just_released_inputs);
     }
 
@@ -104,8 +103,7 @@ namespace InputSystem {
             return char_entered;
         }
         else {
-            // TODO: change, do properly
-            throw - 1;
+            return '\0';
         }
     }
 }

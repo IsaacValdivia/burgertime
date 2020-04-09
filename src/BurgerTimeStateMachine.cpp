@@ -1,20 +1,19 @@
 #include "BurgerTimeStateMachine.hpp"
 
-#include <memory>
-#include <string>
-// #include <functional>
-#include <SFML/Graphics.hpp>
+#include "BtSprites.hpp"
 #include "InputSystem.hpp"
 #include "MainScreenStateMachine.hpp"
 #include "PlayingStateMachine.hpp"
-#include "BT_sprites.hpp"
 
+// #include <functional>
+#include <memory>
+#include <SFML/Graphics.hpp>
+#include <string>
 
-FSM_INITIAL_STATE(BurgerTimeStateMachine, Highscore_display_screen_state)
+FSM_INITIAL_STATE(BurgerTimeStateMachine, HighscoreDisplayScreenState)
 
 BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController::get();
 GUI &BurgerTimeStateMachine::gui = GUI::get();
-
 
 bool BurgerTimeStateMachine::timed_state_react(int wait_time) {
     if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
@@ -23,7 +22,7 @@ bool BurgerTimeStateMachine::timed_state_react(int wait_time) {
     }
 
     auto elapsed_time = controller.get_elapsed_time();
-    if (elapsed_time.as_seconds() >= wait_time) {
+    if (elapsed_time.asSeconds() >= wait_time) {
         controller.restart_timer();
         return true;
     }
@@ -32,15 +31,15 @@ bool BurgerTimeStateMachine::timed_state_react(int wait_time) {
 }
 
 
-void Highscore_display_screen_state::entry() {
+void HighscoreDisplayScreenState::entry() {
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_test("hScoreBurTime", "BURGER TIME",
+    auto burger_time_text = gui.create_text("hScoreBurTime", "BURGER TIME",
                                             sf::Vector2u(280, 150),
                                             sf::Vector2f(0.70, 0.70),
                                             sf::Color::Red);
 
-    auto best_five_players_text = gui.create_test("hScoreBestFivePlayers",
+    auto best_five_players_text = gui.create_text("hScoreBestFivePlayers",
                                   "BEST FIVE PLAYERS",
                                   sf::Vector2u(180, 300),
                                   sf::Vector2f(0.70, 0.70));
@@ -64,28 +63,26 @@ void Highscore_display_screen_state::entry() {
     }
 
     controller.add_drawable(burger_time_text);
-    controller.add_drawable(bestFivePlayersText);
+    controller.add_drawable(best_five_players_text);
     controller.restart_timer();
 }
 
-void Highscore_display_screen_state::react(const ExecuteEvent &) {
+void HighscoreDisplayScreenState::react(const ExecuteEvent &) {
     if (BurgerTimeStateMachine::timed_state_react(5)) {
-        transit<Item_points_screen_state>();
+        transit<ItemPointsScreenState>();
     }
 }
 
 
-void Item_points_screen_state::entry() {
-    // TODO: change magic numbers to constants and mb reduce code size
-
+void ItemPointsScreenState::entry() {
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_test("itemPointsBurTime", "BURGER TIME",
+    auto burger_time_text = gui.create_text("itemPointsBurTime", "BURGER TIME",
                                             sf::Vector2u(280, 150),
                                             sf::Vector2f(0.70, 0.70),
                                             sf::Color::Red);
 
-    auto score_text = gui.create_test("itemPointsScore", "-SCORE-",
+    auto score_text = gui.create_text("itemPointsScore", "-SCORE-",
                                       sf::Vector2u(340, 230), sf::Vector2f(0.70, 0.70));
 
     top_bun[0] = std::make_shared<sf::Sprite>();
@@ -227,7 +224,7 @@ void Item_points_screen_state::entry() {
     bot_bun[3]->move(3 * 16, 0);
     bot_bun[3]->setScale(2, 2);
 
-    auto fifty_pts_text = gui.create_test("itemPointsFiftyPts", "50 PTS",
+    auto fifty_pts_text = gui.create_text("itemPointsFiftyPts", "50 PTS",
                                           sf::Vector2u(670, 410),
                                           sf::Vector2f(0.70, 0.70));
 
@@ -261,7 +258,7 @@ void Item_points_screen_state::entry() {
     pt_1500->setPosition(40 * WINDOW_WIDTH / 100, 62 * WINDOW_HEIGHT / 100);
     pt_1500->setScale(2, 2);
 
-    auto bonus_pepper_text = gui.create_test("itemPointsBonusPepper", "-BONUS 1",
+    auto bonus_pepper_text = gui.create_text("itemPointsBonusPepper", "-BONUS 1",
                              sf::Vector2u(480, 580),
                              sf::Vector2f(0.70, 0.70));
 
@@ -270,7 +267,7 @@ void Item_points_screen_state::entry() {
     pepper->setPosition(80 * WINDOW_WIDTH / 100, 58 * WINDOW_HEIGHT / 100);
     pepper->setScale(2, 2);
 
-    auto bonus_life_text = gui.create_test("itemPointsBonusLife",
+    auto bonus_life_text = gui.create_text("itemPointsBonusLife",
                                            "BONUS  FOR EVERY 20000PTS",
                                            sf::Vector2u(30, 800),
                                            sf::Vector2f(0.70, 0.70));
@@ -281,7 +278,7 @@ void Item_points_screen_state::entry() {
     chef->setScale(2, 2);
 
     controller.add_drawable(burger_time_text);
-    controller.add_drawable(scoreText);
+    controller.add_drawable(score_text);
     controller.add_drawable(top_bun[0]);
     controller.add_drawable(top_bun[1]);
     controller.add_drawable(top_bun[2]);
@@ -306,21 +303,21 @@ void Item_points_screen_state::entry() {
     controller.add_drawable(bot_bun[1]);
     controller.add_drawable(bot_bun[2]);
     controller.add_drawable(bot_bun[3]);
-    controller.add_drawable(fiftyPtsText);
-    controller.add_drawable(iceCream);
+    controller.add_drawable(fifty_pts_text);
+    controller.add_drawable(ice_cream);
     controller.add_drawable(pt_500);
     controller.add_drawable(coffee);
-    controller.add_drawable(pt1000);
+    controller.add_drawable(pt_1000);
     controller.add_drawable(fries);
-    controller.add_drawable(pt1500);
-    controller.add_drawable(bonusPepperText);
+    controller.add_drawable(pt_1500);
+    controller.add_drawable(bonus_pepper_text);
     controller.add_drawable(pepper);
-    controller.add_drawable(bonusLifeText);
+    controller.add_drawable(bonus_life_text);
     controller.add_drawable(chef);
     controller.restart_timer();
 }
 
-void Item_points_screen_state::react(const ExecuteEvent &) {
+void ItemPointsScreenState::react(const ExecuteEvent &) {
     if (BurgerTimeStateMachine::timed_state_react(5)) {
         transit<CharacterScreenState>();
     }
@@ -329,7 +326,7 @@ void Item_points_screen_state::react(const ExecuteEvent &) {
 void CharacterScreenState::entry() {
     controller.clear_screen();
 
-    auto text = gui.create_test("characterTODO", "TODO: Character Screen");
+    auto text = gui.create_text("characterTODO", "TODO: Character Screen");
 
     controller.add_drawable(text);
     controller.restart_timer();
@@ -345,7 +342,7 @@ void CharacterScreenState::react(const ExecuteEvent &) {
 void FirstTutorialVidScreenState::entry() {
     controller.clear_screen();
 
-    auto text = gui.create_test("firstTutorialVidTODO", "TODO: First Tutorial Video");
+    auto text = gui.create_text("firstTutorialVidTODO", "TODO: First Tutorial Video");
 
     controller.add_drawable(text);
     controller.restart_timer();
@@ -360,7 +357,7 @@ void FirstTutorialVidScreenState::react(const ExecuteEvent &) {
 void SecondTutorialVidScreenState::entry() {
     controller.clear_screen();
 
-    auto text = gui.create_test("secondTutorialVidTODO", "TODO: Second Tutorial Video");
+    auto text = gui.create_text("secondTutorialVidTODO", "TODO: Second Tutorial Video");
 
     controller.add_drawable(text);
     controller.restart_timer();
@@ -375,7 +372,7 @@ void SecondTutorialVidScreenState::react(const ExecuteEvent &) {
 void TutorialScreenState::entry() {
     controller.clear_screen();
 
-    auto text = gui.create_test("tutorialScreenTODO", "TODO: Tutorial Screen");
+    auto text = gui.create_text("tutorialScreenTODO", "TODO: Tutorial Screen");
 
     controller.add_drawable(text);
     controller.restart_timer();
@@ -391,7 +388,7 @@ void TutorialScreenState::react(const ExecuteEvent &) {
 void ThirdTutorialVidScreenState::entry() {
     controller.clear_screen();
 
-    auto text = gui.create_test("thirdTutorialVidTODO", "TODO: Third Tutorial Video");
+    auto text = gui.create_text("thirdTutorialVidTODO", "TODO: Third Tutorial Video");
 
     controller.add_drawable(text);
     controller.restart_timer();
@@ -417,7 +414,7 @@ void MainScreenState::react(const ExecuteEvent &event) {
     }
 
     if (MainScreenStateMachine::is_in_state<FinishedExitState>()) {
-        transit<Finished_state>();
+        transit<FinishedState>();
     }
 }
 
@@ -430,7 +427,7 @@ void PlayingState::react(const ExecuteEvent &event) {
     if (PlayingStateMachine::is_in_state<GameOverStatePlaying>()) {
         HighScores hscores;
         if (hscores.is_high_score(PlayingStateMachine::get_current_score())) {
-            transit<EnterHighscoreState>();
+            transit<EnterHighScoreState>();
         }
         else {
             transit<GameOverScreenState>();
@@ -447,7 +444,7 @@ constexpr std::array<const char *, GameOverScreenState::MAX_TEXTS> GameOverScree
 void GameOverScreenState::entry() {
     controller.clear_screen();
 
-    auto text = gui.create_test("gameOverText", DIFFERENT_TEXTS[0], sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
+    auto text = gui.create_text("gameOverText", DIFFERENT_TEXTS[0], sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
 
     controller.add_drawable(text);
     current_text = 1;
@@ -458,13 +455,13 @@ void GameOverScreenState::react(const ExecuteEvent &) {
     auto elapsed_time = controller.get_elapsed_time();
 
     if (current_text == MAX_TEXTS) {
-        if (elapsed_time.as_seconds() >= 1) {
+        if (elapsed_time.asSeconds() >= 1) {
             // TODO: change
             transit<MainScreenState>();
             return;
         }
     }
-    else if (elapsed_time.as_seconds() >= ANIMATION_FREQ) {
+    else if (elapsed_time.asSeconds() >= ANIMATION_FREQ) {
         auto text = gui.get_text("gameOverText").lock();
         text->setString(DIFFERENT_TEXTS[current_text]);
         current_text++;
@@ -479,12 +476,12 @@ void EnterHighScoreState::entry() {
     char_position = 0;
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_test("enterHighScoreBurTime", "BURGER TIME",
+    auto burger_time_text = gui.create_text("enterHighScoreBurTime", "BURGER TIME",
                                             sf::Vector2u(280, 150),
                                             sf::Vector2f(0.7, 0.7),
                                             sf::Color::Red);
 
-    auto help_text = gui.create_test("enterHighScoreHelp", ENTER_NAME_STR,
+    auto help_text = gui.create_text("enterHighScoreHelp", ENTER_NAME_STR,
                                      sf::Vector2u(220, 300), sf::Vector2f(0.7, 0.7));
 
     HighScores high_scores;
@@ -513,7 +510,7 @@ void EnterHighScoreState::entry() {
         auto score_str = gui.fix_text_to_right(std::to_string(high_score),
                                                MAX_SCORE_CHARS);
 
-        auto h_score_text = gui.create_test(HIGH_SCORE_TEXT_BASE + std::to_string(i),
+        auto h_score_text = gui.create_text(HIGH_SCORE_TEXT_BASE + std::to_string(i),
                                             std::to_string(i + 1) + " " +
                                             player_name + score_str +
                                             " PTS",

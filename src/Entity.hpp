@@ -12,9 +12,9 @@ public:
     /**
      * @brief Main control function, to be implemented
      *
-     * @param delta_t
+     * @param delta_t delta_t
      */
-    virtual void update(float delta_t) {};
+    virtual void update(const float delta_t) {};
 
     /**
      * @brief Get the collision shape object, to be implemented
@@ -26,7 +26,7 @@ public:
     /**
      * @brief Checks whether both entities intersect, to be implemented
      *
-     * @param entity
+     * @param entity intersecting entity
      * @return true
      * @return false
      */

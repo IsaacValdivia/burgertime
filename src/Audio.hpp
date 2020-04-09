@@ -30,33 +30,32 @@ namespace Audio {
     void init();
 
     /**
-     * @brief Checks whether a certain track is being played at the moment
-     *
-     * @param track
-     * @return true
-     * @return false
-     */
-    bool is_playing(const Track track);
-
-    /**
      * @brief Starts the reproduction of a selected track
      *
-     * @param track
+     * @param track track to play
      */
     void play(const Track track);
 
     /**
      * @brief Stops the reproduction of a selected track
      *
-     * @param track
+     * @param track track to stop
      */
     void stop(const Track track);
 
     /**
      * @brief Stops the reproduction of main level music and level intro
      *
-     * @param track
      */
     void stop_background();
+
+    /**
+     * @brief Checks whether a certain track is being played at the moment
+     *
+     * @param track track to check
+     * @return true
+     * @return false
+     */
+    bool is_playing(const Track track);
 }
 

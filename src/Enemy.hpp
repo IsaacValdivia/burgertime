@@ -1,14 +1,24 @@
 #pragma once
 
+#include "Actor.hpp"
+#include "Audio.hpp"
+#include "Tile.hpp"
+
+#include <nod.hpp>
+#include <memory>
 #include <SFML/Graphics.hpp>
 
-#include <memory>
-#include "Audio.hpp"
-#include "Actor.hpp"
-#include "AI.hpp"
+class AI;
 
 class Enemy : public Actor {
 public:
+    enum Type : char {
+        SAUSAGE = 'S',
+        PICKLE = 'P',
+        EGG = 'E',
+    };
+
+private:
     enum Action {
         NONE,
         LEFT,
@@ -20,12 +30,6 @@ public:
         NUM_ACTIONS
     };
 
-    enum Type : char {
-        SAUSAGE = 'S',
-        PICKLE = 'P',
-        EGG = 'E',
-    };
-
     struct SpriteStateMachine {
         float sprite_duration;
         BtSprites::Sprite sprites[NUM_ACTIONS];
@@ -35,7 +39,6 @@ public:
     static const SpriteStateMachine egg_sprite_state_machine[];
     static const SpriteStateMachine pickle_sprite_state_machine[];
 
-private:
     static constexpr float x_walking_speed = 60;
     static constexpr float y_walking_speed = x_walking_speed / 1.72;
 
@@ -49,14 +52,14 @@ private:
 
     static constexpr float pepper_duration = 4;
 
-    const SpriteStateMachine *const sprite_state_machine;
+    const SpriteStateMachine *sprite_state_machine;
 
     float acc_delta_t_pepper;
 
-    std::shared_ptr<Tile> a_star_tile;
+    std::shared_ptr<const Tile> a_star_tile;
     Direction a_star_direction;
 
-    Direction initial_direction;
+    const Direction initial_direction;
 
     int dead_points;
 
@@ -68,7 +71,7 @@ private:
     Action new_action;
     Action last_action;
 
-    Type type;
+    const Type type;
 
     const AI &ia;
 
@@ -80,34 +83,33 @@ private:
     /**
      * @brief Moves the enemy by a certain offset, in function of delta_t
      *
-     * @param move_x
-     * @param move_y
-     * @param delta_t
+     * @param move_x X offset
+     * @param move_y Y offset
+     * @param delta_t delta_t
      */
-    void move(float &move_x, float &move_y, float delta_t);
+    void move(float &move_x, float &move_y, const float delta_t);
 
     /**
      * @brief Performs a random movement
      *
-     * @param delta_t
-     * @param current
+     * @param delta_t delta_t
+     * @param current current tile
      */
     void random_move(const float delta_t, const Tile &current);
 public:
     /**
      * @brief Construct a new Enemy object
      *
-     * @param type
-     * @param init_pos
-     * @param sprite_state_machine
-     * @param map
-     * @param ia
-     * @param initial_direction
-     * @param points_added
+     * @param type type of enemy, namely egg, pickle or sausage
+     * @param init_pos initial enemy position on the map
+     * @param map pointer to map
+     * @param ia ia that will govern the enemy
+     * @param initial_direction initial direction taken by the enemy
+     * @param points_added points gainable if killed
      */
-    Enemy(const Type &type, const sf::Vector2f &init_pos, const SpriteStateMachine
-          sprite_state_machine[], std::shared_ptr<Map> map, const AI &ia,
-          const Direction initial_direction,
+    Enemy(const Type &type, const sf::Vector2f &init_pos,
+          const std::shared_ptr<const Map> map,
+          const AI &ia, const Direction initial_direction,
           const std::function<void(unsigned int)> &points_added);
 
     /**
@@ -119,9 +121,9 @@ public:
     /**
      * @brief Starts the binding of the enemy to the ingredient below
      *
-     * @param ingredient_moving_con
-     * @param stop_surfing_con
-     * @param dead_points
+     * @param ingredient_moving_con connection function with ingredient_moving
+     * @param stop_surfing_con disable connection function
+     * @param dead_points Points if dead
      */
     void start_surfing(nod::connection &&ingredient_moving_con,
                        nod::connection &&stop_surfing_con, const int dead_points);
@@ -133,17 +135,12 @@ public:
     void stop_surfing();
 
     /**
-     * @brief Moves the enemy accordingly to y offset
+     * @brief Checks whether the enemy is peppered or not
      *
-     * @param y
+     * @return true
+     * @return false
      */
-    void move_by_signal(const float y);
-
-    /**
-     * @brief Checks whether the enemy's state is completely dead
-     *
-     */
-    bool completely_dead();
+    bool is_peppered() const;
 
     /**
      * @brief Kills the enemy and plays the die sound effect
@@ -160,14 +157,6 @@ public:
     bool is_surfing() const;
 
     /**
-     * @brief Checks whether the enemy is peppered or not
-     *
-     * @return true
-     * @return false
-     */
-    bool is_peppered() const;
-
-    /**
      * @brief Get the Type of the enemy
      *
      * @return Type
@@ -175,9 +164,22 @@ public:
     Type get_type() const;
 
     /**
+     * @brief Checks whether the enemy's state is completely dead
+     *
+     */
+    bool completely_dead() const;
+
+    /**
+     * @brief Moves the enemy accordingly to y offset
+     *
+     * @param y Y offset
+     */
+    void move_by_signal(const float y);
+
+    /**
      * @brief Main control function
      *
-     * @param delta_t
+     * @param delta_t delta_t
      */
-    void update(float delta_t) override;
+    void update(const float delta_t) override;
 };

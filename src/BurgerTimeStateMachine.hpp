@@ -1,10 +1,11 @@
 #pragma once
 
-#include <tinyfsm.hpp>
-#include "Constants.hpp"
 #include "BurgerTimeController.hpp"
+#include "Constants.hpp"
 #include "GUI.hpp"
 #include "HighScores.hpp"
+
+#include <tinyfsm.hpp>
 
 class BurgerTimeStateMachine : public tinyfsm::MooreMachine<BurgerTimeStateMachine> {
 public:
@@ -24,7 +25,7 @@ public:
      * @brief Checks whether paused has been pressed and restarts the timer if
      *        wait_time has been reached
      *
-     * @param wait_time
+     * @param wait_time time elapsed
      * @return true
      * @return false
      */
@@ -72,7 +73,7 @@ class ItemPointsScreenState : public BurgerTimeStateMachine {
     std::array<std::shared_ptr<sf::Sprite>, 4> cheese;
     std::array<std::shared_ptr<sf::Sprite>, 4> burger;
     std::array<std::shared_ptr<sf::Sprite>, 4> tomato;
-    std::array<std::shared_ptr<sf::Sprite>, 4> botBun;
+    std::array<std::shared_ptr<sf::Sprite>, 4> bot_bun;
     std::shared_ptr<sf::Sprite> ice_cream;
     std::shared_ptr<sf::Sprite> pt_500;
     std::shared_ptr<sf::Sprite> coffee;
@@ -262,5 +263,5 @@ private:
  * @brief State machine for end of game
  *
  */
-class Finished_state : public BurgerTimeStateMachine {
+class FinishedState : public BurgerTimeStateMachine {
 };

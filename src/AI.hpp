@@ -1,12 +1,13 @@
 #pragma once
 
-#include <memory>
-#include "Map.hpp"
 #include "Constants.hpp"
+#include "Map.hpp"
+
+#include <memory>
 
 class AI {
 private:
-    std::shared_ptr<Map> map; // Pointer to map
+    const std::shared_ptr<const Map> map; // Pointer to map
 
     std::shared_ptr<const Tile> goal_tile; // Pointer to target tile
 
@@ -23,9 +24,9 @@ private:
     /**
      * Returns the next direction an actor must follow to reach the player
      *
-     * @param came_from
-     * @param current
-     * @return Direction
+     * @param came_from tiles the entity comes from
+     * @param current current tiles occupied by the entity
+     * @return Direction next direction the AI must take
      */
     Direction next_move_direction(const std::map<std::shared_ptr<const Tile>,
                                   std::shared_ptr<const Tile>> came_from,
@@ -37,31 +38,31 @@ public:
     /**
      * @brief Construct a new AI object
      *
-     * @param map
-     * @param new_goal_tile
+     * @param map pointer to map
+     * @param new_goal_tile pointer to target tile
      */
-    AI(const std::shared_ptr<Map> map, const std::shared_ptr<const Tile> new_goal_tile);
-
-    /**
-     * @brief Get the Next Move object
-     *
-     * @param start_tile
-     * @return Direction
-     */
-    Direction get_next_move(const std::shared_ptr<const Tile> start_tile) const;
-
-    /**
-     * @brief Set the Goal Tile object
-     *
-     * @param new_goal_tile
-     */
-    void set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile);
+    AI(const std::shared_ptr<const Map> map, const std::shared_ptr<const Tile> new_goal_tile);
 
     /**
      * @brief Calculates the distance to a target tile, using the heuristic (A*)
      *
-     * @param from
-     * @return float
+     * @param from source tile
+     * @return float heuristic distance
      */
     float distance_to_goal(const std::shared_ptr<const Tile> from) const;
+
+    /**
+     * @brief Set the Goal Tile object
+     *
+     * @param new_goal_tile new target tile
+     */
+    void set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile);
+
+    /**
+     * @brief Get the Next Move object
+     *
+     * @param start_tile pointer to start tile
+     * @return Direction next direction to take
+     */
+    Direction get_next_move(const std::shared_ptr<const Tile> start_tile) const;
 };

@@ -1,6 +1,7 @@
 #include "Player.hpp"
-#include "InputSystem.hpp"
+
 #include "Audio.hpp"
+#include "InputSystem.hpp"
 
 const Player::SpriteStateMachine Player::sprite_state_machine[] = {
     // PLAYER_DOWNSTAIRS_1
@@ -232,7 +233,7 @@ const BtSprites::Sprite Player::pepper_sprite_state_machine[] = {
     BtSprites::Sprite::PLAYER_PEPPER_FRONT,
 };
 
-Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map,
+Player::Player(const sf::Vector2f &init_pos, const std::shared_ptr<const Map> map,
                const std::function<void(const sf::Vector2f &, Direction)> &pepper_spawned_func,
                const std::function<bool()> &has_pepper)
 
@@ -244,19 +245,7 @@ Player::Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map,
       has_pepper(has_pepper) {
 }
 
-bool Player::has_won() const {
-    return won;
-}
-
-void Player::win() {
-    won = true;
-}
-
-bool Player::going_x_direction() {
-    return last_action == LEFT || last_action == RIGHT;
-}
-
-void Player::update(float delta_t) {
+void Player::update(const float delta_t) {
     acc_delta_t += delta_t;
 
     float animation_duration = sprite_state_machine[
@@ -349,8 +338,8 @@ void Player::update(float delta_t) {
             // Want to move and can.
             if (map->can_entity_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
-                // TODO: comprobar que entityOnTiles no sea vacio
-                player_moved(map->entityOnTiles(*this)[0]);
+                // TODO: comprobar que entity_on_tiles no sea vacio
+                player_moved(map->entity_on_tiles(*this)[0]);
             }
             // Want to move but can't.
             else {
@@ -380,6 +369,18 @@ void Player::update(float delta_t) {
         BtSprites::update_sprite(sprite, current_sprite);
     }
     last_action = new_action;
+}
+
+bool Player::has_won() const {
+    return won;
+}
+
+void Player::win() {
+    won = true;
+}
+
+bool Player::going_x_direction() const {
+    return last_action == LEFT || last_action == RIGHT;
 }
 
 nod::connection Player::connect_player_moved(

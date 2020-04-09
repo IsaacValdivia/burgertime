@@ -1,15 +1,16 @@
 #pragma once
 
+#include "GUI.hpp"
+
 #include <list>
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "GUI.hpp"
 
 class BurgerTimeController {
 private:
     GUI &gui; // GUI Object
 
-    sf::Render_window window; // Window
+    sf::RenderWindow window; // Window
 
     std::list<std::weak_ptr<sf::Drawable>> drawables_on_screen; // All drawables on screen
     sf::Clock logic_clock; // Clock
@@ -23,14 +24,14 @@ private:
     /**
      * @brief Construct a new Burger Time Controller object
      *
-     * @param copy
+     * @param copy BTC to copy from
      */
     BurgerTimeController(const BurgerTimeController &copy);
 
     /**
      * @brief Operator = for Burger Time Controller objects
      *
-     * @param copy
+     * @param copy BTC to copy
      * @return BurgerTimeController&
      */
     BurgerTimeController &operator=(const BurgerTimeController &copy);
@@ -45,7 +46,7 @@ private:
     /**
      * @brief Main control function
      *
-     * @param delta_t
+     * @param delta_t delta_t
      */
     void update(float delta_t);
 
@@ -66,7 +67,7 @@ public:
     /**
      * @brief Singleton retriever
      *
-     * @return BurgerTimeController&
+     * @return BurgerTimeController& BTC
      */
     static BurgerTimeController &get();
 
@@ -91,7 +92,7 @@ public:
     /**
      * @brief Adds a new drawable object
      *
-     * @param new_drawable
+     * @param new_drawable New drawable object
      */
     void add_drawable(std::weak_ptr<sf::Drawable> new_drawable);
 
@@ -104,7 +105,7 @@ public:
     /**
      * @brief Get the Elapsed Time object
      *
-     * @return sf::Time
+     * @return sf::Time Time elapsed
      */
     sf::Time get_elapsed_time();
 };

@@ -1,8 +1,10 @@
 #include "HighScores.hpp"
+
 #include "Constants.hpp"
-#include <fstream>
-#include <cstdint>
+
 #include <algorithm>
+#include <cstdint>
+#include <fstream>
 
 constexpr std::array<std::pair<const char *, uint32_t>,
           HighScores::NUM_HIGH_SCORES> HighScores::DEFAULT_SCORES;
@@ -56,7 +58,7 @@ void HighScores::create_default_scores() {
     file.open(file_name, std::ios::binary);
 
     if (!file) {
-        // TODO: throw exception
+        throw std::runtime_error("Couldn't create highscores file");
     }
 
     for (int i = 0; i < NUM_HIGH_SCORES; ++i) {

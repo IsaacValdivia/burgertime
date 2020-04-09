@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Constants.hpp"
+
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "Constants.hpp"
 
 class GUI {
 private:
@@ -15,14 +16,14 @@ private:
     /**
      * @brief Construct a new GUI object, from an existing one
      *
-     * @param copy
+     * @param copy GUI to copy from
      */
     GUI(const GUI &copy);
 
     /**
      * @brief = Operator for GUI object
      *
-     * @param copy
+     * @param copy GUI to copy
      * @return GUI&
      */
     GUI &operator=(const GUI &copy);
@@ -32,7 +33,7 @@ private:
      *
      * @return std::shared_ptr<sf::Sprite>
      */
-    std::shared_ptr<sf::Sprite> createSprite();
+    std::shared_ptr<sf::Sprite> create_sprite();
 
     std::map<std::string, std::shared_ptr<sf::Text>> gui_texts;
     sf::Font font;
@@ -58,12 +59,12 @@ public:
     /**
      * @brief Places a text in the specified position, with a certain color and scale
      *
-     * @param id
-     * @param text
-     * @param screen_pos
-     * @param scale
-     * @param color
-     * @return std::weak_ptr<sf::Text>
+     * @param id id of text
+     * @param text message contained by the text
+     * @param screen_pos position of text on screen
+     * @param scale scale of the text
+     * @param color color of the text
+     * @return std::weak_ptr<sf::Text> pointer to the text
      */
     std::weak_ptr<sf::Text> create_text(const std::string &id, const std::string &text,
                                         sf::Vector2u screen_pos = sf::Vector2u(0, 0),
@@ -73,7 +74,7 @@ public:
     /**
      * Returns the text identified by id
      *
-     * @param id
+     * @param id id of text
      * @return std::weak_ptr<sf::Text>
      */
     std::weak_ptr<sf::Text> get_text(const std::string &id);
@@ -82,7 +83,7 @@ public:
      * Fixes text to the right of the screen, with some padding
      *
      * @param st
-     * @param maxChars
+     * @param maxChars max number of character
      * @return std::string
      */
     static std::string fix_text_to_right(const std::string &st, const int maxChars);

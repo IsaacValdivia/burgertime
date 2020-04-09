@@ -1,9 +1,10 @@
 #include "GUI.hpp"
+
 #include "Constants.hpp"
 
 GUI::GUI() {
     if (!font.loadFromFile(FONT_FILE)) {
-        // TODO: error
+        throw std::runtime_error("Error loading font file");
     }
 }
 
@@ -36,7 +37,7 @@ std::weak_ptr<sf::Text> GUI::get_text(const std::string &id) {
         return gui_texts[id];
     }
     else {
-        // TODO: exception
+        throw std::runtime_error("GUI text not found");
     }
 }
 

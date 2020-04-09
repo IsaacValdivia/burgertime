@@ -1,6 +1,8 @@
 #include "SpritedEntity.hpp"
 
-SpritedEntity::SpritedEntity(const sf::Vector2f &init_pos, BtSprites::Sprite init_sprite)
+SpritedEntity::SpritedEntity(const sf::Vector2f &init_pos,
+                             const BtSprites::Sprite init_sprite)
+
     : Entity(), current_sprite(init_sprite) {
 
     BtSprites::set_initial_sprite(sprite, init_sprite);

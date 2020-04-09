@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SpritedEntity.hpp"
 #include "Constants.hpp"
+#include "SpritedEntity.hpp"
 
 #include <memory>
 
@@ -17,9 +17,9 @@ protected:
     Direction direction; // Current direction.
     Direction mirror_state;
 
-    std::shared_ptr<Map> map; // Pointer to map.
+    const std::shared_ptr<const Map> map; // Pointer to map.
 
-    const BtSprites::Sprite first_sprite; // Initial sprite.
+    BtSprites::Sprite first_sprite; // Initial sprite.
 
     /**
      * Flips actor vertically (vertical mirror)
@@ -36,7 +36,7 @@ public:
      * @param map Pointer to map on which it will be generated
      */
     Actor(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
-          const BtSprites::Sprite first_sprite, std::shared_ptr<Map> map);
+          const BtSprites::Sprite first_sprite, const std::shared_ptr<const Map> map);
 
     /**
      * Returns a shape enclosing the Actor, representing its hitbox

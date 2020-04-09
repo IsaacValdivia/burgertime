@@ -23,12 +23,12 @@ private:
         NUM_ACTIONS
     };
 
-    static constexpr float x_walking_speed = 90;
-    static constexpr float y_walking_speed = x_walking_speed / 1.72;
+    static constexpr float x_walking_speed = 90; // Horizontal speed of the chef
+    static constexpr float y_walking_speed = x_walking_speed / 1.72; // Vertical speed of the chef
 
-    static constexpr float walking_sprite_duration = 0.08;
-    static constexpr float peppering_sprite_duration = 0.1;
-    static constexpr float end_game_sprite_duration = 0.2;
+    static constexpr float walking_sprite_duration = 0.08; // Duration of walking animation
+    static constexpr float peppering_sprite_duration = 0.1; // Duration of pepper animation
+    static constexpr float end_game_sprite_duration = 0.2; // Duration of end game animation
 
     struct SpriteStateMachine {
         float sprite_duration;
@@ -50,18 +50,53 @@ private:
     nod::unsafe_signal<void(const std::shared_ptr<Tile>)> player_moved;
 
 public:
-    Player(const sf::Vector2f &init_pos, std::shared_ptr<Map> map,
+    /**
+     * @brief Construct a new Player object
+     *
+     * @param init_pos initial player position
+     * @param map map of the player
+     * @param pepper_spawned_func callback for pepper
+     * @param has_pepper callback for has_pepper
+     */
+    Player(const sf::Vector2f &init_pos, const std::shared_ptr<const Map> map,
            const std::function<void(const sf::Vector2f &, Direction)> &pepper_spawned_func,
            const std::function<bool()> &has_pepper);
 
-    void update(float delta_t) override;
+    /**
+     * @brief Main control function
+     *
+     * @param delta_t delta_t
+     */
+    void update(const float delta_t) override;
 
+    /**
+     * @brief Returns if the player has won a level
+     *
+     * @return true
+     * @return false
+     */
     bool has_won() const;
 
+    /**
+     * @brief Sets won to true
+     *
+     */
     void win();
 
-    bool going_x_direction();
+    /**
+     * @brief Returns if the player is moving horizontally
+     *
+     * @return true
+     * @return false
+     */
+    bool going_x_direction() const;
 
+    /**
+     * TODO
+     *
+     * @param player_moved_func
+     * @return nod::connection
+     */
     nod::connection connect_player_moved(
         const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func);
 };

@@ -9,10 +9,6 @@ Ingredient::IngredientPiece::IngredientPiece(const sf::Vector2f &_init_pos,
     this->sprite.setScale(2, 2);
 }
 
-void Ingredient::IngredientPiece::move_y(float magnitude) {
-    this->sprite.move(0, magnitude);
-}
-
 void Ingredient::IngredientPiece::step() {
     stepped = true;
     this->sprite.move(0, y_movement_static);
@@ -22,7 +18,98 @@ bool Ingredient::IngredientPiece::is_stepped() const {
     return stepped;
 }
 
-Ingredient::Ingredient(const float _x, const float _y, const char _content) :
+void Ingredient::IngredientPiece::move_y(float magnitude) {
+    this->sprite.move(0, magnitude);
+}
+
+void Ingredient::move_down(const float delta_t) {
+    float mov = y_movement_falling * delta_t;
+
+    for (auto &piece : pieces) {
+        piece.move_y(mov);
+    }
+
+    ingredient_moved(pieces[1].sprite.getPosition().y - 13);
+}
+
+void Ingredient::move_down_no_delta(const float magnitude) {
+    for (auto &piece : pieces) {
+        piece.sprite.move(0, magnitude);
+    }
+}
+
+void Ingredient::fix_position_down() {
+    float lowest_y = 0;
+
+    for (auto &piece : pieces) {
+        float y = piece.sprite.getPosition().y;
+        if (y > lowest_y) {
+            lowest_y = y;
+        }
+    }
+
+    for (auto &piece : pieces) {
+        auto position = piece.sprite.getPosition();
+        piece.sprite.setPosition(position.x, lowest_y);
+    }
+}
+
+void Ingredient::fix_position_up() {
+    float highest_y = pieces[0].sprite.getPosition().y;
+
+    for (auto &piece : pieces) {
+        float y = piece.sprite.getPosition().y;
+        if (y < highest_y) {
+            highest_y = y;
+        }
+    }
+
+    for (auto &piece : pieces) {
+        auto position = piece.sprite.getPosition();
+        piece.sprite.setPosition(position.x, highest_y);
+    }
+}
+
+void Ingredient::fix_to_y(const float y) {
+    for (auto &piece : pieces) {
+        piece.sprite.setPosition(piece.sprite.getPosition().x, y);
+    }
+}
+
+void Ingredient::displace_middle(const float magnitude) {
+    pieces[1].sprite.move(0, magnitude);
+    pieces[2].sprite.move(0, magnitude);
+
+    ingredient_moved(pieces[1].sprite.getPosition().y - 13);
+}
+
+void Ingredient::displace_edges(const float magnitude) {
+    pieces[0].sprite.move(0, magnitude);
+    pieces[3].sprite.move(0, magnitude);
+}
+
+void Ingredient::descend_and_check() {
+    --num_levels;
+    if (num_levels > 0) {
+        drop();
+    }
+    else {
+        if (last_landable == STATIC_ING_BASKET) {
+            state = STATIC;
+        }
+        else {
+            state = IDLE;
+        }
+        ingredient_stopped_moving();
+    }
+}
+void Ingredient::reset_steps() {
+    for (auto &piece : pieces) {
+        piece.stepped = false;
+    }
+}
+
+Ingredient::Ingredient(const float _x, const float _y, const Type _content) :
     state(IDLE), content(_content), last_landable(NONE), num_levels(1),
     static_tested(false) {
 
@@ -106,110 +193,7 @@ void Ingredient::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 #endif
 }
 
-bool Ingredient::is_static() const {
-    return state == STATIC;
-}
-
-bool Ingredient::is_idle() const {
-    return state == IDLE;
-}
-
-bool Ingredient::is_falling() const {
-    return state == FALLING;
-}
-
-bool Ingredient::is_bouncing() const {
-    return state == BOUNCE_UP_1 ||
-           state == BOUNCE_UP_2 ||
-           state == BOUNCE_UP_3 ||
-           state == BOUNCE_DOWN_1 ||
-           state == BOUNCE_DOWN_2 ||
-           state == BOUNCE_DOWN_3;
-}
-
-void Ingredient::displace_middle(const float magnitude) {
-    pieces[1].sprite.move(0, magnitude);
-    pieces[2].sprite.move(0, magnitude);
-
-    ingredient_moved(pieces[1].sprite.getPosition().y - 13);
-}
-
-void Ingredient::displace_edges(const float magnitude) {
-    pieces[0].sprite.move(0, magnitude);
-    pieces[3].sprite.move(0, magnitude);
-}
-
-void Ingredient::fix_to_y(const float y) {
-    for (auto &piece : pieces) {
-        piece.sprite.setPosition(piece.sprite.getPosition().x, y);
-    }
-}
-
-void Ingredient::move_down(const float delta_t) {
-    float mov = y_movement_falling * delta_t;
-
-    for (auto &piece : pieces) {
-        piece.move_y(mov);
-    }
-
-    ingredient_moved(pieces[1].sprite.getPosition().y - 13);
-}
-
-void Ingredient::move_down_no_delta(const float magnitude) {
-    for (auto &piece : pieces) {
-        piece.sprite.move(0, magnitude);
-    }
-}
-
-void Ingredient::fix_position_down() {
-    float lowest_y = 0;
-
-    for (auto &piece : pieces) {
-        float y = piece.sprite.getPosition().y;
-        if (y > lowest_y) {
-            lowest_y = y;
-        }
-    }
-
-    for (auto &piece : pieces) {
-        auto position = piece.sprite.getPosition();
-        piece.sprite.setPosition(position.x, lowest_y);
-    }
-}
-
-void Ingredient::fix_position_up() {
-    float highest_y = pieces[0].sprite.getPosition().y;
-
-    for (auto &piece : pieces) {
-        float y = piece.sprite.getPosition().y;
-        if (y < highest_y) {
-            highest_y = y;
-        }
-    }
-
-    for (auto &piece : pieces) {
-        auto position = piece.sprite.getPosition();
-        piece.sprite.setPosition(position.x, highest_y);
-    }
-}
-
-void Ingredient::descend_and_check() {
-    --num_levels;
-    if (num_levels > 0) {
-        drop();
-    }
-    else {
-        if (last_landable == STATIC_ING_BASKET) {
-            state = STATIC;
-        }
-        else {
-            state = IDLE;
-        }
-        ingredient_stopped_moving();
-    }
-}
-
-void Ingredient::update(float delta_t) {
+void Ingredient::update(const float delta_t) {
     acc_delta_t += delta_t;
 
     switch (state) {
@@ -279,53 +263,6 @@ void Ingredient::update(float delta_t) {
     }
 }
 
-bool Ingredient::test_static() {
-    if (state == STATIC && !static_tested) {
-        static_tested = true;
-
-        return true;
-    }
-    return false;
-}
-
-void Ingredient::reset_steps() {
-    for (auto &piece : pieces) {
-        piece.stepped = false;
-    }
-}
-
-void Ingredient::land(const float y, const Landable landable) {
-    if (pieces[0].sprite.getPosition().y >= y - 6) {
-        fix_to_y(y);
-
-        if (landable == last_landable) {
-            descend_and_check();
-
-            return;
-        }
-
-        Audio::play(Audio::Track::BURGER_TOUCHING_FLOOR);
-
-        if (landable == INGREDIENT || landable == STATIC_ING_BASKET) {
-            state = BOUNCE_UP_1;
-        }
-        else if (landable == FLOOR) {
-            state = BOUNCE_DOWN_1;
-        }
-
-        last_landable = landable;
-        acc_delta_t = 0;
-    }
-}
-
-void Ingredient::drop() {
-    fix_position_down();
-
-    move_down_no_delta(1);
-    reset_steps();
-    state = FALLING;
-}
-
 bool Ingredient::stepped(const sf::FloatRect &rectangle, const int _num_levels) {
     if (state == IDLE) {
 
@@ -377,6 +314,7 @@ bool Ingredient::stepped(const sf::FloatRect &rectangle, const int _num_levels) 
 sf::FloatRect Ingredient::get_collision_shape() const {
     sf::FloatRect collision_shape = pieces[0].sprite.getGlobalBounds();
     collision_shape.width *= 4;
+
     // collision_shape.height -= 13;
 
     // for (const auto &piece : pieces)
@@ -388,6 +326,73 @@ sf::FloatRect Ingredient::get_collision_shape() const {
     // }
 
     return collision_shape;
+}
+
+void Ingredient::drop() {
+    fix_position_down();
+
+    move_down_no_delta(1);
+    reset_steps();
+    state = FALLING;
+}
+
+void Ingredient::land(const float y, const Landable landable) {
+    if (pieces[0].sprite.getPosition().y >= y - 6) {
+        fix_to_y(y);
+
+        if (landable == last_landable) {
+            descend_and_check();
+
+            return;
+        }
+
+        Audio::play(Audio::Track::BURGER_TOUCHING_FLOOR);
+
+        if (landable == INGREDIENT || landable == STATIC_ING_BASKET) {
+            state = BOUNCE_UP_1;
+        }
+        else if (landable == FLOOR) {
+            state = BOUNCE_DOWN_1;
+        }
+
+        last_landable = landable;
+        acc_delta_t = 0;
+    }
+}
+
+void Ingredient::reset() {
+    reset_steps();
+    fix_position_up();
+}
+
+bool Ingredient::test_static() {
+    if (state == STATIC && !static_tested) {
+        static_tested = true;
+
+        return true;
+    }
+    return false;
+}
+
+bool Ingredient::is_static() const {
+    return state == STATIC;
+}
+
+bool Ingredient::is_idle() const {
+    return state == IDLE;
+}
+
+bool Ingredient::is_falling() const {
+    return state == FALLING;
+}
+
+bool Ingredient::is_bouncing() const {
+    return state == BOUNCE_UP_1 ||
+           state == BOUNCE_UP_2 ||
+           state == BOUNCE_UP_3 ||
+           state == BOUNCE_DOWN_1 ||
+           state == BOUNCE_DOWN_2 ||
+           state == BOUNCE_DOWN_3;
 }
 
 std::pair<nod::connection, nod::connection> Ingredient::connect_enemy_surfer(

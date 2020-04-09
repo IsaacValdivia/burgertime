@@ -1,13 +1,14 @@
 #include "BurgerTimeController.hpp"
 
-#include <chrono>
-#include <iostream>
-#include <thread>
-#include <SFML/System.hpp>
 #include "Constants.hpp"
 #include "InputSystem.hpp"
 #include "Audio.hpp"
 #include "BurgerTimeStateMachine.hpp"
+
+#include <chrono>
+#include <iostream>
+#include <thread>
+#include <SFML/System.hpp>
 
 BurgerTimeController::BurgerTimeController() :
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE,
@@ -28,7 +29,7 @@ void BurgerTimeController::restart_timer() {
 }
 
 sf::Time BurgerTimeController::get_elapsed_time() {
-    return logic_clock.get_elapsed_time();
+    return logic_clock.getElapsedTime();
 }
 
 
@@ -39,7 +40,7 @@ BurgerTimeController &BurgerTimeController::get() {
 
 void BurgerTimeController::startup() {
     BurgerTimeStateMachine::start();
-    window.set_key_repeat_enabled(false);
+    window.setKeyRepeatEnabled(false);
     Audio::init();
     restart_timer();
 }
@@ -50,26 +51,23 @@ void BurgerTimeController::run() {
     const auto LOGIC_DELTA_TIME = sf::seconds(LOGIC_UPDATE_FREQ);
 
     sf::Clock clock;
-    auto next_time = clock.get_elapsed_time();
-    auto last_time = clock.get_elapsed_time();
+    auto next_time = clock.getElapsedTime();
+    auto last_time = clock.getElapsedTime();
 
     const auto MAX_TIME_DIFF = sf::seconds(0.5);
     constexpr int MAX_SKIPPED_FRAMES = 5;
     int skipped_frames = 1;
 
     while (window.isOpen() && !has_game_finished()) {
-        auto current_time = clock.get_elapsed_time();
+        auto current_time = clock.getElapsedTime();
 
         if (current_time - next_time > MAX_TIME_DIFF) {
             next_time = current_time;
         }
 
         if (current_time >= next_time) {
-            float frame_time = (current_time - last_time).as_seconds();
+            float frame_time = (current_time - last_time).asSeconds();
             last_time = current_time;
-            if (frame_time > 1.3 * LOGIC_UPDATE_FREQ) {
-                std::cerr << "Error, logica va muy lenta" << std::endl;
-            }
 
             next_time += LOGIC_DELTA_TIME;
 
@@ -149,5 +147,5 @@ void BurgerTimeController::draw() {
 }
 
 bool BurgerTimeController::has_game_finished() const {
-    return BurgerTimeStateMachine::is_in_state<Finished_state>();
+    return BurgerTimeStateMachine::is_in_state<FinishedState>();
 }

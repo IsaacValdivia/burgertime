@@ -1,19 +1,7 @@
 #include "Actor.hpp"
-#include "Map.hpp"
 
 #include "Audio.hpp"
-
-Actor::Actor(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
-             const BtSprites::Sprite first_sprite, std::shared_ptr<Map> map)
-
-    : alive(true), SpritedEntity(init_pos, init_sprite),
-      direction(LEFT),
-      first_sprite(first_sprite),
-      mirror_state(LEFT),
-      map(map) {
-
-    sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
-}
+#include "Map.hpp"
 
 void Actor::mirror() {
     // Mirror sprite.
@@ -31,6 +19,18 @@ void Actor::mirror() {
     }
 }
 
+Actor::Actor(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
+             const BtSprites::Sprite first_sprite, const std::shared_ptr<const Map> map)
+
+    : alive(true), SpritedEntity(init_pos, init_sprite),
+      direction(LEFT),
+      first_sprite(first_sprite),
+      mirror_state(LEFT),
+      map(map) {
+
+    sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
+}
+
 sf::FloatRect Actor::get_collision_shape() const {
     sf::FloatRect collision_shape = sprite.getGlobalBounds();
 
@@ -39,6 +39,7 @@ sf::FloatRect Actor::get_collision_shape() const {
 
     collision_shape.left += 10;
     collision_shape.width -= 20;
+
     return collision_shape;
 }
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <tinyfsm.hpp>
+#include "Audio.hpp"
+#include "BurgerTimeController.hpp"
+#include "Constants.hpp"
 
-#include <utility>
 #include <memory>
 #include <SFML/Graphics.hpp>
-#include "Constants.hpp"
-#include "BurgerTimeController.hpp"
-#include "Audio.hpp"
+#include <tinyfsm.hpp>
+#include <utility>
 
 class MainScreenStateMachine : public tinyfsm::MooreMachine<MainScreenStateMachine> {
 protected:
@@ -23,20 +23,21 @@ protected:
     static std::shared_ptr<sf::CircleShape> selection_triangle;
     static BurgerTimeController &controller;
     static GUI &gui;
-};
 
 public:
-/**
- * @brief Main control function
- *
- */
-void react(const tinyfsm::Event &) {};
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const tinyfsm::Event &) {};
 
-/**
- * @brief Main control function
- *
- */
-virtual void react(const ExecuteEvent &) {};
+    /**
+     * @brief Main control function
+     *
+     */
+    virtual void react(const ExecuteEvent &) {};
+};
+
 
 class EnterStateMainScreen : public MainScreenStateMachine {
     /**

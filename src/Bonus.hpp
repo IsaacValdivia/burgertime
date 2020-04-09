@@ -1,11 +1,11 @@
 #pragma once
 
-#include <functional>
-#include <SFML/Graphics.hpp>
-#include "BT_sprites.hpp"
+#include "BtSprites.hpp"
+#include "Constants.hpp"
 #include "SpritedEntity.hpp"
 
-#include "Constants.hpp"
+#include <functional>
+#include <SFML/Graphics.hpp>
 
 class Bonus : public SpritedEntity {
 private:
@@ -31,9 +31,9 @@ public:
     /**
      * @brief Construct a new Bonus object
      *
-     * @param init_pos
-     * @param init_sprite
-     * @param points
+     * @param init_pos initial position on map
+     * @param init_sprite initial sprite
+     * @param points points given if object is grabbed
      */
     Bonus(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
           const int points);
@@ -47,31 +47,31 @@ public:
     /**
      * @brief Draws the item if it is not hidden
      *
-     * @param target
-     * @param states
+     * @param target target to draw on
+     * @param states states of drawable
      */
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
     /**
      * @brief Checks if it interstects with a certain entity, as long as the item is visible
      *
-     * @param entity
+     * @param entity intersecting entity
      * @return true
      * @return false
      */
     bool intersects_with(const Entity &entity) const override;
 
     /**
-     * @brief Main control function
-     *
-     * @param delta_t
-     */
-    void update(float delta_t) override;
-
-    /**
      * @brief Returns number of points obtainable upon grabbing the item
      *
-     * @return int
+     * @return int points
      */
     int get_points() const;
+
+    /**
+     * @brief Main control function
+     *
+     * @param delta_t delta_t
+     */
+    void update(const float delta_t) override;
 };

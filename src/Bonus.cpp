@@ -1,4 +1,5 @@
 #include "Bonus.hpp"
+
 #include "Audio.hpp"
 
 Bonus::Bonus(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
@@ -37,7 +38,7 @@ int Bonus::get_points() const {
     return points;
 }
 
-void Bonus::update(float delta_t) {
+void Bonus::update(const float delta_t) {
     acc_delta_t += delta_t;
 
     switch (state) {

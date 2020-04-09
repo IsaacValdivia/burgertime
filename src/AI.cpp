@@ -1,31 +1,10 @@
 #include "AI.hpp"
-#include <set>
-#include <queue>
-#include <map>
+
 #include <cmath>
 #include <iostream>
-
-
-AI::AI(const std::shared_ptr<Map> map,
-       const std::shared_ptr<const Tile> new_goal_tile)
-    : map(map), goal_tile(new_goal_tile) {}
-
-void AI::set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile) {
-    goal_tile = new_goal_tile;
-}
-
-float AI::distance_to_goal(const std::shared_ptr<const Tile> from) const {
-    return h(from, goal_tile);
-}
-
-float AI::h(const std::shared_ptr<const Tile> from,
-            const std::shared_ptr<const Tile> to) const {
-
-    int x = abs(to->col - from->col);
-    int y = abs(to->row - from->row);
-
-    return (x + y);
-}
+#include <map>
+#include <queue>
+#include <set>
 
 Direction AI::next_move_direction(const std::map<std::shared_ptr<const Tile>,
                                   std::shared_ptr<const Tile>> came_from,
@@ -33,6 +12,7 @@ Direction AI::next_move_direction(const std::map<std::shared_ptr<const Tile>,
 
     std::shared_ptr<const Tile> previous;
     std::shared_ptr<const Tile> current_ptr = current;
+
     std::map<const std::shared_ptr<const Tile>,
         const std::shared_ptr<const Tile>>::const_iterator came_from_it;
 
@@ -42,12 +22,11 @@ Direction AI::next_move_direction(const std::map<std::shared_ptr<const Tile>,
     }
 
     if (!previous) {
-        // TODO: cambiar?
         return LEFT;
     }
 
-    sf::Vector2i direction(current_ptr->col - previous->col,
-                           current_ptr->row - previous->row);
+    sf::Vector2i direction(current_ptr->get_col() - previous->get_col(),
+                           current_ptr->get_row() - previous->get_row());
 
     if (abs(direction.x) < abs(direction.y)) {
         if (direction.y < 0) {
@@ -65,6 +44,27 @@ Direction AI::next_move_direction(const std::map<std::shared_ptr<const Tile>,
             return LEFT;
         }
     }
+}
+
+AI::AI(const std::shared_ptr<const Map> map,
+       const std::shared_ptr<const Tile> new_goal_tile)
+    : map(map), goal_tile(new_goal_tile) {}
+
+void AI::set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile) {
+    goal_tile = new_goal_tile;
+}
+
+float AI::distance_to_goal(const std::shared_ptr<const Tile> from) const {
+    return h(from, goal_tile);
+}
+
+float AI::h(const std::shared_ptr<const Tile> from,
+            const std::shared_ptr<const Tile> to) const {
+
+    int x = abs(to->get_col() - from->get_col());
+    int y = abs(to->get_row() - from->get_row());
+
+    return (x + y);
 }
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
@@ -141,11 +141,6 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
             }
         }
     }
-
-    // Should never happen
-    // TODO: throw exception ?
-
-    std::cerr << "THIS SHOULD NOT HAPPEN" << std::endl;
 
     // Open set is empty but goal was never reached
     return Direction::LEFT;

@@ -1,4 +1,6 @@
 #include "Enemy.hpp"
+#include "AI.hpp"
+
 #include <iostream>
 #include <set>
 #include <stdlib.h>
@@ -409,15 +411,86 @@ const Enemy::SpriteStateMachine Enemy::egg_sprite_state_machine[] = {
     },
 };
 
+void Enemy::move(float &move_x, float &move_y, float delta_t) {
+    move_x = 0;
+    move_y = 0;
+
+    switch (direction) {
+        case Direction::LEFT:
+
+            new_action = LEFT;
+            move_x = -x_walking_speed * delta_t;
+
+            break;
+        case Direction::RIGHT:
+
+            new_action = RIGHT;
+            move_x = x_walking_speed * delta_t;
+
+            break;
+        case Direction::UP:
+
+            new_action = UP;
+            move_y = -y_walking_speed * delta_t;
+
+            break;
+        case Direction::DOWN:
+
+            new_action = DOWN;
+            move_y = y_walking_speed * delta_t;
+
+            break;
+        default:
+            break;
+    }
+}
+
+void Enemy::random_move(const float delta_t, const Tile &current) {
+
+    Direction backup_dir = direction;
+
+    std::set<Direction> available_dirs = map->available_from_direction(current, backup_dir);
+    std::vector<Direction> posible_dirs;
+
+    if (backup_dir != Direction::RIGHT &&
+            available_dirs.find(Direction::LEFT) != available_dirs.end()) {
+
+        posible_dirs.push_back(Direction::LEFT);
+    }
+
+    if (backup_dir != Direction::LEFT &&
+            available_dirs.find(Direction::RIGHT) != available_dirs.end()) {
+
+        posible_dirs.push_back(Direction::RIGHT);
+    }
+
+    if (backup_dir != Direction::UP &&
+            available_dirs.find(Direction::DOWN) != available_dirs.end()) {
+
+        posible_dirs.push_back(Direction::DOWN);
+    }
+
+    if (backup_dir != Direction::DOWN &&
+            available_dirs.find(Direction::UP) != available_dirs.end()) {
+
+        posible_dirs.push_back(Direction::UP);
+    }
+
+    if (posible_dirs.size() > 0) {
+        srand(time(NULL));
+        int rand_num = rand() % posible_dirs.size();
+
+        direction = posible_dirs.at(rand_num);
+    }
+}
+
 Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
-             const SpriteStateMachine sprite_state_machine[],
-             std::shared_ptr<Map> map, const AI &ia,
+             const std::shared_ptr<const Map> map, const AI &ia,
              const Direction initial_direction,
              const std::function<void(unsigned int)> &points_added)
-    : Actor(init_pos, sprite_state_machine[0].sprites[NONE],
-            sprite_state_machine[0].sprites[NONE], map),
+    : Actor(init_pos, sausage_sprite_state_machine[0].sprites[NONE],
+            sausage_sprite_state_machine[0].sprites[NONE], map),
       type(type),
-      sprite_state_machine(sprite_state_machine),
       last_action(NONE),
       acc_delta_t_pepper(0),
       ia(ia),
@@ -429,17 +502,26 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
       after_dead(false),
       points_added(points_added) {
 
+    fprintf(stderr, "ADIOS");
+
     switch (get_type()) {
         case Enemy::Type::SAUSAGE:
+            sprite_state_machine = sausage_sprite_state_machine;
             dead_points = 100;
             break;
         case Enemy::Type::PICKLE:
+            sprite_state_machine = pickle_sprite_state_machine;
             dead_points = 200;
             break;
         case Enemy::Type::EGG:
+            sprite_state_machine = egg_sprite_state_machine;
             dead_points = 300;
             break;
     }
+
+    BtSprites::update_sprite(sprite, sprite_state_machine[0].sprites[NONE]);
+    current_sprite = sprite_state_machine[0].sprites[NONE];
+    first_sprite = current_sprite;
 }
 
 void Enemy::pepper() {
@@ -490,7 +572,7 @@ Enemy::Type Enemy::get_type() const {
     return type;
 }
 
-bool Enemy::completely_dead() {
+bool Enemy::completely_dead() const {
     return totally_dead;
 }
 
@@ -498,80 +580,7 @@ void Enemy::move_by_signal(const float y) {
     sprite.setPosition(sprite.getPosition().x, y);
 }
 
-void Enemy::move(float &move_x, float &move_y, float delta_t) {
-    move_x = 0;
-    move_y = 0;
-
-    switch (direction) {
-        case Direction::LEFT:
-
-            new_action = LEFT;
-            move_x = -x_walking_speed * delta_t;
-
-            break;
-        case Direction::RIGHT:
-
-            new_action = RIGHT;
-            move_x = x_walking_speed * delta_t;
-
-            break;
-        case Direction::UP:
-
-            new_action = UP;
-            move_y = -y_walking_speed * delta_t;
-
-            break;
-        case Direction::DOWN:
-
-            new_action = DOWN;
-            move_y = y_walking_speed * delta_t;
-
-            break;
-        default:
-            break;
-    }
-}
-
-void Enemy::random_move(const float delta_t, const Tile &current) {
-
-    Direction backup_dir = direction;
-
-    std::set<Direction> available_dirs = map->availableFromDirection(current, backup_dir);
-    std::vector<Direction> posible_dirs;
-
-    if (backup_dir != Direction::RIGHT &&
-            available_dirs.find(Direction::LEFT) != available_dirs.end()) {
-
-        posible_dirs.push_back(Direction::LEFT);
-    }
-
-    if (backup_dir != Direction::LEFT &&
-            available_dirs.find(Direction::RIGHT) != available_dirs.end()) {
-
-        posible_dirs.push_back(Direction::RIGHT);
-    }
-
-    if (backup_dir != Direction::UP &&
-            available_dirs.find(Direction::DOWN) != available_dirs.end()) {
-
-        posible_dirs.push_back(Direction::DOWN);
-    }
-
-    if (backup_dir != Direction::DOWN &&
-            available_dirs.find(Direction::UP) != available_dirs.end()) {
-
-        posible_dirs.push_back(Direction::UP);
-    }
-
-    if (posible_dirs.size() > 0) {
-        srand(time(NULL));
-        int rand_num = rand() % posible_dirs.size();
-
-        direction = posible_dirs.at(rand_num);
-    }
-}
-
-void Enemy::update(float delta_t) {
+void Enemy::update(const float delta_t) {
     acc_delta_t += delta_t;
     acc_delta_t_pepper += delta_t;
 
@@ -637,7 +646,7 @@ void Enemy::update(float delta_t) {
         float move_x;
         float move_y;
 
-        if (map->outOfMap(*this) && initial_movement) {
+        if (map->out_of_map(*this) && initial_movement) {
             direction = initial_direction;
 
             move(move_x, move_y, delta_t);
@@ -648,14 +657,14 @@ void Enemy::update(float delta_t) {
 
             Direction backup_dir = direction;
 
-            std::vector<std::shared_ptr<Tile>> actors_tiles = map->entityOnTiles(*this);
+            std::vector<std::shared_ptr<Tile>> actors_tiles = map->entity_on_tiles(*this);
 
             const std::shared_ptr<Tile> t = actors_tiles[0];
 
             bool a_start_called = false;
 
             for (auto tile : actors_tiles) {
-                if (a_star_tile && *tile a_star_tileTile) {
+                if (a_star_tile && *tile == *a_star_tile) {
                     a_start_called = true;
 
                     break;

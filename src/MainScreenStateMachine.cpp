@@ -1,4 +1,5 @@
 #include "MainScreenStateMachine.hpp"
+
 #include "InputSystem.hpp"
 
 FSM_INITIAL_STATE(MainScreenStateMachine, EnterStateMainScreen)

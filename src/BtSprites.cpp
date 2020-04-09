@@ -1,4 +1,5 @@
-#include "BT_sprites.hpp"
+#include "BtSprites.hpp"
+
 #include "Constants.hpp"
 
 namespace BtSprites {
@@ -172,10 +173,10 @@ namespace BtSprites {
     };
 
     /**
-     * Auxiliar function to init textures.
+     * @brief Create a texture object
      *
-     * @param path_to_sprite
-     * @return sf::Texture
+     * @param path_to_sprite path to texture
+     * @return sf::Texture sfml texture
      */
     sf::Texture create_texture(const std::string &path_to_sprite) {
         sf::Texture texture;
@@ -227,8 +228,7 @@ namespace BtSprites {
             case 16000:
                 return P_16000;
             default:
-                fprintf(stderr, "ERROR POINTS");
-                break;
+                return (Sprite)0;
         }
     }
 };

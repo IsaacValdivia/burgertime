@@ -27,7 +27,7 @@ enum Direction {
 
 struct ExecuteEvent : tinyfsm::Event {
     ExecuteEvent() = delete;
-    ExecuteEvent(float delta_t) : delta_t(delta_t) {}
+    ExecuteEvent(const float delta_t) : delta_t(delta_t) {}
 
     const float delta_t;
 };

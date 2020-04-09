@@ -24,43 +24,43 @@ namespace InputSystem {
     /**
      * @brief Main control function
      *
-     * @param new_char
+     * @param new_char new character
      */
-    void update(char new_char);
+    void update(const char new_char);
 
     /**
      * @brief Get the Last Input received
      *
-     * @return Input
+     * @return Input object
      */
     Input get_last_input();
 
     /**
      * @brief Checks if the input has been pressed
      *
-     * @param input
+     * @param input key/input pressed
      * @return true
      * @return false
      */
-    bool is_single_input_active(Input input);
+    bool is_single_input_active(const Input input);
 
     /**
      * @brief Checks if the input has been pressed
      *
-     * @param input
+     * @param input key/input
      * @return true
      * @return false
      */
-    bool has_input_just_been_pressed(Input input);
+    bool has_input_just_been_pressed(const Input input);
 
     /**
      * @brief Checks if the input has been released
      *
-     * @param input
+     * @param input key/input
      * @return true
      * @return false
      */
-    bool has_input_just_been_released(Input input);
+    bool has_input_just_been_released(const Input input);
 
     /**
      * @brief Checks if a character has been entered
@@ -73,7 +73,7 @@ namespace InputSystem {
     /**
      * @brief Get current character entered
      *
-     * @return char
+     * @return char character currently inserted
      */
     char get_current_char();
 }
