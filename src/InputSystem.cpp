@@ -177,10 +177,6 @@ namespace InputSystem {
         return false;
     }
 
-    void updateLastKey(sf::Keyboard::Key new_key) {
-        last_key = new_key;
-    }
-
     void reset_last_key() {
         last_key = sf::Keyboard::Key::Unknown;
     }
