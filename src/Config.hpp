@@ -19,10 +19,16 @@ public:
 
     void set_resolution(Resolution new_resolution);
 
+    void write_file();
+
     Resolution get_resolution() const;
 
 private:
     Config();
+
+    Config(const Config &copy);
+
+    Config &operator=(const Config &copy);
 
     void create_default_config();
 

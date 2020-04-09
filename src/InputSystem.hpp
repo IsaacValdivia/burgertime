@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <map>
+#include <fstream>
 #include <SFML/Window.hpp>
 
 namespace InputSystem
@@ -13,16 +14,23 @@ namespace InputSystem
         DOWN,
         LEFT,
         RIGHT,
-        PEPPER,
-        PAUSE,
+        ACTION,
+        EXIT,
         DELETE,
         NUM_INPUTS
     };
 
+    void updateLastKey(sf::Keyboard::Key newKey);
     void update();
     void update(char newChar);
 
     Input getLastInput();
+
+    sf::Keyboard::Key getLastKey();
+
+    void resetLastKey();
+
+    bool isKeyBinded(sf::Keyboard::Key key);
 
     bool isSingleInputActive(Input input);
 
@@ -34,8 +42,14 @@ namespace InputSystem
 
     char getCurrentChar();
 
-    void setInputBindings(const std::map<Input, sf::Keyboard::Key> &inputBindings);
+    void setInputBinding(Input inp, sf::Keyboard::Key newKey);
 
-    std::map<Input, sf::Keyboard::Key> getInputBindings();
+    sf::Keyboard::Key inputToKey(Input inp);
+
+    std::string keyboardKeyToString(sf::Keyboard::Key key);
+
+    void writeBindings(std::ofstream &file);
+
+    void readBindings(std::ifstream &file);
 
 } // namespace InputSystem

@@ -36,3 +36,4 @@ bin
 .vscode
 
 *.hscores
+*.conf

@@ -10,7 +10,7 @@
 #include "BurgerTimeStateMachine.hpp"
 
 BurgerTimeController::BurgerTimeController() : 
-    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close), gui(GUI::get()), config(Config::get())
+    window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Titlebar | sf::Style::Close)
 {
 }
 
@@ -47,6 +47,10 @@ BurgerTimeController &BurgerTimeController::get()
 
 void BurgerTimeController::startup()
 {
+    // No borrar, al ser singletons se tienen que inicializar cuanto antes
+    GUI::get();
+    Config::get();
+
     BurgerTimeStateMachine::start();
     window.setKeyRepeatEnabled(false);
     Audio::init();
@@ -140,6 +144,11 @@ void BurgerTimeController::update(float deltaT)
                 isTextEntered = true;
             }
         }
+        else if (event.type == sf::Event::KeyPressed)
+        {
+            InputSystem::updateLastKey(event.key.code);
+
+        }
     }
 
     if (isTextEntered)
@@ -200,5 +209,4 @@ void BurgerTimeController::set_resolution(Config::Resolution new_resolution)
             break;
     }
     window.setSize(resolutionSize);
-    config.set_resolution(new_resolution);
 }

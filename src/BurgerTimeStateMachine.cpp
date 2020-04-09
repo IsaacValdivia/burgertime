@@ -18,7 +18,7 @@ GUI &BurgerTimeStateMachine::gui = GUI::get();
 
 bool BurgerTimeStateMachine::timedStateReact(int waitTime)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PAUSE))
+    if (hasInputJustBeenPressed(InputSystem::Input::EXIT))
     {
         controller.restartTimer();
         return true;
@@ -503,7 +503,7 @@ void EnterHighscoreState::react(const ExecuteEvent &)
         Audio::play(Audio::Track::ENTRY_SELECTED);
         helpText->setString("CONFIRM? (PEPPER)");
         helpText->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
-        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+        if (InputSystem::hasInputJustBeenPressed(InputSystem::Input::ACTION))
         {
             HighScores highScores;
             highScores.saveNewScore(currentStr.substring(2, 4), newHighscore);

@@ -68,6 +68,29 @@ class BindingsScreenInsideState : public MainScreenStateMachine
 {
     void entry() override;
     void react(const ExecuteEvent &) override;
+
+    enum CurrentOption {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        ACTION,
+        EXIT,
+        BACK,
+        NUM_OPTIONS,
+    };
+
+    static constexpr std::array<const char*, 13> OPTION_STRINGS =
+    {
+        "bindingsScreenUp", "bindingsScreenUpKey", "bindingsScreenDown", "bindingsScreenDownKey",
+        "bindingsScreenLeft", "bindingsScreenLeftKey", "bindingsScreenRight", "bindingsScreenRightKey",
+        "bindingsScreenAction", "bindingsScreenActionKey", "bindingsScreenExit", "bindingsScreenExitKey",
+        "bindingsScreenBack"
+    };
+
+    CurrentOption currentOption;
+    bool isReadingKey;
+    sf::Keyboard::Key lastReadKey;
 };
 
 class BindingsOptionState : public MainScreenStateMachine

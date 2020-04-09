@@ -37,7 +37,7 @@ void StartOptionState::entry()
 
 void StartOptionState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         transit<FinishedStartState>();
         Audio::play(Audio::Track::COIN_INSERTED);
@@ -62,7 +62,7 @@ void ConfigOptionState::entry()
 
 void ConfigOptionState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         transit<InsideConfigOptionState>();
     }
@@ -101,19 +101,21 @@ void BindingsScreenInsideState::entry()
 {
     controller.clearScreen();
 
-    auto bindings = InputSystem::getInputBindings();
-    auto up = gui.createText("bindingsScreenUp", "UP", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto upKey = gui.createText("bindingsScreenUpKey", std::string(1, bindings[InputSystem::Input::UP] + 'A'), sf::Vector2u(700, 300), sf::Vector2f(0.8, 0.8));
+    currentOption = UP;
+    isReadingKey = false;
+
+    auto up = gui.createText("bindingsScreenUp", "UP", sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
+    auto upKey = gui.createText("bindingsScreenUpKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::UP)), sf::Vector2u(700, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
     auto down = gui.createText("bindingsScreenDown", "DOWN", sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto downKey = gui.createText("bindingsScreenDownKey", std::string(1, bindings[InputSystem::Input::DOWN] + 'A'), sf::Vector2u(700, 400), sf::Vector2f(0.8, 0.8));
+    auto downKey = gui.createText("bindingsScreenDownKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::DOWN)), sf::Vector2u(700, 400), sf::Vector2f(0.8, 0.8));
     auto left = gui.createText("bindingsScreenLeft", "LEFT", sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
-    auto leftKey = gui.createText("bindingsScreenLeftKey", std::string(1, bindings[InputSystem::Input::LEFT] + 'A'), sf::Vector2u(700, 500), sf::Vector2f(0.8, 0.8));
+    auto leftKey = gui.createText("bindingsScreenLeftKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::LEFT)), sf::Vector2u(700, 500), sf::Vector2f(0.8, 0.8));
     auto right = gui.createText("bindingsScreenRight", "RIGHT", sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
-    auto rightKey = gui.createText("bindingsScreenRightKey", std::string(1, bindings[InputSystem::Input::RIGHT] + 'A'), sf::Vector2u(700, 600), sf::Vector2f(0.8, 0.8));
-    auto action = gui.createText("bindingsScreenPepper", "ACTION", sf::Vector2u(320, 700), sf::Vector2f(0.8, 0.8));
-    auto actionKey = gui.createText("bindingsScreenActionKey", std::string(1, bindings[InputSystem::Input::PEPPER] + 'A'), sf::Vector2u(700, 700), sf::Vector2f(0.8, 0.8));
+    auto rightKey = gui.createText("bindingsScreenRightKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::RIGHT)), sf::Vector2u(700, 600), sf::Vector2f(0.8, 0.8));
+    auto action = gui.createText("bindingsScreenAction", "ACTION", sf::Vector2u(320, 700), sf::Vector2f(0.8, 0.8));
+    auto actionKey = gui.createText("bindingsScreenActionKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::ACTION)), sf::Vector2u(700, 700), sf::Vector2f(0.8, 0.8));
     auto exit = gui.createText("bindingsScreenExit", "EXIT", sf::Vector2u(320, 800), sf::Vector2f(0.8, 0.8));
-    auto exitKey = gui.createText("bindingsScreenExitKey", std::string(1, bindings[InputSystem::Input::PAUSE] + 'A'), sf::Vector2u(700, 800), sf::Vector2f(0.8, 0.8));
+    auto exitKey = gui.createText("bindingsScreenExitKey", InputSystem::keyboardKeyToString(InputSystem::inputToKey(InputSystem::Input::EXIT)), sf::Vector2u(700, 800), sf::Vector2f(0.8, 0.8));
     auto back = gui.createText("bindingsScreenBack", "BACK", sf::Vector2u(320, 900), sf::Vector2f(0.8, 0.8));
 
     controller.addDrawable(gui.getText("enterStateMainBurTime"));
@@ -134,7 +136,128 @@ void BindingsScreenInsideState::entry()
 
 void BindingsScreenInsideState::react(const ExecuteEvent &)
 {
+    bool updateColor = false;
+    sf::Color newColor;
+    if (isReadingKey && hasInputJustBeenPressed(InputSystem::Input::EXIT))
+    {
+        isReadingKey = false;
+        updateColor = true;
+        newColor = sf::Color::Cyan;
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::EXIT))
+    {
+        transit<InsideConfigOptionState>();
+        return;
+    }
+    else if (isReadingKey)
+    {
+        auto newKey = InputSystem::getLastKey();
 
+        if (!InputSystem::isKeyBinded(newKey) && newKey != sf::Keyboard::Key::Unknown && newKey != lastReadKey)
+        {
+            const char* optionText;
+            switch (currentOption)
+            {
+                case UP:
+                    InputSystem::setInputBinding(InputSystem::Input::UP, newKey);
+                    optionText = "bindingsScreenUpKey";
+                    break;
+                case DOWN:
+                    InputSystem::setInputBinding(InputSystem::Input::DOWN, newKey);
+                    optionText = "bindingsScreenDownKey";
+                    break;
+                case LEFT:
+                    InputSystem::setInputBinding(InputSystem::Input::LEFT, newKey);
+                    optionText = "bindingsScreenLeftKey";
+                    break;
+                case RIGHT:
+                    InputSystem::setInputBinding(InputSystem::Input::RIGHT, newKey);
+                    optionText = "bindingsScreenRightKey";
+                    break;
+                case ACTION:
+                    InputSystem::setInputBinding(InputSystem::Input::ACTION, newKey);
+                    optionText = "bindingsScreenActionKey";
+                    break;
+                case EXIT:
+                    InputSystem::setInputBinding(InputSystem::Input::EXIT, newKey);
+                    optionText = "bindingsScreenExitKey";
+                    break;
+            }
+
+            gui.getText(optionText).lock()->setString(InputSystem::keyboardKeyToString(newKey));
+            lastReadKey = newKey;
+            isReadingKey = false;
+            updateColor = true;
+            newColor = sf::Color::Cyan;
+            Config::get().write_file();
+        }
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
+    {
+        isReadingKey = true;
+        InputSystem::resetLastKey();
+        lastReadKey = InputSystem::getLastKey();
+        if (currentOption == BACK) 
+        {
+            transit<InsideConfigOptionState>();
+            return;
+        }
+        updateColor = true;
+        newColor = sf::Color::Green;
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::UP))
+    {
+        isReadingKey = false;
+        updateColor = true;
+        newColor = sf::Color::Cyan;
+        currentOption = static_cast<CurrentOption>(((currentOption - 1) + NUM_OPTIONS) % NUM_OPTIONS);
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::DOWN))
+    {
+        isReadingKey = false;
+        updateColor = true;
+        newColor = sf::Color::Cyan;
+        currentOption = static_cast<CurrentOption>((currentOption + 1) % NUM_OPTIONS);
+    }
+
+    if (updateColor)
+    {
+        for (const auto &optString : OPTION_STRINGS)
+        {
+            gui.getText(optString).lock()->setFillColor(sf::Color::White);
+        }
+
+        switch (currentOption)
+        {
+            case UP:
+                gui.getText("bindingsScreenUp").lock()->setFillColor(newColor);
+                gui.getText("bindingsScreenUpKey").lock()->setFillColor(newColor);
+                break;
+            case DOWN:
+                gui.getText("bindingsScreenDown").lock()->setFillColor(newColor);
+                gui.getText("bindingsScreenDownKey").lock()->setFillColor(newColor);
+                break;
+            case LEFT:
+                gui.getText("bindingsScreenLeft").lock()->setFillColor(newColor);
+                gui.getText("bindingsScreenLeftKey").lock()->setFillColor(newColor);
+                break;
+            case RIGHT:
+                gui.getText("bindingsScreenRight").lock()->setFillColor(newColor);
+                gui.getText("bindingsScreenRightKey").lock()->setFillColor(newColor);
+                break;
+            case ACTION:
+                gui.getText("bindingsScreenAction").lock()->setFillColor(newColor);
+                gui.getText("bindingsScreenActionKey").lock()->setFillColor(newColor);
+                break;
+            case EXIT:
+                gui.getText("bindingsScreenExit").lock()->setFillColor(newColor);
+                gui.getText("bindingsScreenExitKey").lock()->setFillColor(newColor);
+                break;
+            case BACK:
+                gui.getText("bindingsScreenBack").lock()->setFillColor(newColor);
+                break;
+        }
+    }
 }
 
 
@@ -147,7 +270,11 @@ void BindingsOptionState::entry()
 
 void BindingsOptionState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::EXIT))
+    {
+        transit<EnterStateMainScreen>();
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         transit<BindingsScreenInsideState>();
     }
@@ -221,20 +348,30 @@ void ResolutionScreenInsideState::entry()
     controller.addDrawable(back);
 
     isInExit = false;
-    current_resolution = Config::Resolution::x250x250;
+    current_resolution = Config::get().get_resolution();
 }
 
 void ResolutionScreenInsideState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::EXIT))
+    {
+        transit<InsideConfigOptionState>();
+        return;
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         if (!isInExit)
         {
             controller.set_resolution(current_resolution);
+
+            auto &config = Config::get();
+            config.set_resolution(current_resolution);
+            config.write_file();
         }
         else
         {
             transit<InsideConfigOptionState>();
+            return;
         }
     }
     else if (hasInputJustBeenPressed(InputSystem::Input::UP))
@@ -299,7 +436,11 @@ void ResolutionOptionState::entry()
 
 void ResolutionOptionState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::EXIT))
+    {
+        transit<EnterStateMainScreen>();
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         transit<ResolutionScreenInsideState>();
     }
@@ -323,7 +464,11 @@ void BackOptionState::entry()
 
 void BackOptionState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::EXIT))
+    {
+        transit<EnterStateMainScreen>();
+    }
+    else if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         transit<EnterStateMainScreen>();
     }
@@ -347,7 +492,7 @@ void ExitOptionState::entry()
 
 void ExitOptionState::react(const ExecuteEvent &)
 {
-    if (hasInputJustBeenPressed(InputSystem::Input::PEPPER))
+    if (hasInputJustBeenPressed(InputSystem::Input::ACTION))
     {
         transit<FinishedExitState>();
     }

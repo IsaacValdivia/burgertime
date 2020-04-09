@@ -40,9 +40,6 @@ private:
 
     bool hasGameFinished() const;
 
-    GUI &gui;
-    Config &config;
-
     sf::RenderWindow window;
 
     std::list<std::weak_ptr<sf::Drawable>> drawablesOnScreen;
