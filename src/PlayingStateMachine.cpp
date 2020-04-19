@@ -436,6 +436,7 @@ void NormalStatePlaying::check_main_music() {
 }
 
 void NormalStatePlaying::entry() {
+
     controller.clear_screen();
     main_music_played = false;
 
@@ -636,6 +637,7 @@ void WinStatePlaying::react(const ExecuteEvent &event) {
     if (BurgerTimeStateMachine::timed_state_react(4)) {
         // TODO: change
         Audio::play(Audio::Track::LEVEL_INTRO);
+        game_info->has_just_entered = true;
         game_info->level_counter.add_level(1);
 
         transit<GameReadyScreenState>(std::bind(
