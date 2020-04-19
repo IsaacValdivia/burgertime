@@ -71,7 +71,7 @@ void ConfigOptionState::react(const ExecuteEvent &) {
 void InsideConfigOptionState::entry() {
     controller.clear_screen();
 
-    auto bindings_text = gui.create_text("insideConfigMainBindings", "BINDINGS",
+    auto bindings_text = gui.create_text("insideConfigMainBindings", "CONTROLS",
                                          sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
 
     auto resolution_text = gui.create_text("insideConfigMainResolution", "RESOLUTION",

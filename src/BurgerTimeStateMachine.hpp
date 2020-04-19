@@ -21,13 +21,22 @@ public:
     virtual void react(const ExecuteEvent &) {};
 
     /**
-     * @brief Reacts and refreshes timer if wait_time has elapsed
+     * @brief Reacts and refreshes timer if wait_time_s has elapsed or EXIT input is pressed
      *
-     * @param wait_time
+     * @param wait_time_s
      * @return true
      * @return false
      */
-    static bool timed_state_react(int wait_time);
+    static bool timed_exit_state_react(int wait_time_s);
+
+    /**
+     * @brief Reacts and refreshes timer if wait_time_s has elapsed
+     *
+     * @param wait_time_s
+     * @return true
+     * @return false
+     */
+    static bool timed_state_react(int wait_time_s);
 };
 
 class HighscoreDisplayScreenState : public BurgerTimeStateMachine {
