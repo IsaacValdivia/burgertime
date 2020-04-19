@@ -16,14 +16,18 @@ BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController:
 GUI &BurgerTimeStateMachine::gui = GUI::get();
 
 
-bool BurgerTimeStateMachine::timed_state_react(int wait_time) {
+bool BurgerTimeStateMachine::timed_exit_state_react(int wait_time_s) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         controller.restart_timer();
         return true;
     }
 
+    return timed_state_react(wait_time_s);
+}
+
+bool BurgerTimeStateMachine::timed_state_react(int wait_time_s) {
     auto elapsed_time = controller.get_elapsed_time();
-    if (elapsed_time.asSeconds() >= wait_time) {
+    if (elapsed_time.asSeconds() >= wait_time_s) {
         controller.restart_timer();
         return true;
     }
@@ -69,7 +73,7 @@ void HighscoreDisplayScreenState::entry() {
 }
 
 void HighscoreDisplayScreenState::react(const ExecuteEvent &) {
-    if (BurgerTimeStateMachine::timed_state_react(5)) {
+    if (BurgerTimeStateMachine::timed_exit_state_react(5)) {
         transit<ItemPointsScreenState>();
     }
 }
@@ -319,7 +323,7 @@ void ItemPointsScreenState::entry() {
 }
 
 void ItemPointsScreenState::react(const ExecuteEvent &) {
-    if (BurgerTimeStateMachine::timed_state_react(5)) {
+    if (BurgerTimeStateMachine::timed_exit_state_react(5)) {
         transit<MainScreenState>();
     }
 }
