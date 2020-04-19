@@ -6,10 +6,10 @@
 namespace InputSystem {
     namespace {
         static std::map<Input, sf::Keyboard::Key> input_bindings = {
-            {Input::UP, sf::Keyboard::Key::W},
-            {Input::DOWN, sf::Keyboard::Key::S},
-            {Input::LEFT, sf::Keyboard::Key::A},
-            {Input::RIGHT, sf::Keyboard::Key::D},
+            {Input::UP, sf::Keyboard::Key::Up},
+            {Input::DOWN, sf::Keyboard::Key::Down},
+            {Input::LEFT, sf::Keyboard::Key::Left},
+            {Input::RIGHT, sf::Keyboard::Key::Right},
             {Input::ACTION, sf::Keyboard::Key::Space},
             {Input::EXIT, sf::Keyboard::Key::Escape},
             {Input::DELETE, sf::Keyboard::Key::BackSpace},
