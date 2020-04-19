@@ -36,7 +36,7 @@ void Map::fill_tiles(const std::vector<std::string> &map_data) {
         for (auto &content : row) {
             float x = SIDE_MARGINS + j * Tile::TILE_WIDTH;
             float y = UPPER_MARGIN + i * Tile::TILE_HEIGHT;
-            if (content == Tile::STAIRS || content == Tile::GO_UP ||
+            if (content == Tile::STAIRS || content == Tile::GO_UP || content == Tile::GO_DOWN ||
                     content == Tile::GO_BOTH || content == Tile::BASKET_EDGE) {
 
                 double_placed = !double_placed;
@@ -279,52 +279,39 @@ bool Map::can_entity_move(float &x, float &y, const Entity &entity) const {
 
     float bot_y = collision_shape.top + collision_shape.height;
 
-    std::vector<std::shared_ptr<Tile>> tiles_of_player = entity_on_tiles(entity);
+    std::vector<std::shared_ptr<Tile>> tiles_of_entity = entity_on_tiles(entity);
 
     bool horizontal_mov = x != 0;
     bool up = false, right = false;
 
     if (horizontal_mov) {
-        right = x > 0;
+        right = x > 0.0;
     }
     else {
-        up = y < 0;
+        up = y < 0.0;
     }
 
-    if (horizontal_mov && right && can_move_right(*tiles_of_player.back(), bot_right_x)) {
-        y = ((tiles_of_player[0]->get_position().y + Tile::TILE_HEIGHT) -
-             tiles_of_player[0]->get_height()) - bot_y;
-        return true;
-    }
-    else if (horizontal_mov && !right && can_move_left(*tiles_of_player.front(),
-             bot_left_x)) {
-        y = ((tiles_of_player[0]->get_position().y + Tile::TILE_HEIGHT) -
-             tiles_of_player[0]->get_height()) - bot_y;
+    if (horizontal_mov && (right && can_move_right(*tiles_of_entity.back(), bot_right_x) || !right && can_move_left(*tiles_of_entity.front(), bot_left_x))) {
+        y = ((tiles_of_entity[0]->get_position().y + Tile::TILE_HEIGHT) -
+             tiles_of_entity[0]->get_height()) - bot_y;
         return true;
     }
     else {
         short up_bot_count = 0;
-        bool first_time = true;
-        for (const auto &tile : tiles_of_player) {
-            if (!horizontal_mov && up && can_move_up(*tile, bot_y)) {
-                if (first_time) {
+        for (const auto &tile : tiles_of_entity) {
+            if (!horizontal_mov && (up && can_move_up(*tile, bot_y) || !up && can_move_down(*tile, bot_y))) {
+                if (tile->is_steppable_vert_left()) {
                     x = (tile->get_position().x + Tile::TILE_WIDTH) -
                         ((bot_right_x + bot_left_x) / 2.0);
-                    first_time = false;
-                }
-                ++up_bot_count;
-            }
-            else if (!horizontal_mov && !up && can_move_down(*tile, bot_y)) {
-                if (first_time) {
-                    x = (tile->get_position().x + Tile::TILE_WIDTH) -
+                } else if (tile->is_steppable_vert_right()) {
+                    x = (tile->get_position().x) -
                         ((bot_right_x + bot_left_x) / 2.0);
-                    first_time = false;
                 }
                 ++up_bot_count;
             }
         }
 
-        if (up_bot_count == 2) {
+        if (up_bot_count == tiles_of_entity.size()) {
             return true;
         }
     }
@@ -398,6 +385,67 @@ std::set<Direction> Map::available_from_direction(const Tile &current,
     return available_paths;
 }
 
+void Map::available_from_direction_inm(const std::shared_ptr<const Tile> &current, 
+                    std::vector<std::shared_ptr<const Tile>> &available_paths, int tiles_ahead,
+                    const Direction actual_dir) const {
+    
+    if (tiles_ahead == 0) {
+        available_paths.push_back(current);
+
+        return;
+    }
+    
+    if (actual_dir != Direction::DOWN, can_move_up(*current)) {
+        const auto &t = tile_data[current->get_row() - 1][current->get_col()];
+        available_from_direction_inm(t, available_paths, tiles_ahead - 1, Direction::UP);
+    }
+
+    if (actual_dir != Direction::UP && can_move_down(*current)) {
+        const auto &t = tile_data[current->get_row() + 1][current->get_col()];
+        available_from_direction_inm(t, available_paths, tiles_ahead - 1, Direction::DOWN);
+    }
+
+    if (actual_dir != Direction::RIGHT && can_move_left(*current)) {
+        const auto &t = tile_data[current->get_row()][current->get_col() - 1];
+        available_from_direction_inm(t, available_paths, tiles_ahead - 1, Direction::LEFT);
+    }
+
+    if (actual_dir != Direction::LEFT && can_move_right(*current)) {
+        const auto &t = tile_data[current->get_row()][current->get_col() + 1];
+        available_from_direction_inm(t, available_paths, tiles_ahead - 1, Direction::RIGHT);
+    }
+}
+
+std::vector<std::shared_ptr<const Tile>> Map::available_from_direction(const std::shared_ptr<const Tile> &current, const Direction actual_dir, 
+                                                                       const int tiles_ahead) const
+{
+
+    std::vector<std::shared_ptr<const Tile>> available_paths;
+    available_from_direction_inm(current, available_paths, tiles_ahead, actual_dir);
+
+    // if (actual_dir != Direction::DOWN && can_move_up(current)) {
+    //     Tile &t = tile_data[current.get_row() - 1][current.get_col()]
+    //     available_from_direction_inm(t, available_paths, tiles_ahead--, Direction::UP);
+    // }
+
+    // if (actual_dir != Direction::UP && can_move_down(current, tiles_ahead)) {
+    //     Tile &t = tile_data[current.get_row() + 1][current.get_col()];
+    //     available_from_direction_inm(t, available_paths, tiles_ahead--, Direction::DOWN);
+    // }
+
+    // if (actual_dir != Direction::RIGHT && can_move_left(current, tiles_ahead)) {
+    //     Tile &t = tile_data[current.get_row()][current.get_col() - 1];
+    //     available_from_direction_inm(t, available_paths, tiles_ahead--, Direction::LEFT);
+    // }
+
+    // if (actual_dir != Direction::LEFT && can_move_right(current, tiles_ahead)) {
+    //     Tile &t = tile_data[current.get_row()][current.get_col() + 1];
+    //     available_from_direction_inm(t, available_paths, tiles_ahead--, Direction::RIGHT);
+    // }
+
+    return available_paths;
+}
+
 std::shared_ptr<const Tile> Map::get_chef_initial_tile() const {
     return tile_data[chef_spawn.x][chef_spawn.y];
 }
@@ -409,7 +457,6 @@ std::shared_ptr<const Tile> Map::get_item_initial_tile() const {
 Map::SpecialItem Map::get_item_type() const {
     return item_spawn.first;
 }
-
 
 std::vector<std::pair<Enemy::Type, std::shared_ptr<const Tile>>>
 Map::get_enemies_spawns() const {
@@ -427,4 +474,16 @@ Map::get_enemies_spawns() const {
 
 std::vector<Ingredient> &Map::get_ing_data() {
     return ing_data;
+}
+
+std::set<Enemy *> Map::enemies_on_tile(std::shared_ptr<const Tile> tile) {
+    return enemies_positions[tile];
+}
+
+void Map::reset_enemies_on_tiles() {
+    enemies_positions.clear();
+}
+
+void Map::set_enemy_on_tile(Enemy *enemy, std::shared_ptr<const Tile> tile) {
+    enemies_positions[tile].insert(enemy);
 }

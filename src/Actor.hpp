@@ -17,7 +17,7 @@ protected:
     Direction direction; // Current direction.
     Direction mirror_state;
 
-    const std::shared_ptr<const Map> map; // Pointer to map.
+    const std::shared_ptr<Map> map; // Pointer to map.
 
     BtSprites::Sprite first_sprite; // Initial sprite.
 
@@ -36,7 +36,7 @@ public:
      * @param map Pointer to map on which it will be generated
      */
     Actor(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
-          const BtSprites::Sprite first_sprite, const std::shared_ptr<const Map> map);
+          const BtSprites::Sprite first_sprite, const std::shared_ptr<Map> map);
 
     /**
      * Returns a shape enclosing the Actor, representing its hitbox

@@ -10,7 +10,7 @@ StaticTexture Tile::right_basket_tex(RIGHT_BASKET_PATH);
 
 Tile::Tile(const float _x, const float _y, const uint8_t _row, const uint8_t _col,
            const Type _content, const bool _left)
-    : col(_col), row(_row), height(3), content(_content),
+    : col(_col), row(_row), height(3), content(_content), left(_left),
       shape(sf::Vector2f(TILE_WIDTH, TILE_HEIGHT)) {
 
     shape.setPosition(_x, _y);
@@ -102,6 +102,15 @@ char Tile::get_col() const {
     return col;
 }
 
+void Tile::set_row(const uint8_t _row) {
+    row = _row;
+}
+
+void Tile::set_col(const uint8_t _col) {
+    col = _col;
+}
+
+
 bool Tile::is_empty() const {
     return content == EMPTY;
 }
@@ -144,4 +153,12 @@ bool Tile::is_steppable_hor() const {
 
 bool Tile::is_steppable_vert() const {
     return this->is_stairs() || this->is_connector();
+}
+
+bool Tile::is_steppable_vert_left() const {
+    return this->is_steppable_vert() && left;
+}
+
+bool Tile::is_steppable_vert_right() const {
+    return this->is_steppable_vert() && !left;
 }

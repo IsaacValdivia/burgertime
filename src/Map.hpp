@@ -38,6 +38,8 @@ private:
     std::pair<SpecialItem, sf::Vector2u> item_spawn;
     sf::Vector2u chef_spawn;
 
+    std::map<std::shared_ptr<const Tile>, std::set<Enemy*>> enemies_positions;
+
     /**
      * @brief Processes a file and constructs a map from it
      *
@@ -217,6 +219,18 @@ private:
      */
     static bool is_chef(const char c);
 
+    /**
+     * @brief Returns the possibles movements performable on a tile current, considering the
+     *        current direction
+     *
+     * @param current current tile
+     * @param available_paths 
+     * @param tiles_ahead tile offset to check the movement t
+     */
+    void available_from_direction_inm(const std::shared_ptr<const Tile> &current, 
+                        std::vector<std::shared_ptr<const Tile>> &available_paths, int tiles_ahead,
+                        const Direction actual_dir) const;
+
 public:
     enum Chef : char {
         CHEF = '0'
@@ -268,6 +282,28 @@ public:
     bool out_of_map(const Actor &actor) const;
 
     /**
+     * @brief Returns the enemies that are on the given tile
+     *
+     * @param tile tile to check against
+     * @return std::set<std::shared_ptr<Enemy>>
+     */
+    std::set<Enemy*> enemies_on_tile(std::shared_ptr<const Tile> tile);
+
+    /**
+     * @brief Resets the enemies on tiles
+     *
+     */
+    void reset_enemies_on_tiles();
+
+    /**
+     * @brief Set the enemy on tile
+     * 
+     * @param enemy enemy to place
+     * @param tile tile to place on
+     */
+    void set_enemy_on_tile(Enemy *enemy, std::shared_ptr<const Tile> tile);
+
+    /**
      * @brief Returns the tiles reachable from tile current
      *
      * @param current tile
@@ -285,6 +321,18 @@ public:
      */
     std::set<Direction> available_from_direction(const Tile &current,
             const Direction actual_dir) const;
+
+    /**
+     * @brief Returns the possibles movements performable on a tile current, considering the
+     *        current direction
+     *
+     * @param current current tile
+     * @param actual_dir current direction
+     * @param tiles_ahead tile offset to check the movement t
+     * @return std::set<Direction>
+     */
+    std::vector<std::shared_ptr<const Tile>> available_from_direction(const std::shared_ptr<const Tile> &current,
+            const Direction actual_dir, const int tiles_ahead) const;
 
     /**
      * @brief Returns the starting tile of the chef

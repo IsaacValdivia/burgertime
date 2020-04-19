@@ -233,7 +233,7 @@ const BtSprites::Sprite Player::pepper_sprite_state_machine[] = {
     BtSprites::Sprite::PLAYER_PEPPER_FRONT,
 };
 
-Player::Player(const sf::Vector2f &init_pos, const std::shared_ptr<const Map> map,
+Player::Player(const sf::Vector2f &init_pos, const std::shared_ptr<Map> map,
                const std::function<void(const sf::Vector2f &, Direction)> &pepper_spawned_func,
                const std::function<bool()> &has_pepper)
 
@@ -341,7 +341,7 @@ void Player::update(const float delta_t) {
             if (map->can_entity_move(move_x, move_y, *this)) {
                 sprite.move(move_x, move_y);
                 // TODO: comprobar que entity_on_tiles no sea vacio
-                player_moved(map->entity_on_tiles(*this)[0]);
+                player_moved(map->entity_on_tiles(*this)[0], direction);
             }
             // Want to move but can't.
             else {
@@ -386,7 +386,7 @@ bool Player::going_x_direction() const {
 }
 
 nod::connection Player::connect_player_moved(
-    const std::function<void(const std::shared_ptr<Tile>)> &player_moved_func) {
+    const std::function<void(const std::shared_ptr<Tile>, Direction)> &player_moved_func) {
 
     return player_moved.connect(player_moved_func);
 }

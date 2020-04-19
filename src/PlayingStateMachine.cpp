@@ -132,7 +132,7 @@ void PlayingStateMachine::add_player_and_enemies() {
                         std::bind(&PlayingStateMachine::has_pepper, this)
                                                 );
 
-    game_info->ai = std::make_shared<AI>(map, player_spawn_tile);
+    game_info->ai = std::make_shared<AI>(map, player_spawn_tile, 0);
 
     float offset = 1;
     for (const auto &enemy_spawn : map->get_enemies_spawns()) {
@@ -145,13 +145,10 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
                                       const Tile &initial_tile, float offset) {
 
     auto &map = game_info->maps[game_info->current_map];
-    // TODO: ia
     game_info->player->connect_player_moved(std::bind(&AI::set_goal_tile,
                                             game_info->ai,
-                                            std::placeholders::_1));
-
-    // game_info->player->connect_player_moved(std::bind(&AI::set_goal_tile,
-    // &game_info->ias.back(), std::placeholders::_1));
+                                            std::placeholders::_1,
+                                            std::placeholders::_2));
 
     auto initial_pos = initial_tile.get_position();
     Direction initial_dir;
@@ -494,6 +491,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
     check_main_music();
 
     auto &map = game_info->maps[game_info->current_map];
+    map->reset_enemies_on_tiles();
 
     if (game_info->bonus->intersects_with(*game_info->player)) {
         game_info->bonus->has_been_claimed();

@@ -477,7 +477,6 @@ void Enemy::random_move(const float delta_t, const Tile &current) {
     }
 
     if (posible_dirs.size() > 0) {
-        srand(time(NULL));
         int rand_num = rand() % posible_dirs.size();
 
         direction = posible_dirs.at(rand_num);
@@ -485,7 +484,7 @@ void Enemy::random_move(const float delta_t, const Tile &current) {
 }
 
 Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
-             const std::shared_ptr<const Map> map, const AI &ia,
+             const std::shared_ptr<Map> map, const AI &ia,
              const Direction initial_direction,
              const std::function<void(unsigned int)> &points_added)
     : Actor(init_pos, sausage_sprite_state_machine[0].sprites[NONE],
@@ -665,12 +664,11 @@ void Enemy::update(const float delta_t) {
                 if (a_star_tile && *tile == *a_star_tile) {
                     a_start_called = true;
 
-                    break;
+                    map->set_enemy_on_tile(this, tile);
                 }
             }
 
             if (!a_start_called && t->is_connector()) {
-                srand(time(NULL));
                 int rand_num = rand() % 100;
 
                 float goal_distance = ia.distance_to_goal(t);
@@ -680,6 +678,7 @@ void Enemy::update(const float delta_t) {
 
                 goal_distance /= rand_mov_prob_normalizer;
 
+                rand_num = -1;
 
                 if (rand_num > goal_distance) {
                     random_move(delta_t, *t);
@@ -702,6 +701,9 @@ void Enemy::update(const float delta_t) {
             }
             // Want to move but can't.
             else {
+                if (type == EGG) {
+                    fprintf(stderr, "DIRECTION = %d\n", (Direction)direction);
+                }
                 direction = backup_dir;
 
                 move(move_x, move_y, delta_t);

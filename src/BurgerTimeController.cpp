@@ -9,6 +9,7 @@
 #include <iostream>
 #include <thread>
 #include <SFML/System.hpp>
+#include <time.h>
 
 BurgerTimeController::BurgerTimeController() :
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE,
@@ -42,6 +43,8 @@ void BurgerTimeController::startup() {
     // No borrar, al ser singletons se tienen que inicializar cuanto antes
     GUI::get();
     Config::get();
+
+    srand(time(NULL));
 
     BurgerTimeStateMachine::start();
     window.setKeyRepeatEnabled(false);

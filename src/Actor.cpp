@@ -20,7 +20,7 @@ void Actor::mirror() {
 }
 
 Actor::Actor(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
-             const BtSprites::Sprite first_sprite, const std::shared_ptr<const Map> map)
+             const BtSprites::Sprite first_sprite, const std::shared_ptr<Map> map)
 
     : alive(true), SpritedEntity(init_pos, init_sprite),
       direction(LEFT),

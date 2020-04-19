@@ -47,11 +47,13 @@ Direction AI::next_move_direction(const std::map<std::shared_ptr<const Tile>,
 }
 
 AI::AI(const std::shared_ptr<const Map> map,
-       const std::shared_ptr<const Tile> new_goal_tile)
-    : map(map), goal_tile(new_goal_tile) {}
+       const std::shared_ptr<const Tile> new_goal_tile,
+       const int tiles_ahead)
+    : map(map), goal_tile(new_goal_tile), tiles_ahead(tiles_ahead) {}
 
-void AI::set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile) {
+void AI::set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile, Direction new_goal_direction) {
     goal_tile = new_goal_tile;
+    goal_direction = new_goal_direction;
 }
 
 float AI::distance_to_goal(const std::shared_ptr<const Tile> from) const {
@@ -67,8 +69,48 @@ float AI::h(const std::shared_ptr<const Tile> from,
     return (x + y);
 }
 
+float AI::h2(const std::shared_ptr<const Tile> from,
+             const std::shared_ptr<const Tile> to) const {
+
+    int x = (to->get_col() - from->get_col());
+    int y = (to->get_row() - from->get_row());
+
+    return sqrt(x * x + y * y);
+}
+
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const {
+    std::shared_ptr<const Tile> goal = goal_tile;
+    if (tiles_ahead != 0) {
+        std::vector<std::shared_ptr<const Tile>> available_tiles;
+        if (tiles_ahead > 0) {
+            available_tiles = map->available_from_direction(goal_tile, goal_direction, tiles_ahead);
+        } else {
+            Direction inverted_direction;
+            switch (goal_direction) {
+                case UP:
+                    inverted_direction = DOWN;
+                    break;
+                case DOWN:
+                    inverted_direction = UP;
+                    break;
+                case LEFT:
+                    inverted_direction = RIGHT;
+                    break;
+                case RIGHT:
+                    inverted_direction = LEFT;
+                    break;
+            }
+            available_tiles = map->available_from_direction(goal_tile, inverted_direction, -tiles_ahead);
+        }
+
+        if (available_tiles.size() > 0) {
+            goal = *std::min_element(available_tiles.begin(), available_tiles.end(), [this, &start_tile](const std::shared_ptr<const Tile> &l, const std::shared_ptr<const Tile> &r) {
+                return h2(start_tile, l) < h2(start_tile, r);
+            });
+        }
+    }
+
     // For node n, came_from[n] is the node immediately preceding it on the
     // cheapest path from start to n currently known.
     std::map<std::shared_ptr<const Tile>, std::shared_ptr<const Tile>> came_from;
@@ -98,7 +140,7 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
 
         return score_val;
     };
-    f_score[start_tile] = h(start_tile, goal_tile);
+    f_score[start_tile] = h(start_tile, goal);
 
     // The set of discovered nodes that may need to be (re-)expanded.
     // Initially, only the start node is known.
@@ -121,7 +163,7 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
         // or a priority queue current := the node in open_min_heap having the
         // lowest f_score[] value
         const auto current = open_min_heap.top();
-        if (*current == *goal_tile) {
+        if (*current == *goal) {
             return next_move_direction(came_from, current);
         }
 
@@ -133,7 +175,7 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
                 // This path to neighbor is better than any previous one. Record it!
                 came_from[neighbor] = current;
                 g_score[neighbor] = tentative_score;
-                f_score[neighbor] = get_g_score(neighbor) + h(neighbor, goal_tile);
+                f_score[neighbor] = get_g_score(neighbor) + h(neighbor, goal);
                 if (open_set.find(neighbor) == open_set.end()) {
                     open_min_heap.push(neighbor);
                     open_set.insert(neighbor);

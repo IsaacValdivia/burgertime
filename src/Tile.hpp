@@ -45,6 +45,8 @@ private:
 
     unsigned int height;
 
+    bool left;
+
     Type content;
 
     sf::RectangleShape shape;
@@ -58,10 +60,10 @@ public:
      * @param _row row of the tile
      * @param _col col of the tile
      * @param _content content inside the tile
-     * @param _right relevant if the tile is stairs, go up, go both or basket
+     * @param _left relevant if the tile is stairs, go up, go both or basket
      */
     Tile(const float _x, const float _y, const uint8_t _row,
-         const uint8_t _col, const Type _content, const bool _right);
+         const uint8_t _col, const Type _content, const bool _left);
 
     /**
      * @brief Construct a new Tile object
@@ -129,6 +131,18 @@ public:
      * @return char column
      */
     char get_col() const;
+
+    /**
+     * @brief Set the row of the tile
+     * 
+     */
+    void set_row(const uint8_t);
+
+    /**
+     * @brief Set the col of the tile
+     * 
+     */
+    void set_col(const uint8_t);
 
     /**
      * @brief Returns true if the tile is empty
@@ -217,4 +231,20 @@ public:
      * @return false
      */
     bool is_steppable_vert() const;
+
+    /**
+     * @brief Returns true if the tile is steppable vertically and left-sided
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool is_steppable_vert_left() const;
+
+    /**
+     * @brief Returns true if the tile is steppable vertically and right-sided
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool is_steppable_vert_right() const;
 };

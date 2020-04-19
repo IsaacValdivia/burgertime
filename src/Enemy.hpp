@@ -48,7 +48,7 @@ private:
     static constexpr float dying_sprite_duration = 0.16;
     static constexpr float pepper_sprite_animation = 0.27;
 
-    static constexpr float rand_mov_prob_normalizer = 0.20;
+    static constexpr float rand_mov_prob_normalizer = 1; // 0.20;
 
     static constexpr float pepper_duration = 4;
 
@@ -108,7 +108,7 @@ public:
      * @param points_added points gainable if killed
      */
     Enemy(const Type &type, const sf::Vector2f &init_pos,
-          const std::shared_ptr<const Map> map,
+          const std::shared_ptr<Map> map,
           const AI &ia, const Direction initial_direction,
           const std::function<void(unsigned int)> &points_added);
 
