@@ -169,11 +169,6 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
             break;
         }
         case Difficulty::HARD: {
-            chosen_ai = game_info->ai1;
-            randomize = false;
-            break;
-        }
-        case Difficulty::SMILEY: {
             switch (type) {
                 case Enemy::Type::EGG: {
                     chosen_ai = game_info->ai3;
@@ -188,6 +183,11 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
                     break;
                 }
             }
+            randomize = false;
+            break;
+        }
+        case Difficulty::SMILEY: {
+            chosen_ai = game_info->ai1;
             randomize = false;
             break;
         }
@@ -262,10 +262,6 @@ void PlayingStateMachine::ingredient_collision() {
                                      Ingredient::STATIC_ING_BASKET :
                                      Ingredient::INGREDIENT;
 
-                        // other.land(tiles[1]->get_position().y +
-                        // 10, Ingredient::INGREDIENT);
-                        // std::cout << "other state " << other.state << std::endl;
-
                         ingredient.land(other.get_collision_shape().top -
                                         (Tile::TILE_HEIGHT - 8), state);
 
@@ -311,7 +307,7 @@ void PlayingStateMachine::ingredient_collision() {
                 add_points(50);
 
                 for (auto &enemy : game_info->enemies) {
-                    if (!enemy->is_surfing() && ingredient.intersects_with(*enemy)
+                    if (enemy->is_alive() && !enemy->is_surfing() && ingredient.intersects_with(*enemy)
                             && ingredient.get_collision_shape().top >=
                             enemy->get_collision_shape().top) {
 
@@ -341,6 +337,8 @@ void PlayingStateMachine::ingredient_collision() {
 }
 
 void PlayingStateMachine::add_points(unsigned int points) {
+    points *= current_state_ptr->game_info->points_multiplier;
+
     current_state_ptr->game_info->score_counter.add_points(points);
     current_state_ptr->game_info->points_to_extra_life -= points;
 
@@ -361,6 +359,18 @@ void EnterStatePlaying::entry() {
 
     controller.clear_screen();
     game_info = std::unique_ptr<GameInfo>(new GameInfo);
+
+    switch (BurgerTimeController::get().get_selected_difficulty()) {
+        case CLASSIC:
+            game_info->points_multiplier = 1;
+            break;
+        case HARD:
+            game_info->points_multiplier = 1.25;
+            break;
+        case SMILEY:
+            game_info->points_multiplier = 1.5;
+            break;
+    }
 
     game_info->has_just_entered = true;
     game_info->current_map = 0;
@@ -454,13 +464,9 @@ void GameReadyScreenState::entry() {
 
 void GameReadyScreenState::react(const ExecuteEvent &) {
     if (BurgerTimeStateMachine::timed_state_react(1)) {
-        // TODO: change
         transit<NormalStatePlaying>(std::bind(
                                         &GameReadyScreenState::change_game_info,
                                         this));
-
-        // transit<EnterHighscoreState>(std::bind(
-        //&EnterHighscoreState::set_high_score, 999999));
     }
 }
 
@@ -682,9 +688,6 @@ void DeadStatePlaying::react(const ExecuteEvent &event) {
                                               &DeadStatePlaying::change_game_info,
                                               this));
         }
-
-        // TODO: change
-        // transit<EnterHighscoreState>(std::bind(&EnterHighscoreState::set_high_score, 999999));
     }
     else {
         auto &map = game_info->maps[game_info->current_map];
@@ -711,7 +714,6 @@ void WinStatePlaying::entry() {
 
 void WinStatePlaying::react(const ExecuteEvent &event) {
     if (BurgerTimeStateMachine::timed_state_react(4)) {
-        // TODO: change
         Audio::play(Audio::Track::LEVEL_INTRO);
         game_info->has_just_entered = true;
         game_info->level_counter.add_level(1);
@@ -719,10 +721,6 @@ void WinStatePlaying::react(const ExecuteEvent &event) {
         transit<GameReadyScreenState>(std::bind(
                                           &WinStatePlaying::change_game_info,
                                           this));
-
-        // transit<EnterHighscoreState>(std::bind(
-        // &EnterHighscoreState::set_high_score,
-        // 999999));
     }
     else {
         game_info->player->update(event.delta_t);

@@ -2,8 +2,12 @@
 CC=g++-8
 
 CFLAGS+=-MD -MP # Autogenerate dependencies.
-CFLAGS+=-O3 -ggdb -std=c++17
+CFLAGS+=-O3 -std=c++17
 CFLAGS+=-Iinclude
+
+ifeq ($(OS),Windows_NT)
+    CCFLAGS+=-mwindows
+endif
 
 LIBS=-lsfml-graphics -lsfml-audio -lsfml-window -lsfml-system -lstdc++fs
 

@@ -363,7 +363,6 @@ void PlayingState::react(const ExecuteEvent &event) {
     else {
         PlayingStateMachine::dispatch(event);
     }
-    // TODO: mas
 }
 
 constexpr std::array<const char *, GameOverScreenState::MAX_TEXTS> GameOverScreenState::DIFFERENT_TEXTS;
@@ -383,7 +382,6 @@ void GameOverScreenState::react(const ExecuteEvent &) {
 
     if (current_text == MAX_TEXTS) {
         if (elapsed_time.asSeconds() >= 1) {
-            // TODO: change
             transit<MainScreenState>();
             return;
         }
@@ -487,7 +485,6 @@ void EnterHighscoreState::react(const ExecuteEvent &) {
         if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ACTION)) {
             HighScores highScores;
             highScores.save_new_score(current_str.substring(2, 4), new_high_score);
-            // TODO: save new highscores etc etc
             transit<MainScreenState>();
         }
     }

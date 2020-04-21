@@ -10,6 +10,11 @@ namespace InputSystem {
             {Input::DOWN, sf::Keyboard::Key::Down},
             {Input::LEFT, sf::Keyboard::Key::Left},
             {Input::RIGHT, sf::Keyboard::Key::Right},
+            {Input::UP_MENU, sf::Keyboard::Key::Up},
+            {Input::DOWN_MENU, sf::Keyboard::Key::Down},
+            {Input::LEFT_MENU, sf::Keyboard::Key::Left},
+            {Input::RIGHT_MENU, sf::Keyboard::Key::Right},
+            {Input::ENTER_MENU, sf::Keyboard::Key::Return},
             {Input::ACTION, sf::Keyboard::Key::Space},
             {Input::EXIT, sf::Keyboard::Key::Escape},
             {Input::DELETE, sf::Keyboard::Key::BackSpace},
@@ -260,8 +265,7 @@ namespace InputSystem {
             return char_entered;
         }
         else {
-            // TODO: change, do properly
-            throw - 1;
+            throw std::runtime_error("Character could not be retrieved");
         }
     }
 }

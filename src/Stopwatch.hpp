@@ -13,31 +13,31 @@ private:
 
 public:
     /**
-     * TODO
+     * @brief Construct a new Stopwatch object
      * 
      */
     Stopwatch();
 
     /**
-     * TODO
+     * Start/resume the stopwatch
      * 
      */
     void start();
 
     /**
-     * TODO
+     * Pause the stopwatch
      * 
      */
     void pause();
 
     /**
-     * TODO
+     * Restart the stopwatch
      * 
      */
     void restart();
 
     /**
-     * [description]
+     * Get elapsed time.
      * 
      * @return sf::Time 
      */

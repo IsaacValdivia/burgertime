@@ -44,13 +44,13 @@ namespace Audio {
     void stop(const Track track);
 
     /**
-     * TODO
+     * Pause every sound playing right now.
      * 
      */
     void pause_all();
 
     /**
-     * TODO
+     * Resume every sound that was playing before calling pause_all().
      * 
      */
     void resume_all();

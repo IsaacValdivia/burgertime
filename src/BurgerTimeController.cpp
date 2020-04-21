@@ -126,7 +126,6 @@ void BurgerTimeController::update(float delta_t) {
     char char_entered;
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            // TODO: change
             window.close();
         }
         else if (event.type == sf::Event::TextEntered) {

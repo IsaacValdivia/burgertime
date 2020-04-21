@@ -92,7 +92,7 @@ public:
     bool going_x_direction() const;
 
     /**
-     * TODO
+     * Connects a new enemy to the player_moved signal in order to be notified whenever the player moves
      *
      * @param player_moved_func
      * @return nod::connection

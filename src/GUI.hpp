@@ -72,7 +72,9 @@ public:
                                         sf::Color color = sf::Color::White);
 
     /**
-     * TODO
+     * @brief Delete the text identified by ID
+     * 
+     * @param id Text identifier
      */
     void delete_text(const std::string &id);
 

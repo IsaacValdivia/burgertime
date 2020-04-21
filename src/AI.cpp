@@ -98,7 +98,6 @@ std::vector<std::shared_ptr<const Tile>> AI::expand(const Tile &current) const {
 
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const {
-    fprintf(stderr, "tiles ahead = %d\n", tiles_ahead);
     std::shared_ptr<const Tile> goal = goal_tile;
     if (tiles_ahead != 0) {
         std::vector<std::shared_ptr<const Tile>> available_tiles;
@@ -173,7 +172,6 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
             Direction direction = next_move_direction(came_from, current);
 
             if (expansion_mode == OTHER_ENEMIES_EXPANSION && map->enemies_on_tiles_now(start_tile).size() != 0) {
-                std::cout << "Me dice que vaya a " << direction << std::endl;
                 direction = inverted_directions[direction];
             }
 

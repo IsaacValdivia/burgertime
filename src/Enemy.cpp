@@ -678,7 +678,6 @@ void Enemy::update(const float delta_t) {
                 goal_distance /= rand_mov_prob_normalizer;
 
                 if (rand_num > goal_distance && random_sometimes) {
-                    fprintf(stderr, "RANDOM");
                     random_move(delta_t, *t);
                 }
                 else {
@@ -727,7 +726,7 @@ void Enemy::update(const float delta_t) {
                         sprite.move(move_x, move_y);
                     }
                     else {
-                        fprintf(stderr, "ENEMY ERROR\n");
+                        throw std::runtime_error("Enemy could not move itself");
                     }
                 }
             }

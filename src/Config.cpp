@@ -41,7 +41,7 @@ void Config::write_file() {
     file.open(file_name, std::ios::binary);
 
     if (!file) {
-        // TODO: throw exception
+        throw std::runtime_error("Could not write a configuration file");
     }
 
     file.write(reinterpret_cast<const char *>(&current_resolution), sizeof(current_resolution));

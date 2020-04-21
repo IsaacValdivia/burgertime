@@ -112,17 +112,29 @@ public:
     sf::Time get_elapsed_time();
 
     /**
-     * TODO
+     * @brief Pauses timer
+     * 
      */
     void pause_timer();
 
     /**
-     * TODO
+     * @brief Starts timer
+     * 
      */
     void start_timer();
 
+    /**
+     * @brief Returns the selected difficulty
+     * 
+     * @return The selected difficulty
+     */
     Difficulty get_selected_difficulty() const;
 
+    /**
+     * @brief Sets a new difficulty
+     * 
+     * @param new_difficulty new difficulty to set
+     */
     void set_difficulty(Difficulty new_difficulty);
 
     /**

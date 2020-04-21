@@ -38,13 +38,13 @@ void StartOptionState::entry() {
 }
 
 void StartOptionState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         transit<DifficultyScreenEnterState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<ExitOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<ConfigOptionState>();
     }
 }
@@ -56,13 +56,13 @@ void ConfigOptionState::entry() {
 }
 
 void ConfigOptionState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         transit<InsideConfigOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<StartOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<ExitOptionState>();
     }
 }
@@ -227,7 +227,7 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
             Config::get().write_file();
         }
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         is_reading_key = true;
         InputSystem::reset_last_key();
         last_read_key = InputSystem::get_last_key();
@@ -238,14 +238,14 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
         update_color = true;
         new_color = sf::Color::Green;
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         is_reading_key = false;
         update_color = true;
         new_color = sf::Color::Cyan;
         current_option = static_cast<CurrentOption>(((current_option - 1)
                          + NUM_OPTIONS) % NUM_OPTIONS);
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         is_reading_key = false;
         update_color = true;
         new_color = sf::Color::Cyan;
@@ -301,13 +301,13 @@ void BindingsOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         transit<BindingsScreenInsideState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<BackOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<ResolutionOptionState>();
     }
 }
@@ -378,7 +378,7 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
         transit<InsideConfigOptionState>();
         return;
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         if (!is_in_exit) {
             controller.set_resolution(current_resolution);
 
@@ -391,7 +391,7 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
             return;
         }
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         if (!is_in_exit) {
             is_in_exit = false;
             switch (current_resolution) {
@@ -411,7 +411,7 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
             current_resolution = Config::Resolution::x1000x1000;
         }
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         if (!is_in_exit) {
             is_in_exit = false;
             switch (current_resolution) {
@@ -446,13 +446,13 @@ void ResolutionOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         transit<ResolutionScreenInsideState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<BindingsOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<BackOptionState>();
     }
 }
@@ -468,13 +468,13 @@ void BackOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<ResolutionOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<BindingsOptionState>();
     }
 }
@@ -487,13 +487,13 @@ void ExitOptionState::entry() {
 }
 
 void ExitOptionState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         transit<FinishedExitState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<ConfigOptionState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<StartOptionState>();
     }
 }
@@ -502,12 +502,12 @@ void ExitOptionState::react(const ExecuteEvent &) {
 void DifficultyScreenEnterState::entry() {
     controller.clear_screen();
 
-    auto classic_text = gui.create_text("difficultyStateClassic", "CLASSIC",
-                                      sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto hard_text = gui.create_text("difficultyStateHard", "HARD",
-                                        sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto smiley_text = gui.create_text("difficultyStateSmiley", ":-)",
-                                     sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+    auto classic_text = gui.create_text("difficultyStateClassic", "+ PTS - CLASSIC",
+                                      sf::Vector2u(165, 300), sf::Vector2f(0.8, 0.8));
+    auto hard_text = gui.create_text("difficultyStateHard", "++ PTS - HARD",
+                                        sf::Vector2u(165, 400), sf::Vector2f(0.8, 0.8));
+    auto smiley_text = gui.create_text("difficultyStateSmiley", "+++ PTS - :-)",
+                                     sf::Vector2u(165, 500), sf::Vector2f(0.8, 0.8));
 
     controller.add_drawable(gui.get_text("enterStateMainBurTime"));
     controller.add_drawable(classic_text);
@@ -530,14 +530,14 @@ void DifficultyScreenClassicState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         controller.set_difficulty(CLASSIC);
         transit<FinishedStartState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<DifficultyScreenSmileyState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<DifficultyScreenHardState>();
     }
 }
@@ -553,14 +553,14 @@ void DifficultyScreenHardState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         controller.set_difficulty(HARD);
         transit<FinishedStartState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<DifficultyScreenClassicState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<DifficultyScreenSmileyState>();
     }
 }
@@ -576,14 +576,14 @@ void DifficultyScreenSmileyState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
         transit<EnterStateMainScreen>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         controller.set_difficulty(SMILEY);
         transit<FinishedStartState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<DifficultyScreenHardState>();
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<DifficultyScreenClassicState>();
     }
 }

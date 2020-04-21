@@ -200,6 +200,7 @@ protected:
 
         int points_to_extra_life;
 
+        float points_multiplier;
         PepperCounter pepper_counter;
         LivesCounter lives_counter;
         ScoreCounter score_counter;
