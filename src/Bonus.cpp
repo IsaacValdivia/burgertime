@@ -8,7 +8,7 @@ Bonus::Bonus(const sf::Vector2f &init_pos, const BtSprites::Sprite init_sprite,
     SpritedEntity(init_pos, init_sprite),
     points(points),
     state(HIDE),
-    initial_sprite(init_sprite) {
+    initial_sprite(init_sprite), remaining_respawns(max_respawns) {
     sprite.setScale(sf::Vector2f(sprite_scale, sprite_scale));
 }
 
@@ -44,7 +44,13 @@ void Bonus::update(const float delta_t) {
     switch (state) {
         case HIDE:
             if (acc_delta_t >= respawn_time) {
+                if (remaining_respawns == 0) {
+                    return;
+                }
+
                 state = SHOW;
+
+                remaining_respawns--;
 
                 Audio::play(Audio::Track::NEW_INGREDIENT);
 

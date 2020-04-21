@@ -44,6 +44,18 @@ namespace Audio {
     void stop(const Track track);
 
     /**
+     * TODO
+     * 
+     */
+    void pause_all();
+
+    /**
+     * TODO
+     * 
+     */
+    void resume_all();
+
+    /**
      * @brief Stops the reproduction of main level music and level intro
      *
      */

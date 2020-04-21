@@ -48,13 +48,15 @@ private:
     static constexpr float dying_sprite_duration = 0.16;
     static constexpr float pepper_sprite_animation = 0.27;
 
-    static constexpr float rand_mov_prob_normalizer = 1; // 0.20;
+    static constexpr float rand_mov_prob_normalizer = 0.20;
 
     static constexpr float pepper_duration = 4;
 
     const SpriteStateMachine *sprite_state_machine;
 
     float acc_delta_t_pepper;
+
+    bool random_sometimes;
 
     std::shared_ptr<const Tile> a_star_tile;
     Direction a_star_direction;
@@ -106,11 +108,12 @@ public:
      * @param ia ia that will govern the enemy
      * @param initial_direction initial direction taken by the enemy
      * @param points_added points gainable if killed
+     * @param random_something should move randomly sometimes
      */
     Enemy(const Type &type, const sf::Vector2f &init_pos,
           const std::shared_ptr<Map> map,
           const AI &ia, const Direction initial_direction,
-          const std::function<void(unsigned int)> &points_added);
+          const std::function<void(unsigned int)> &points_added, bool random_sometimes);
 
     /**
      * @brief Sets state to peppered and plays the pepper sound effect

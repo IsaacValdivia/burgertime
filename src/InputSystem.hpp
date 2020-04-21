@@ -19,9 +19,9 @@ namespace InputSystem {
     };
 
     /**
-     * TODO
+     * @brief Updates last key pressed to newKey
      *
-     * @param newKey
+     * @param newKey latest key pressed
      */
     void update_last_key(sf::Keyboard::Key newKey);
 

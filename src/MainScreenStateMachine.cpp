@@ -39,8 +39,7 @@ void StartOptionState::entry() {
 
 void StartOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
-        transit<FinishedStartState>();
-        Audio::play(Audio::Track::COIN_INSERTED);
+        transit<DifficultyScreenEnterState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
         transit<ExitOptionState>();
@@ -496,5 +495,95 @@ void ExitOptionState::react(const ExecuteEvent &) {
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
         transit<StartOptionState>();
+    }
+}
+
+
+void DifficultyScreenEnterState::entry() {
+    controller.clear_screen();
+
+    auto classic_text = gui.create_text("difficultyStateClassic", "CLASSIC",
+                                      sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
+    auto hard_text = gui.create_text("difficultyStateHard", "HARD",
+                                        sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+    auto smiley_text = gui.create_text("difficultyStateSmiley", ":-)",
+                                     sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+
+    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(classic_text);
+    controller.add_drawable(hard_text);
+    controller.add_drawable(smiley_text);
+}
+
+void DifficultyScreenEnterState::react(const ExecuteEvent &) {
+    transit<DifficultyScreenClassicState>();
+}
+
+
+void DifficultyScreenClassicState::entry() {
+    gui.get_text("difficultyStateClassic").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("difficultyStateHard").lock()->setFillColor(sf::Color::White);
+    gui.get_text("difficultyStateSmiley").lock()->setFillColor(sf::Color::White);
+}
+
+void DifficultyScreenClassicState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+        transit<EnterStateMainScreen>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+        controller.set_difficulty(CLASSIC);
+        transit<FinishedStartState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+        transit<DifficultyScreenSmileyState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+        transit<DifficultyScreenHardState>();
+    }
+}
+
+
+void DifficultyScreenHardState::entry() {
+    gui.get_text("difficultyStateClassic").lock()->setFillColor(sf::Color::White);
+    gui.get_text("difficultyStateHard").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("difficultyStateSmiley").lock()->setFillColor(sf::Color::White);
+}
+
+void DifficultyScreenHardState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+        transit<EnterStateMainScreen>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+        controller.set_difficulty(HARD);
+        transit<FinishedStartState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+        transit<DifficultyScreenClassicState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+        transit<DifficultyScreenSmileyState>();
+    }
+}
+
+
+void DifficultyScreenSmileyState::entry() {
+    gui.get_text("difficultyStateClassic").lock()->setFillColor(sf::Color::White);
+    gui.get_text("difficultyStateHard").lock()->setFillColor(sf::Color::White);
+    gui.get_text("difficultyStateSmiley").lock()->setFillColor(sf::Color::Cyan);
+}
+
+void DifficultyScreenSmileyState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+        transit<EnterStateMainScreen>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::ACTION)) {
+        controller.set_difficulty(SMILEY);
+        transit<FinishedStartState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::UP)) {
+        transit<DifficultyScreenHardState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN)) {
+        transit<DifficultyScreenClassicState>();
     }
 }

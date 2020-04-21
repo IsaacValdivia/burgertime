@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <set>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 
 const Enemy::SpriteStateMachine Enemy::sausage_sprite_state_machine[] = {
     // SAUSAGE_DOWNSTAIRS_1
@@ -486,7 +486,7 @@ void Enemy::random_move(const float delta_t, const Tile &current) {
 Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
              const std::shared_ptr<Map> map, const AI &ia,
              const Direction initial_direction,
-             const std::function<void(unsigned int)> &points_added)
+             const std::function<void(unsigned int)> &points_added, bool random_sometimes)
     : Actor(init_pos, sausage_sprite_state_machine[0].sprites[NONE],
             sausage_sprite_state_machine[0].sprites[NONE], map),
       type(type),
@@ -499,7 +499,8 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
       initial_movement(true),
       totally_dead(false),
       after_dead(false),
-      points_added(points_added) {
+      points_added(points_added),
+      random_sometimes(random_sometimes) {
 
     switch (get_type()) {
         case Enemy::Type::SAUSAGE:
@@ -663,8 +664,6 @@ void Enemy::update(const float delta_t) {
             for (auto tile : actors_tiles) {
                 if (a_star_tile && *tile == *a_star_tile) {
                     a_start_called = true;
-
-                    map->set_enemy_on_tile(this, tile);
                 }
             }
 
@@ -678,9 +677,8 @@ void Enemy::update(const float delta_t) {
 
                 goal_distance /= rand_mov_prob_normalizer;
 
-                rand_num = -1;
-
-                if (rand_num > goal_distance) {
+                if (rand_num > goal_distance && random_sometimes) {
+                    fprintf(stderr, "RANDOM");
                     random_move(delta_t, *t);
                 }
                 else {
@@ -694,6 +692,10 @@ void Enemy::update(const float delta_t) {
                 direction = a_star_direction;
             }
 
+            for (auto tile : actors_tiles) {
+                map->set_enemy_on_tile(this, tile);
+            }
+
             move(move_x, move_y, delta_t);
             // Want to move and can.
             if (map->can_entity_move(move_x, move_y, *this)) {
@@ -701,9 +703,6 @@ void Enemy::update(const float delta_t) {
             }
             // Want to move but can't.
             else {
-                if (type == EGG) {
-                    fprintf(stderr, "DIRECTION = %d\n", (Direction)direction);
-                }
                 direction = backup_dir;
 
                 move(move_x, move_y, delta_t);

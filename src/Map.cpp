@@ -476,11 +476,16 @@ std::vector<Ingredient> &Map::get_ing_data() {
     return ing_data;
 }
 
-std::set<Enemy *> Map::enemies_on_tile(std::shared_ptr<const Tile> tile) {
+std::set<Enemy *> Map::enemies_on_tile(const std::shared_ptr<const Tile> &tile) const {
+    return old_enemies_positions[tile];
+}
+
+std::set<Enemy *> Map::enemies_on_tiles_now(const std::shared_ptr<const Tile> &tile) const {
     return enemies_positions[tile];
 }
 
 void Map::reset_enemies_on_tiles() {
+    old_enemies_positions = enemies_positions;
     enemies_positions.clear();
 }
 

@@ -9,7 +9,7 @@
 #include <iostream>
 #include <thread>
 #include <SFML/System.hpp>
-#include <time.h>
+#include <ctime>
 
 BurgerTimeController::BurgerTimeController() :
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE,
@@ -29,10 +29,26 @@ void BurgerTimeController::restart_timer() {
     logic_clock.restart();
 }
 
+void BurgerTimeController::pause_timer() {
+    logic_clock.pause();
+}
+
+void BurgerTimeController::start_timer() {
+    logic_clock.start();
+}
+
 sf::Time BurgerTimeController::get_elapsed_time() {
     return logic_clock.getElapsedTime();
 }
 
+
+Difficulty BurgerTimeController::get_selected_difficulty() const {
+    return selected_difficulty;
+}
+
+void BurgerTimeController::set_difficulty(Difficulty new_difficulty) {
+    selected_difficulty = new_difficulty;
+}
 
 BurgerTimeController &BurgerTimeController::get() {
     static BurgerTimeController instance;

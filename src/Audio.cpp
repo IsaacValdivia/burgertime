@@ -35,6 +35,8 @@ namespace Audio {
         };
 
         static constexpr size_t NUM_AUDIO_FILES = sizeof(sounds) / sizeof(sounds[0]);
+
+        static std::array<bool, NUM_AUDIO_FILES> was_playing;
     }
 
     void init() {
@@ -48,6 +50,25 @@ namespace Audio {
                 if (sounds[i].loop) {
                     sounds[i].sound.setLoop(true);
                 }
+            }
+        }
+    }
+
+    void pause_all() {
+        for (size_t i = 0; i < NUM_AUDIO_FILES; i++) {
+            was_playing[i] = false;
+
+            if (sounds[i].sound.getStatus() == sf::SoundSource::Playing) {
+                was_playing[i] = true;
+                sounds[i].sound.pause();
+            }
+        }
+    }
+
+    void resume_all() {
+        for (size_t i = 0; i < NUM_AUDIO_FILES; i++) {
+            if (was_playing[i]) {
+                sounds[i].sound.play();
             }
         }
     }

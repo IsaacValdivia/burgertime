@@ -132,7 +132,22 @@ void PlayingStateMachine::add_player_and_enemies() {
                         std::bind(&PlayingStateMachine::has_pepper, this)
                                                 );
 
-    game_info->ai = std::make_shared<AI>(map, player_spawn_tile, 0);
+    switch (controller.get_selected_difficulty()) {
+        case Difficulty::CLASSIC: {
+            game_info->ai1 = std::make_shared<AI>(map, player_spawn_tile, 0, AI::ExpansionMode::NORMAL_EXPANSION);
+            break;
+        }
+        case Difficulty::HARD: {
+            game_info->ai1 = std::make_shared<AI>(map, player_spawn_tile, 0, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
+            break;
+        }
+        case Difficulty::SMILEY: {
+            game_info->ai1 = std::make_shared<AI>(map, player_spawn_tile, 0, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
+            game_info->ai2 = std::make_shared<AI>(map, player_spawn_tile, -3, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
+            game_info->ai3 = std::make_shared<AI>(map, player_spawn_tile, 3, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
+            break;
+        }
+    }
 
     float offset = 1;
     for (const auto &enemy_spawn : map->get_enemies_spawns()) {
@@ -144,9 +159,43 @@ void PlayingStateMachine::add_player_and_enemies() {
 void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
                                       const Tile &initial_tile, float offset) {
 
+    std::shared_ptr<AI> chosen_ai;
+    bool randomize;
+
+    switch (controller.get_selected_difficulty()) {
+        case Difficulty::CLASSIC: {
+            chosen_ai = game_info->ai1;
+            randomize = true;
+            break;
+        }
+        case Difficulty::HARD: {
+            chosen_ai = game_info->ai1;
+            randomize = false;
+            break;
+        }
+        case Difficulty::SMILEY: {
+            switch (type) {
+                case Enemy::Type::EGG: {
+                    chosen_ai = game_info->ai3;
+                    break;
+                }
+                case Enemy::Type::PICKLE: {
+                    chosen_ai = game_info->ai2;
+                    break;
+                }
+                case Enemy::Type::SAUSAGE: {
+                    chosen_ai = game_info->ai1;
+                    break;
+                }
+            }
+            randomize = false;
+            break;
+        }
+    }
+
     auto &map = game_info->maps[game_info->current_map];
     game_info->player->connect_player_moved(std::bind(&AI::set_goal_tile,
-                                            game_info->ai,
+                                            chosen_ai,
                                             std::placeholders::_1,
                                             std::placeholders::_2));
 
@@ -166,9 +215,9 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
 
     // sf::Vector2
     game_info->enemies.push_back(std::make_shared<Enemy>(type, initial_pos,
-                                 map, *game_info->ai, initial_dir,
+                                 map, *chosen_ai, initial_dir,
                                  std::bind(&PlayingStateMachine::add_points,
-                                           this, std::placeholders::_1)));
+                                           this, std::placeholders::_1), randomize));
 }
 
 
@@ -318,6 +367,8 @@ void EnterStatePlaying::entry() {
     game_info->current_ingredients = 0;
     game_info->points_to_extra_life = 20000;
 
+    game_info->paused_screen = nullptr;
+
     game_info->curtains[0] = std::make_shared<sf::RectangleShape>();
     game_info->curtains[0]->setFillColor(sf::Color::Black);
     game_info->curtains[0]->setPosition(sf::Vector2f(0, 0));
@@ -417,9 +468,7 @@ void NormalStatePlaying::check_main_music() {
     if (!main_music_played) {
         if (game_info->has_just_entered) {
 
-            auto elapsed_time = controller.get_elapsed_time();
-
-            if (elapsed_time.asSeconds() >= 4) {
+            if (BurgerTimeStateMachine::timed_state_react(4)) {
                 main_music_played = true;
                 game_info->has_just_entered = false;
                 Audio::play(Audio::Track::MAIN);
@@ -489,6 +538,35 @@ void NormalStatePlaying::entry() {
 }
 
 void NormalStatePlaying::react(const ExecuteEvent &event) {
+    if (InputSystem::has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+        if (!game_info->paused_screen) {
+            Audio::pause_all();
+            game_info->paused_screen = std::make_shared<sf::RectangleShape>();
+            game_info->paused_screen->setFillColor(sf::Color(0, 0, 0, 150));
+            game_info->paused_screen->setPosition(sf::Vector2f(0, 0));
+            game_info->paused_screen->setSize(sf::Vector2f(3 * WINDOW_WIDTH, 3 * WINDOW_HEIGHT));
+
+            auto pausedText = gui.create_text("playingStatePaused", "PAUSED", sf::Vector2u(425, 440),
+                                              sf::Vector2f(0.5, 0.5), sf::Color::White);
+
+            controller.pause_timer();
+
+            controller.add_drawable(game_info->paused_screen);
+            controller.add_drawable(pausedText);
+        } else {
+            Audio::resume_all();
+
+            controller.start_timer();
+            gui.delete_text("playingStatePaused");
+            game_info->paused_screen = nullptr;
+        }
+    }
+
+    if (game_info->paused_screen) {
+        // tal pascual
+        return;
+    }
+
     check_main_music();
 
     auto &map = game_info->maps[game_info->current_map];

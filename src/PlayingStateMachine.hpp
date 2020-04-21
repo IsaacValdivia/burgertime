@@ -173,7 +173,7 @@ protected:
          */
         void add_level(uint32_t level);
     };
-
+ 
 
     struct GameInfo {
         std::vector<std::shared_ptr<Map>> maps;
@@ -181,7 +181,9 @@ protected:
         std::shared_ptr<Player> player;
         std::shared_ptr<Pepper> pepper;
 
-        std::shared_ptr<AI> ai;
+        std::shared_ptr<AI> ai1;
+        std::shared_ptr<AI> ai2;
+        std::shared_ptr<AI> ai3;
         std::list<std::shared_ptr<Enemy>> enemies;
 
         std::shared_ptr<sf::Sprite> pepper_text;
@@ -191,6 +193,8 @@ protected:
         std::shared_ptr<Bonus> bonus;
 
         std::array<std::shared_ptr<sf::RectangleShape>, 2> curtains;
+
+        std::shared_ptr<sf::RectangleShape> paused_screen;
 
         uint8_t current_ingredients;
 

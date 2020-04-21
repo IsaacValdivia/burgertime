@@ -7,13 +7,15 @@
 #include <SFML/Graphics.hpp>
 #include "GUI.hpp"
 #include "Config.hpp"
+#include "Stopwatch.hpp"
 
 class BurgerTimeController {
 private:
     sf::RenderWindow window; // Window
 
     std::list<std::weak_ptr<sf::Drawable>> drawables_on_screen; // All drawables on screen
-    sf::Clock logic_clock; // Clock
+    Stopwatch logic_clock; // Clock
+    Difficulty selected_difficulty;
 
     /**
      * @brief Construct a new Burger Time Controller object
@@ -108,6 +110,20 @@ public:
      * @return sf::Time Time elapsed
      */
     sf::Time get_elapsed_time();
+
+    /**
+     * TODO
+     */
+    void pause_timer();
+
+    /**
+     * TODO
+     */
+    void start_timer();
+
+    Difficulty get_selected_difficulty() const;
+
+    void set_difficulty(Difficulty new_difficulty);
 
     /**
      * @brief Sets a new resolution for the game

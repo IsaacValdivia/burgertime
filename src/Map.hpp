@@ -38,7 +38,8 @@ private:
     std::pair<SpecialItem, sf::Vector2u> item_spawn;
     sf::Vector2u chef_spawn;
 
-    std::map<std::shared_ptr<const Tile>, std::set<Enemy*>> enemies_positions;
+    mutable std::map<std::shared_ptr<const Tile>, std::set<Enemy*>> old_enemies_positions;
+    mutable std::map<std::shared_ptr<const Tile>, std::set<Enemy*>> enemies_positions;
 
     /**
      * @brief Processes a file and constructs a map from it
@@ -282,12 +283,20 @@ public:
     bool out_of_map(const Actor &actor) const;
 
     /**
+     * @brief Returns the enemies that are on the given tile a frame ago
+     *
+     * @param tile tile to check against
+     * @return std::set<std::shared_ptr<Enemy>>
+     */
+    std::set<Enemy *> enemies_on_tile(const std::shared_ptr<const Tile> &tile) const;
+
+    /**
      * @brief Returns the enemies that are on the given tile
      *
      * @param tile tile to check against
      * @return std::set<std::shared_ptr<Enemy>>
      */
-    std::set<Enemy*> enemies_on_tile(std::shared_ptr<const Tile> tile);
+    std::set<Enemy *> enemies_on_tiles_now(const std::shared_ptr<const Tile> &tile) const;
 
     /**
      * @brief Resets the enemies on tiles

@@ -15,6 +15,8 @@ private:
 
     static constexpr float sprite_scale = 2;
 
+    static constexpr int max_respawns = 2;
+
     enum State {
         HIDE,
         SHOW,
@@ -22,6 +24,8 @@ private:
     };
 
     const BtSprites::Sprite initial_sprite;
+
+    int remaining_respawns;
 
     State state;
 

@@ -201,6 +201,58 @@ class ExitOptionState : public MainScreenStateMachine {
     void react(const ExecuteEvent &) override;
 };
 
+class DifficultyScreenEnterState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+};
+
+class DifficultyScreenClassicState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+};
+
+class DifficultyScreenHardState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+};
+
+class DifficultyScreenSmileyState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+};
+
 class FinishedStartState : public MainScreenStateMachine {};
 
 class FinishedExitState : public MainScreenStateMachine {};

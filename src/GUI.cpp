@@ -32,6 +32,11 @@ std::weak_ptr<sf::Text> GUI::create_text(const std::string &id,
     return text_obj;
 }
 
+void GUI::delete_text(const std::string &id) {
+    gui_texts.erase(id);
+}
+
+
 std::weak_ptr<sf::Text> GUI::get_text(const std::string &id) {
     if (gui_texts.find(id) != gui_texts.end()) {
         return gui_texts[id];

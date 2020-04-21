@@ -48,8 +48,9 @@ Direction AI::next_move_direction(const std::map<std::shared_ptr<const Tile>,
 
 AI::AI(const std::shared_ptr<const Map> map,
        const std::shared_ptr<const Tile> new_goal_tile,
-       const int tiles_ahead)
-    : map(map), goal_tile(new_goal_tile), tiles_ahead(tiles_ahead) {}
+       const int tiles_ahead,
+       const ExpansionMode expansion_mode)
+    : map(map), goal_tile(new_goal_tile), tiles_ahead(tiles_ahead), expansion_mode(expansion_mode) {}
 
 void AI::set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile, Direction new_goal_direction) {
     goal_tile = new_goal_tile;
@@ -78,29 +79,33 @@ float AI::h2(const std::shared_ptr<const Tile> from,
     return sqrt(x * x + y * y);
 }
 
+std::vector<std::shared_ptr<const Tile>> AI::expand(const Tile &current) const {
+    switch (expansion_mode) {
+        case NORMAL_EXPANSION:
+            return map->available_from(current);
+        case OTHER_ENEMIES_EXPANSION:
+            auto available_tiles = map->available_from(current);
+            for (auto it = available_tiles.begin(); it < available_tiles.end(); ++it) {
+                
+                if (map->enemies_on_tile(*it).size() != 0) {
+                    it = available_tiles.erase(it);
+                    --it;
+                }
+            }
+            return available_tiles;
+    }
+}
+
 // https://en.wikipedia.org/wiki/A*_search_algorithm
 Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const {
+    fprintf(stderr, "tiles ahead = %d\n", tiles_ahead);
     std::shared_ptr<const Tile> goal = goal_tile;
     if (tiles_ahead != 0) {
         std::vector<std::shared_ptr<const Tile>> available_tiles;
         if (tiles_ahead > 0) {
             available_tiles = map->available_from_direction(goal_tile, goal_direction, tiles_ahead);
         } else {
-            Direction inverted_direction;
-            switch (goal_direction) {
-                case UP:
-                    inverted_direction = DOWN;
-                    break;
-                case DOWN:
-                    inverted_direction = UP;
-                    break;
-                case LEFT:
-                    inverted_direction = RIGHT;
-                    break;
-                case RIGHT:
-                    inverted_direction = LEFT;
-                    break;
-            }
+            Direction inverted_direction = inverted_directions[goal_direction];
             available_tiles = map->available_from_direction(goal_tile, inverted_direction, -tiles_ahead);
         }
 
@@ -158,18 +163,26 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
     open_min_heap.push(start_tile);
     open_set.emplace(start_tile);
 
+    
     while (!open_set.empty()) {
         // This operation can occur in O(1) time if open_min_heap is a min-heap
         // or a priority queue current := the node in open_min_heap having the
         // lowest f_score[] value
         const auto current = open_min_heap.top();
         if (*current == *goal) {
-            return next_move_direction(came_from, current);
+            Direction direction = next_move_direction(came_from, current);
+
+            if (expansion_mode == OTHER_ENEMIES_EXPANSION && map->enemies_on_tiles_now(start_tile).size() != 0) {
+                std::cout << "Me dice que vaya a " << direction << std::endl;
+                direction = inverted_directions[direction];
+            }
+
+            return direction;
         }
 
         open_min_heap.pop();
         open_set.erase(current);
-        for (const auto &neighbor : map->available_from(*current)) {
+        for (const auto &neighbor : expand(*current)) {
             auto tentative_score = get_g_score(current) + 1;
             if (tentative_score < get_g_score(neighbor)) {
                 // This path to neighbor is better than any previous one. Record it!
@@ -185,5 +198,14 @@ Direction AI::get_next_move(const std::shared_ptr<const Tile> start_tile) const 
     }
 
     // Open set is empty but goal was never reached
-    return Direction::LEFT;
+    if (expansion_mode == NORMAL_EXPANSION) {
+        return Direction::LEFT;
+    }
+
+    auto old_expansion_mode = expansion_mode;
+    expansion_mode = NORMAL_EXPANSION;
+    auto result = get_next_move(start_tile);
+    expansion_mode = old_expansion_mode;
+
+    return result;
 }

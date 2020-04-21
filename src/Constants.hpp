@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tinyfsm.hpp>
+#include <array>
 
 // How many times per second the logic will be updated
 static constexpr float LOGIC_UPDATE_FREQ = 1.0 / 100;
@@ -24,6 +25,16 @@ enum Direction {
     UP,
     DOWN,
     NUM_DIRECTIONS
+};
+
+enum Difficulty {
+    CLASSIC,
+    HARD,
+    SMILEY,
+};
+
+static constexpr std::array<Direction, NUM_DIRECTIONS> inverted_directions = {
+    RIGHT, LEFT, DOWN, UP
 };
 
 struct ExecuteEvent : tinyfsm::Event {

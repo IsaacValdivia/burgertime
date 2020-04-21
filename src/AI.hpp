@@ -6,12 +6,21 @@
 #include <memory>
 
 class AI {
+public:
+    enum ExpansionMode {
+        NORMAL_EXPANSION,
+        OTHER_ENEMIES_EXPANSION,
+    };
+
 private:
+
     const std::shared_ptr<const Map> map; // Pointer to map
 
     std::shared_ptr<const Tile> goal_tile; // Pointer to target tile
 
     Direction goal_direction;
+
+    mutable ExpansionMode expansion_mode;
 
     const int tiles_ahead;
 
@@ -55,7 +64,7 @@ public:
      * @param map pointer to map
      * @param new_goal_tile pointer to target tile
      */
-    AI(const std::shared_ptr<const Map> map, const std::shared_ptr<const Tile> new_goal_tile, const int tiles_ahead);
+    AI(const std::shared_ptr<const Map> map, const std::shared_ptr<const Tile> new_goal_tile, const int tiles_ahead, const ExpansionMode expansion_mode);
 
     /**
      * @brief Calculates the distance to a target tile, using the heuristic (A*)
@@ -71,6 +80,14 @@ public:
      * @param new_goal_tile new target tile
      */
     void set_goal_tile(const std::shared_ptr<const Tile> new_goal_tile, Direction new_goal_direction);
+
+    /**
+     * @brief 
+     * 
+     * @param current 
+     * @return std::vector<std::shared_ptr<const Tile>> 
+     */
+    std::vector<std::shared_ptr<const Tile>> expand(const Tile &current) const;
 
     /**
      * @brief Get the Next Move object
