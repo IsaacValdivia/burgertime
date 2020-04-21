@@ -276,7 +276,7 @@ void Player::update(const float delta_t) {
         InputSystem::Input inputToProcess = InputSystem::get_last_input();
 
         // PEPPER
-        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ACTION) &&
+        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PEPPER) &&
                 has_pepper()) {
 
             new_action = PEPPER;

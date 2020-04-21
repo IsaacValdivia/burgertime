@@ -544,7 +544,7 @@ void NormalStatePlaying::entry() {
 }
 
 void NormalStatePlaying::react(const ExecuteEvent &event) {
-    if (InputSystem::has_input_just_been_pressed(InputSystem::Input::EXIT)) {
+    if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
         if (!game_info->paused_screen) {
             Audio::pause_all();
             game_info->paused_screen = std::make_shared<sf::RectangleShape>();

@@ -8,17 +8,17 @@
 namespace InputSystem {
     enum class Input {
         NONE,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
         UP_MENU,
         DOWN_MENU,
         LEFT_MENU,
         RIGHT_MENU,
         ENTER_MENU,
-        ACTION,
-        EXIT,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        PEPPER,
+        PAUSE,
         DELETE,
         NUM_INPUTS
     };

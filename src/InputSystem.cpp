@@ -6,17 +6,17 @@
 namespace InputSystem {
     namespace {
         static std::map<Input, sf::Keyboard::Key> input_bindings = {
-            {Input::UP, sf::Keyboard::Key::Up},
-            {Input::DOWN, sf::Keyboard::Key::Down},
-            {Input::LEFT, sf::Keyboard::Key::Left},
-            {Input::RIGHT, sf::Keyboard::Key::Right},
             {Input::UP_MENU, sf::Keyboard::Key::Up},
             {Input::DOWN_MENU, sf::Keyboard::Key::Down},
             {Input::LEFT_MENU, sf::Keyboard::Key::Left},
             {Input::RIGHT_MENU, sf::Keyboard::Key::Right},
             {Input::ENTER_MENU, sf::Keyboard::Key::Return},
-            {Input::ACTION, sf::Keyboard::Key::Space},
-            {Input::EXIT, sf::Keyboard::Key::Escape},
+            {Input::UP, sf::Keyboard::Key::Up},
+            {Input::DOWN, sf::Keyboard::Key::Down},
+            {Input::LEFT, sf::Keyboard::Key::Left},
+            {Input::RIGHT, sf::Keyboard::Key::Right},
+            {Input::PEPPER, sf::Keyboard::Key::Space},
+            {Input::PAUSE, sf::Keyboard::Key::Escape},
             {Input::DELETE, sf::Keyboard::Key::BackSpace},
         };
 
@@ -168,7 +168,7 @@ namespace InputSystem {
         }
     }
 
-    bool isInputPressed(Input input, const std::set<Input> &pressed_inputs) {
+    bool is_input_pressed(Input input, const std::set<Input> &pressed_inputs) {
         return pressed_inputs.find(input) != pressed_inputs.end();
     }
 
@@ -202,14 +202,14 @@ namespace InputSystem {
                 pressed_inputs.erase(input);
             }
 
-            if (!isInputPressed(input, current_pressed_inputs) &&
-                    isInputPressed(input, pressed_inputs)) {
+            if (!is_input_pressed(input, current_pressed_inputs) &&
+                    is_input_pressed(input, pressed_inputs)) {
 
                 ordered_pressed_inputs.push_back(input);
                 just_pressed_inputs.insert(input);
             }
-            else if (isInputPressed(input, current_pressed_inputs) &&
-                     !isInputPressed(input, pressed_inputs)) {
+            else if (is_input_pressed(input, current_pressed_inputs) &&
+                     !is_input_pressed(input, pressed_inputs)) {
 
                 ordered_pressed_inputs.remove(input);
                 just_released_inputs.insert(input);
@@ -245,15 +245,15 @@ namespace InputSystem {
     }
 
     bool is_single_input_active(Input input) {
-        return isInputPressed(input, current_pressed_inputs);
+        return is_input_pressed(input, current_pressed_inputs);
     }
 
     bool has_input_just_been_pressed(Input input) {
-        return isInputPressed(input, just_pressed_inputs);
+        return is_input_pressed(input, just_pressed_inputs);
     }
 
     bool has_input_just_been_released(Input input) {
-        return isInputPressed(input, just_released_inputs);
+        return is_input_pressed(input, just_released_inputs);
     }
 
     bool has_entered_text() {
