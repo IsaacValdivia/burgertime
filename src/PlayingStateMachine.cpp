@@ -139,12 +139,12 @@ void PlayingStateMachine::add_player_and_enemies() {
         }
         case Difficulty::HARD: {
             game_info->ai1 = std::make_shared<AI>(map, player_spawn_tile, 0, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
+            game_info->ai2 = std::make_shared<AI>(map, player_spawn_tile, -3, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
+            game_info->ai3 = std::make_shared<AI>(map, player_spawn_tile, 3, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
             break;
         }
         case Difficulty::SMILEY: {
             game_info->ai1 = std::make_shared<AI>(map, player_spawn_tile, 0, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
-            game_info->ai2 = std::make_shared<AI>(map, player_spawn_tile, -3, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
-            game_info->ai3 = std::make_shared<AI>(map, player_spawn_tile, 3, AI::ExpansionMode::OTHER_ENEMIES_EXPANSION);
             break;
         }
     }
