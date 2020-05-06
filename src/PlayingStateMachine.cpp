@@ -162,10 +162,12 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
     std::shared_ptr<AI> chosen_ai;
     bool randomize;
 
+    float enemy_x_movement_speed = 60;
     switch (controller.get_selected_difficulty()) {
         case Difficulty::CLASSIC: {
             chosen_ai = game_info->ai1;
             randomize = true;
+            enemy_x_movement_speed = 60;
             break;
         }
         case Difficulty::HARD: {
@@ -184,11 +186,13 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
                 }
             }
             randomize = false;
+            enemy_x_movement_speed = 60;
             break;
         }
         case Difficulty::SMILEY: {
             chosen_ai = game_info->ai1;
             randomize = false;
+            enemy_x_movement_speed = 80;
             break;
         }
     }
@@ -215,7 +219,7 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
 
     // sf::Vector2
     game_info->enemies.push_back(std::make_shared<Enemy>(type, initial_pos,
-                                 map, *chosen_ai, initial_dir,
+                                 map, *chosen_ai, initial_dir, enemy_x_movement_speed,
                                  std::bind(&PlayingStateMachine::add_points,
                                            this, std::placeholders::_1), randomize));
 }

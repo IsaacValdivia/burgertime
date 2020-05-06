@@ -486,6 +486,7 @@ void Enemy::random_move(const float delta_t, const Tile &current) {
 Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
              const std::shared_ptr<Map> map, const AI &ia,
              const Direction initial_direction,
+             const float x_walking_speed,
              const std::function<void(unsigned int)> &points_added, bool random_sometimes)
     : Actor(init_pos, sausage_sprite_state_machine[0].sprites[NONE],
             sausage_sprite_state_machine[0].sprites[NONE], map),
@@ -499,6 +500,8 @@ Enemy::Enemy(const Type &type, const sf::Vector2f &init_pos,
       initial_movement(true),
       totally_dead(false),
       after_dead(false),
+      x_walking_speed(x_walking_speed),
+      y_walking_speed(x_walking_speed / 1.72),
       points_added(points_added),
       random_sometimes(random_sometimes) {
 

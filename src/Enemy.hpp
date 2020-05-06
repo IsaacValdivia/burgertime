@@ -39,8 +39,8 @@ private:
     static const SpriteStateMachine egg_sprite_state_machine[];
     static const SpriteStateMachine pickle_sprite_state_machine[];
 
-    static constexpr float x_walking_speed = 60;
-    static constexpr float y_walking_speed = x_walking_speed / 1.72;
+    const float x_walking_speed = 60;
+    const float y_walking_speed = x_walking_speed / 1.72;
 
     static constexpr float after_dead_sprite_duration = 1;
 
@@ -113,6 +113,7 @@ public:
     Enemy(const Type &type, const sf::Vector2f &init_pos,
           const std::shared_ptr<Map> map,
           const AI &ia, const Direction initial_direction,
+          const float x_walking_speed,
           const std::function<void(unsigned int)> &points_added, bool random_sometimes);
 
     /**
