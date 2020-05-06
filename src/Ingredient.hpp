@@ -95,6 +95,12 @@ private:
          */
         void move_y(const float magnitude);
 
+        /* @brief Gets the collision shape enclosing the ingredient piece its pieces
+         *
+         * @return sf::FloatRect collision shape around the ingredient piece
+         */
+        sf::FloatRect get_collision_shape() const override;
+
         friend class Ingredient;
     };
 

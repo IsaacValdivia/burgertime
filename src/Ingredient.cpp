@@ -22,6 +22,15 @@ void Ingredient::IngredientPiece::move_y(float magnitude) {
     this->sprite.move(0, magnitude);
 }
 
+sf::FloatRect Ingredient::IngredientPiece::get_collision_shape() const {
+    sf::FloatRect collision_shape = sprite.getGlobalBounds();
+
+    collision_shape.left += 10;
+    collision_shape.width -= 20;
+
+    return collision_shape;
+}
+
 void Ingredient::move_down(const float delta_t) {
     float mov = y_movement_falling * delta_t;
 
