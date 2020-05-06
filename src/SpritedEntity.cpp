@@ -24,7 +24,7 @@ void SpritedEntity::draw(sf::RenderTarget &target, sf::RenderStates states) cons
     target.draw(sprite, states);
 
 #if false
-    auto collision_shape = getCollisionShape();
+    auto collision_shape = get_collision_shape();
     sf::RectangleShape drawShape;
     drawShape.setOutlineColor(sf::Color::Red);
     drawShape.setFillColor(sf::Color::Transparent);

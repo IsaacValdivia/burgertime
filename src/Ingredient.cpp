@@ -182,7 +182,7 @@ void Ingredient::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     }
 
 #if false
-    auto collision_shape = getCollisionShape();
+    auto collision_shape = get_collision_shape();
     sf::RectangleShape drawShape;
     drawShape.setOutlineColor(sf::Color::Red);
     drawShape.setFillColor(sf::Color::Transparent);
