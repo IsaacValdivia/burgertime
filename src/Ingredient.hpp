@@ -42,7 +42,7 @@ private:
     };
 
     static constexpr auto y_movement_static = 1.5;
-    static constexpr auto bounce_movement = 4.0;
+    static constexpr auto bounce_movement = 3.0;
     static constexpr auto y_movement_falling = 125;
 
     static constexpr auto BOUNCE_DURATION = 0.10;
