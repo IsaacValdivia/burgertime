@@ -480,9 +480,9 @@ void EnterHighscoreState::react(const ExecuteEvent &) {
 
     if (char_position == HighScores::PLAYER_NAME_SIZE - 1) {
         Audio::play(Audio::Track::ENTRY_SELECTED);
-        help_text->setString("CONFIRM? (PEPPER)");
+        help_text->setString("CONFIRM? (ENTER)");
         help_text->setPosition(18 * WINDOW_WIDTH / 100, 30 * WINDOW_HEIGHT / 100);
-        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PEPPER)) {
+        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
             HighScores highScores;
             highScores.save_new_score(current_str.substring(2, 4), new_high_score);
             transit<MainScreenState>();
