@@ -591,6 +591,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
         return;
     }
     else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+        controller.pause_timer();
         Audio::pause_all();
         game_info->paused_screen = std::make_shared<sf::RectangleShape>();
         game_info->paused_screen->setFillColor(sf::Color(0, 0, 0, 150));
@@ -603,11 +604,11 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
         auto exitText = gui.create_text("playingStateExit", "EXIT", sf::Vector2u(425, 480),
                                         sf::Vector2f(0.5, 0.5), sf::Color::White);
 
-        controller.pause_timer();
-
         controller.add_drawable(game_info->paused_screen);
         controller.add_drawable(continueText);
         controller.add_drawable(exitText);
+
+        return;
     }
 
     check_main_music();
