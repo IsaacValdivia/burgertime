@@ -83,7 +83,7 @@ std::vector<std::shared_ptr<const Tile>> AI::expand(const Tile &current) const {
     switch (expansion_mode) {
         case NORMAL_EXPANSION:
             return map->available_from(current);
-        case OTHER_ENEMIES_EXPANSION:
+        case OTHER_ENEMIES_EXPANSION: {
             auto available_tiles = map->available_from(current);
             for (auto it = available_tiles.begin(); it < available_tiles.end(); ++it) {
                 
@@ -93,6 +93,9 @@ std::vector<std::shared_ptr<const Tile>> AI::expand(const Tile &current) const {
                 }
             }
             return available_tiles;
+        }
+        default:
+            throw std::runtime_error("AI expansion mode is invalid");
     }
 }
 
