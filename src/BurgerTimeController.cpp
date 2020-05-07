@@ -148,7 +148,7 @@ void BurgerTimeController::update(float delta_t) {
     }
 
     if (is_in_focus) {
-        if (is_text_entered && is_in_focus) {
+        if (is_text_entered) {
             InputSystem::update(char_entered);
             is_text_entered = false;
         }
