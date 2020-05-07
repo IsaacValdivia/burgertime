@@ -246,6 +246,8 @@ class EnterStatePlaying : public PlayingStateMachine {
 
 class GameOverStatePlaying : public PlayingStateMachine {};
 
+class PausedExitState : public PlayingStateMachine {};
+
 class GameReadyScreenState : public PlayingStateMachine {
     /**
      * @brief Entry state function

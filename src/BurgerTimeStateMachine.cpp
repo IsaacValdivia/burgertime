@@ -360,6 +360,9 @@ void PlayingState::react(const ExecuteEvent &event) {
             transit<GameOverScreenState>();
         }
     }
+    else if (PlayingStateMachine::is_in_state<PausedExitState>()) {
+        transit<MainScreenState>();
+    }
     else {
         PlayingStateMachine::dispatch(event);
     }

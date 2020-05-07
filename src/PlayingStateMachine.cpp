@@ -548,33 +548,66 @@ void NormalStatePlaying::entry() {
 }
 
 void NormalStatePlaying::react(const ExecuteEvent &event) {
-    if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
-        if (!game_info->paused_screen) {
-            Audio::pause_all();
-            game_info->paused_screen = std::make_shared<sf::RectangleShape>();
-            game_info->paused_screen->setFillColor(sf::Color(0, 0, 0, 150));
-            game_info->paused_screen->setPosition(sf::Vector2f(0, 0));
-            game_info->paused_screen->setSize(sf::Vector2f(3 * WINDOW_WIDTH, 3 * WINDOW_HEIGHT));
-
-            auto pausedText = gui.create_text("playingStatePaused", "PAUSED", sf::Vector2u(425, 440),
-                                              sf::Vector2f(0.5, 0.5), sf::Color::White);
-
-            controller.pause_timer();
-
-            controller.add_drawable(game_info->paused_screen);
-            controller.add_drawable(pausedText);
-        } else {
+    if (game_info->paused_screen) {
+        auto resume = [&]() {
             Audio::resume_all();
 
             controller.start_timer();
-            gui.delete_text("playingStatePaused");
+            gui.delete_text("playingStateContinue");
+            gui.delete_text("playingStateExit");
             game_info->paused_screen = nullptr;
-        }
-    }
+        };
 
-    if (game_info->paused_screen) {
-        // tal pascual
+        auto continueText = gui.get_text("playingStateContinue").lock();
+        auto exitText = gui.get_text("playingStateExit").lock();
+
+        if (InputSystem::has_input_just_been_pressed(InputSystem::Input::UP_MENU)
+                || InputSystem::has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+            if (continueText->getFillColor() == sf::Color::Cyan) {
+                continueText->setFillColor(sf::Color::White);
+                exitText->setFillColor(sf::Color::Cyan);
+            } else {
+                continueText->setFillColor(sf::Color::Cyan);
+                exitText->setFillColor(sf::Color::White);
+            }
+        }
+        else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+            if (continueText->getFillColor() == sf::Color::Cyan) {
+                resume();
+            }
+            else {
+                Audio::stop_background();
+
+                gui.delete_text("playingStateContinue");
+                gui.delete_text("playingStateExit");
+
+                transit<PausedExitState>();
+            }
+        }
+        else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+            resume();
+        }
+
         return;
+    }
+    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+        Audio::pause_all();
+        game_info->paused_screen = std::make_shared<sf::RectangleShape>();
+        game_info->paused_screen->setFillColor(sf::Color(0, 0, 0, 150));
+        game_info->paused_screen->setPosition(sf::Vector2f(0, 0));
+        game_info->paused_screen->setSize(sf::Vector2f(3 * WINDOW_WIDTH, 3 * WINDOW_HEIGHT));
+
+        auto continueText = gui.create_text("playingStateContinue", "CONTINUE", sf::Vector2u(425, 430),
+                                            sf::Vector2f(0.5, 0.5), sf::Color::Cyan);
+
+        auto exitText = gui.create_text("playingStateExit", "EXIT", sf::Vector2u(425, 480),
+                                        sf::Vector2f(0.5, 0.5), sf::Color::White);
+
+        controller.pause_timer();
+
+        controller.add_drawable(game_info->paused_screen);
+        controller.add_drawable(continueText);
+        controller.add_drawable(exitText);
     }
 
     check_main_music();
