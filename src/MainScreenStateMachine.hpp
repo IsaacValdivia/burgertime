@@ -201,6 +201,21 @@ class ExitOptionState : public MainScreenStateMachine {
     void react(const ExecuteEvent &) override;
 };
 
+class LevelScreenEnterState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+
+    unsigned int num_maps;
+}; 
+
 class DifficultyScreenEnterState : public MainScreenStateMachine {
     /**
      * @brief Entry state function

@@ -377,7 +377,7 @@ void EnterStatePlaying::entry() {
     }
 
     game_info->has_just_entered = true;
-    game_info->current_map = 0;
+    game_info->current_map = controller.get_initial_map();
     game_info->current_ingredients = 0;
     game_info->points_to_extra_life = 20000;
 

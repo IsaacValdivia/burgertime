@@ -200,3 +200,11 @@ void BurgerTimeController::set_resolution(Config::Resolution new_resolution) {
     }
     window.setSize(resolutionSize);
 }
+
+unsigned int BurgerTimeController::get_initial_map() {
+    return initial_map;
+}
+
+void BurgerTimeController::set_initial_map(unsigned int new_initial_map) {
+    initial_map = new_initial_map;
+}

@@ -17,6 +17,7 @@ private:
     Stopwatch logic_clock; // Clock
     Difficulty selected_difficulty;
     bool is_in_focus = true;
+    unsigned int initial_map = 0;
 
     /**
      * @brief Construct a new Burger Time Controller object
@@ -144,4 +145,18 @@ public:
      * @param new_resolution new resolution to set
      */
     void set_resolution(Config::Resolution new_resolution);
+
+    /**
+     * @brief Returns the initial map
+     * 
+     * @return The initial map
+     */
+    unsigned int get_initial_map();
+
+    /**
+     * @brief Sets the initial map for the game
+     *
+     * @param new_initial_map new initial map to set
+     */
+    void set_initial_map(unsigned int new_initial_map);
 };

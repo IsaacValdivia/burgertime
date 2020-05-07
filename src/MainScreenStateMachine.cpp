@@ -2,6 +2,11 @@
 
 #include "InputSystem.hpp"
 
+#include <filesystem>
+#include <string>
+
+namespace fs = std::filesystem;
+
 FSM_INITIAL_STATE(MainScreenStateMachine, EnterStateMainScreen)
 
 BurgerTimeController &MainScreenStateMachine::controller = BurgerTimeController::get();
@@ -40,7 +45,7 @@ void StartOptionState::entry() {
 void StartOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
         Audio::play(Audio::ENTRY_SELECTED);
-        transit<DifficultyScreenEnterState>();
+        transit<LevelScreenEnterState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
         transit<ExitOptionState>();
@@ -512,6 +517,74 @@ void ExitOptionState::react(const ExecuteEvent &) {
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         transit<StartOptionState>();
+    }
+}
+
+
+void LevelScreenEnterState::entry() {
+    controller.clear_screen();
+
+    auto maps_folder = fs::path(MAPS_FOLDER);
+    num_maps = std::distance(fs::directory_iterator(maps_folder), fs::directory_iterator{}) / 2;
+
+    if (num_maps == 0) {
+        throw std::runtime_error(std::string("No maps found in ") + MAPS_FOLDER);
+    }
+
+    auto help_text1 = gui.create_text("levelStateHelp1", "PRESS ENTER TO START",
+                                      sf::Vector2u(65, 300), sf::Vector2f(0.8, 0.8));
+
+    auto help_text2 = gui.create_text("levelStateHelp2", "INITIAL MAP (1-" + std::to_string(num_maps) + ")",
+                                     sf::Vector2u(120, 400), sf::Vector2f(0.8, 0.8));
+
+    auto map_idx = gui.create_text("levelStateMapIdx", "_",
+                                   sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
+
+    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(help_text1);
+    controller.add_drawable(help_text2);
+    controller.add_drawable(map_idx);
+}
+
+void LevelScreenEnterState::react(const ExecuteEvent &) {
+    auto map_idx = gui.get_text("levelStateMapIdx").lock();
+    auto map_idx_str = map_idx->getString();
+
+    if (InputSystem::has_input_just_been_pressed(InputSystem::Input::DELETE)) {
+        auto help_text1 = gui.get_text("levelStateHelp1").lock();
+        help_text1->setString("PRESS ENTER TO START");
+
+        if (map_idx_str.getSize() > 1) {
+            map_idx_str = map_idx_str.substring(0, map_idx_str.getSize() - 1);
+            map_idx_str[map_idx_str.getSize() - 1] = '_';
+            map_idx->setString(map_idx_str);
+        }
+    }
+    else if (InputSystem::has_entered_text() && map_idx_str.getSize() < 8) {
+        auto help_text1 = gui.get_text("levelStateHelp1").lock();
+        help_text1->setString("PRESS ENTER TO START");
+        
+        char new_char = InputSystem::get_current_char();
+        if ('0' <= new_char && new_char <= '9') {
+            map_idx_str[map_idx_str.getSize() - 1] = new_char;
+            map_idx_str += '_';
+            map_idx->setString(map_idx_str);
+        }
+    }
+    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ENTER_MENU) && map_idx_str.getSize() > 1) {
+        auto map_idx = std::stoi(std::string(map_idx_str.substring(0, map_idx_str.getSize() - 1)));
+        if (1 <= map_idx && map_idx <= num_maps) {
+            controller.set_initial_map(map_idx - 1);
+            Audio::play(Audio::ENTRY_SELECTED);
+            transit<DifficultyScreenEnterState>();
+        }
+        else {
+            auto help_text1 = gui.get_text("levelStateHelp1").lock();
+            help_text1->setString(" INVALID MAP GIVEN");
+        }
+    }
+    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+        transit<EnterStateMainScreen>();
     }
 }
 
