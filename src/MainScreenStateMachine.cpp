@@ -39,6 +39,7 @@ void StartOptionState::entry() {
 
 void StartOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::ENTRY_SELECTED);
         transit<DifficultyScreenEnterState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
@@ -57,6 +58,7 @@ void ConfigOptionState::entry() {
 
 void ConfigOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::ENTRY_SELECTED);
         transit<InsideConfigOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
@@ -302,6 +304,7 @@ void BindingsOptionState::react(const ExecuteEvent &) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::ENTRY_SELECTED);
         transit<BindingsScreenInsideState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
@@ -447,6 +450,7 @@ void ResolutionOptionState::react(const ExecuteEvent &) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::ENTRY_SELECTED);
         transit<ResolutionScreenInsideState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
@@ -488,6 +492,7 @@ void ExitOptionState::entry() {
 
 void ExitOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::ENTRY_SELECTED);
         transit<FinishedExitState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
