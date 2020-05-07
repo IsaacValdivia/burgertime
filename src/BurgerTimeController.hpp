@@ -16,6 +16,7 @@ private:
     std::list<std::weak_ptr<sf::Drawable>> drawables_on_screen; // All drawables on screen
     Stopwatch logic_clock; // Clock
     Difficulty selected_difficulty;
+    bool is_in_focus = true;
 
     /**
      * @brief Construct a new Burger Time Controller object

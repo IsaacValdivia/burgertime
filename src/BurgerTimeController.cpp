@@ -136,18 +136,25 @@ void BurgerTimeController::update(float delta_t) {
                 is_text_entered = true;
             }
         }
-        else if (event.type == sf::Event::KeyPressed) {
+        else if (event.type == sf::Event::KeyPressed && is_in_focus) {
             InputSystem::update_last_key(event.key.code);
-
+        }
+        else if (event.type == sf::Event::GainedFocus) {
+            is_in_focus = true;
+        }
+        else if (event.type == sf::Event::LostFocus) {
+            is_in_focus = false;
         }
     }
 
-    if (is_text_entered) {
-        InputSystem::update(char_entered);
-        is_text_entered = false;
-    }
-    else {
-        InputSystem::update();
+    if (is_in_focus) {
+        if (is_text_entered && is_in_focus) {
+            InputSystem::update(char_entered);
+            is_text_entered = false;
+        }
+        else {
+            InputSystem::update();
+        }
     }
 
     BurgerTimeStateMachine::dispatch(ExecuteEvent(delta_t));
