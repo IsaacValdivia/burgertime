@@ -5,6 +5,14 @@
 
 namespace InputSystem {
     namespace {
+        static std::array<Input, 5> MENU_INPUTS = {
+            Input::UP_MENU,
+            Input::DOWN_MENU,
+            Input::LEFT_MENU,
+            Input::RIGHT_MENU,
+            Input::ENTER_MENU
+        };
+
         static std::map<Input, sf::Keyboard::Key> input_bindings = {
             {Input::UP_MENU, sf::Keyboard::Key::Up},
             {Input::DOWN_MENU, sf::Keyboard::Key::Down},
@@ -174,7 +182,7 @@ namespace InputSystem {
 
     bool is_key_binded(sf::Keyboard::Key key) {
         for (const auto &inp : input_bindings) {
-            if (inp.second == key) {
+            if (inp.second == key && std::find(MENU_INPUTS.begin(), MENU_INPUTS.end(), inp.first) == MENU_INPUTS.end()) {
                 return true;
             }
         }

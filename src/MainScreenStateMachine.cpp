@@ -98,6 +98,9 @@ void BindingsScreenInsideState::entry() {
     current_option = UP;
     is_reading_key = false;
 
+    auto help = gui.create_text("bindingsScreenHelp", "PRESS ENTER TO CHANGE", sf::Vector2u(42, 220),
+                              sf::Vector2f(0.8, 0.8), sf::Color::White);
+
     auto up = gui.create_text("bindingsScreenUp", "UP", sf::Vector2u(320, 300),
                               sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
 
@@ -158,6 +161,7 @@ void BindingsScreenInsideState::entry() {
                                 sf::Vector2u(320, 900), sf::Vector2f(0.8, 0.8));
 
     controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(help);
     controller.add_drawable(up);
     controller.add_drawable(up_key);
     controller.add_drawable(down);
@@ -186,6 +190,9 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
         return;
     }
     else if (is_reading_key) {
+        auto help_text = gui.get_text("bindingsScreenHelp").lock();
+        help_text->setString("PRESS KEY TO OVERRIDE");
+
         auto new_key = InputSystem::get_last_key();
 
         if (!InputSystem::is_key_binded(new_key) &&
@@ -229,30 +236,35 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
             Config::get().write_file();
         }
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        is_reading_key = true;
-        InputSystem::reset_last_key();
-        last_read_key = InputSystem::get_last_key();
-        if (current_option == BACK) {
-            transit<InsideConfigOptionState>();
-            return;
+    else {
+        auto help_text = gui.get_text("bindingsScreenHelp").lock();
+        help_text->setString("PRESS ENTER TO CHANGE");
+
+        if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+            is_reading_key = true;
+            InputSystem::reset_last_key();
+            last_read_key = InputSystem::get_last_key();
+            if (current_option == BACK) {
+                transit<InsideConfigOptionState>();
+                return;
+            }
+            update_color = true;
+            new_color = sf::Color::Green;
         }
-        update_color = true;
-        new_color = sf::Color::Green;
-    }
-    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
-        is_reading_key = false;
-        update_color = true;
-        new_color = sf::Color::Cyan;
-        current_option = static_cast<CurrentOption>(((current_option - 1)
-                         + NUM_OPTIONS) % NUM_OPTIONS);
-    }
-    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
-        is_reading_key = false;
-        update_color = true;
-        new_color = sf::Color::Cyan;
-        current_option = static_cast<CurrentOption>((current_option + 1) %
-                         NUM_OPTIONS);
+        else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+            is_reading_key = false;
+            update_color = true;
+            new_color = sf::Color::Cyan;
+            current_option = static_cast<CurrentOption>(((current_option - 1)
+                            + NUM_OPTIONS) % NUM_OPTIONS);
+        }
+        else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+            is_reading_key = false;
+            update_color = true;
+            new_color = sf::Color::Cyan;
+            current_option = static_cast<CurrentOption>((current_option + 1) %
+                            NUM_OPTIONS);
+        }
     }
 
     if (update_color) {
