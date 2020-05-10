@@ -261,7 +261,9 @@ void PlayingStateMachine::ingredient_collision() {
                     if (other.intersects_with(ingredient) && (other.is_idle() ||
                             other.is_static())) {
 
-                        add_points(50);
+                        if (!other.is_static()) {
+                            add_points(50);
+                        }
                         auto state = other.is_static() ?
                                      Ingredient::STATIC_ING_BASKET :
                                      Ingredient::INGREDIENT;
