@@ -324,9 +324,131 @@ void ItemPointsScreenState::entry() {
 
 void ItemPointsScreenState::react(const ExecuteEvent &) {
     if (BurgerTimeStateMachine::timed_exit_state_react(5)) {
+        transit<ControlsInstructionsScreenState>();
+    }
+}
+
+
+void ControlsInstructionsScreenState::entry() {
+    controller.clear_screen();
+
+    auto burger_time_text = gui.create_text("controlsBurgerTimeMain", "BURGER TIME",
+                                            sf::Vector2u(280, 150),
+                                            sf::Vector2f(0.70, 0.70),
+                                            sf::Color::Red);
+
+    auto instructions_text = gui.create_text("controlsInstructionsMain", "-INSTRUCTIONS-",
+                                            sf::Vector2u(225, 250),
+                                            sf::Vector2f(0.70, 0.70),
+                                            sf::Color::White);
+
+    auto controls_text = gui.create_text("controlsCurrentKeyMain", "", sf::Vector2u(370, 800));
+
+    chef = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_STILL_FRONT);
+    chef->setOrigin({chef->getLocalBounds().width / 2,
+                     chef->getLocalBounds().height / 2});
+    chef->setPosition(40 * WINDOW_WIDTH / 100, 50 * WINDOW_HEIGHT / 100);
+    chef->setScale(4, 4);
+
+    egg = std::make_shared<sf::Sprite>();
+    BtSprites::set_initial_sprite(*egg, BtSprites::Sprite::EGG_LEFT_1);
+    egg->setOrigin({egg->getLocalBounds().width / 2,
+                    egg->getLocalBounds().height / 2});
+    egg->setPosition(60 * WINDOW_WIDTH / 100, 50 * WINDOW_HEIGHT / 100);
+    egg->setScale(4, 4);
+
+    current_control_state = ControlStates::INITIAL;
+
+    controller.add_drawable(burger_time_text);
+    controller.add_drawable(instructions_text);
+    controller.add_drawable(controls_text);
+    controller.add_drawable(chef);
+    controller.add_drawable(egg);
+    controller.restart_timer();
+}
+
+void ControlsInstructionsScreenState::react(const ExecuteEvent &) {
+    auto elapsed_time = controller.get_elapsed_time();
+
+    if (elapsed_time.asSeconds() >= 2) {
+
+        switch (current_control_state) {
+            case INITIAL: {
+                current_control_state = UP;
+                BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_UPSTAIRS_1);
+                auto controls_text = gui.get_text("controlsCurrentKeyMain").lock();
+                auto up_str = InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::UP));
+                controls_text->setString(up_str);
+                
+                break;
+            }
+            case UP: {
+                current_control_state = LEFT;
+                BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_LEFT_1);
+                auto controls_text = gui.get_text("controlsCurrentKeyMain").lock();
+                auto left_str = InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::LEFT));
+                controls_text->setString(left_str);
+
+                break;
+            }
+            case LEFT: {
+                current_control_state = DOWN;
+                BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_DOWNSTAIRS_1);
+                auto controls_text = gui.get_text("controlsCurrentKeyMain").lock();
+                auto down_str = InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::DOWN));
+                controls_text->setString(down_str);
+
+                break;
+            }
+            case DOWN: {
+                current_control_state = RIGHT;
+                BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_LEFT_1);
+                chef->scale(-1, 1);
+                auto controls_text = gui.get_text("controlsCurrentKeyMain").lock();
+                auto right_str = InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::RIGHT));
+                controls_text->setString(right_str);
+
+                break;
+            }
+            case RIGHT: {
+                current_control_state = PEPPER;
+                BtSprites::set_initial_sprite(*chef, BtSprites::Sprite::PLAYER_PEPPER_LEFT);
+                BtSprites::set_initial_sprite(*egg, BtSprites::Sprite::EGG_PEPPER_1);
+
+                pepper = std::make_shared<sf::Sprite>();
+                BtSprites::set_initial_sprite(*pepper, BtSprites::Sprite::PEPPER_LEFT_1);
+                pepper->setOrigin({pepper->getLocalBounds().width / 2,
+                                   pepper->getLocalBounds().height / 2});
+                pepper->setPosition(48 * WINDOW_WIDTH / 100, 52 * WINDOW_HEIGHT / 100);
+                pepper->scale(-1, 1);
+                pepper->setScale(4, 4);
+                controller.add_drawable(pepper);
+
+                auto controls_text = gui.get_text("controlsCurrentKeyMain").lock();
+                auto pepper_str = InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::PEPPER));
+                controls_text->setString(pepper_str);
+
+                break;
+            }
+            case PEPPER:
+                current_control_state = END;
+                break;
+            case END:
+                transit<MainScreenState>();
+                break;
+            default:
+                throw std::runtime_error("Internal error, controls instruction state malfunction");
+        }
+        controller.restart_timer();
+    }
+
+
+    if (BurgerTimeStateMachine::timed_exit_state_react(1000)) {
         transit<MainScreenState>();
     }
 }
+
 
 void MainScreenState::entry() {
     MainScreenStateMachine::reset();

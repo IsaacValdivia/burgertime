@@ -82,6 +82,34 @@ class ItemPointsScreenState : public BurgerTimeStateMachine {
     std::shared_ptr<sf::Sprite> chef;
 };
 
+class ControlsInstructionsScreenState : public BurgerTimeStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+
+    enum ControlStates {
+        INITIAL = 0,
+        UP,
+        LEFT,
+        DOWN,
+        RIGHT,
+        PEPPER,
+        END,
+    };
+
+    ControlStates current_control_state;
+    std::shared_ptr<sf::Sprite> chef;
+    std::shared_ptr<sf::Sprite> egg;
+    std::shared_ptr<sf::Sprite> pepper;
+};
+
 class MainScreenState : public BurgerTimeStateMachine {
     /**
      * @brief Entry state function
