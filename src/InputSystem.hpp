@@ -13,6 +13,7 @@ namespace InputSystem {
         LEFT_MENU,
         RIGHT_MENU,
         ENTER_MENU,
+        BACK_MENU,
         UP,
         DOWN,
         LEFT,

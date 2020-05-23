@@ -5,12 +5,13 @@
 
 namespace InputSystem {
     namespace {
-        static std::array<Input, 5> MENU_INPUTS = {
+        static std::array<Input, 6> MENU_INPUTS = {
             Input::UP_MENU,
             Input::DOWN_MENU,
             Input::LEFT_MENU,
             Input::RIGHT_MENU,
-            Input::ENTER_MENU
+            Input::ENTER_MENU,
+            Input::BACK_MENU,
         };
 
         static std::map<Input, sf::Keyboard::Key> input_bindings = {
@@ -19,6 +20,7 @@ namespace InputSystem {
             {Input::LEFT_MENU, sf::Keyboard::Key::Left},
             {Input::RIGHT_MENU, sf::Keyboard::Key::Right},
             {Input::ENTER_MENU, sf::Keyboard::Key::Return},
+            {Input::BACK_MENU, sf::Keyboard::Key::Escape},
             {Input::UP, sf::Keyboard::Key::Up},
             {Input::DOWN, sf::Keyboard::Key::Down},
             {Input::LEFT, sf::Keyboard::Key::Left},
@@ -87,7 +89,7 @@ namespace InputSystem {
             {sf::Keyboard::Key::Equal, "="},
             {sf::Keyboard::Key::Dash, "-"},
             {sf::Keyboard::Key::Space, "SPACE"},
-            {sf::Keyboard::Key::Return, "RETURN"},
+            {sf::Keyboard::Key::Return, "ENTER"},
             {sf::Keyboard::Key::BackSpace, "BACK"},
             {sf::Keyboard::Key::Tab, "TAB"},
             {sf::Keyboard::Key::PageUp, "PGUP"},

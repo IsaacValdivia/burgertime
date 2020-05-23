@@ -13,7 +13,25 @@
 
 BurgerTimeController::BurgerTimeController() :
     window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE,
-           sf::Style::Titlebar | sf::Style::Close) {}
+           sf::Style::Titlebar | sf::Style::Close) {
+    std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
+    auto best_bpp = modes[0].bitsPerPixel;
+    for (std::size_t i = 0; i < modes.size(); ++i) {
+        sf::VideoMode mode = modes[i];
+        if (mode.bitsPerPixel != best_bpp) {
+            break;
+        }
+
+        available_resolutions.push_back(sf::Vector2u(mode.width, mode.height));
+    }
+    std::reverse(available_resolutions.begin(), available_resolutions.end());
+    // window(sf::VideoMode::getDesktopMode(), WINDOW_TITLE, sf::Style::None) {}
+
+    letter_view.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    letter_view.setCenter(letter_view.getSize().x / 2, letter_view.getSize().y / 2);
+    set_letterbox_view(WINDOW_WIDTH, WINDOW_HEIGHT);
+}
+
 
 BurgerTimeController::~BurgerTimeController() {}
 
@@ -58,18 +76,22 @@ BurgerTimeController &BurgerTimeController::get() {
 void BurgerTimeController::startup() {
     // No borrar, al ser singletons se tienen que inicializar cuanto antes
     GUI::get();
+    Audio::init();
     Config::get();
+    
+    window_borderless_switch();
 
     srand(time(NULL));
 
     BurgerTimeStateMachine::start();
     window.setKeyRepeatEnabled(false);
-    Audio::init();
     restart_timer();
 }
 
 void BurgerTimeController::run() {
     startup();
+
+    Audio::play(Audio::MusicTrack::MENU_MUSIC);
 
     const auto LOGIC_DELTA_TIME = sf::seconds(LOGIC_UPDATE_FREQ);
 
@@ -162,6 +184,7 @@ void BurgerTimeController::update(float delta_t) {
 
 void BurgerTimeController::draw() {
     window.clear();
+    window.setView(letter_view);
 
     for (auto obj_weak_it = drawables_on_screen.begin(); obj_weak_it
             != drawables_on_screen.end(); ++obj_weak_it) {
@@ -178,27 +201,30 @@ void BurgerTimeController::draw() {
     window.display();
 }
 
+void BurgerTimeController::window_borderless_switch() {
+    auto resolution = Config::get().get_resolution();
+    auto video_mode = sf::VideoMode(resolution.x, resolution.y);
+    if (Config::get().get_are_borders_on()) {
+        window.create(video_mode, WINDOW_TITLE,
+            sf::Style::Titlebar | sf::Style::Close);
+    }
+    else {
+        window.create(video_mode, WINDOW_TITLE,
+           sf::Style::None);
+    }
+
+    sf::Image window_icon;
+    window_icon.loadFromFile("img/window_icon.png");
+    window.setIcon(window_icon.getSize().x, window_icon.getSize().y, window_icon.getPixelsPtr());
+}
+
 bool BurgerTimeController::has_game_finished() const {
     return BurgerTimeStateMachine::is_in_state<FinishedState>();
 }
 
-void BurgerTimeController::set_resolution(Config::Resolution new_resolution) {
-    sf::Vector2u resolutionSize;
-    switch (new_resolution) {
-        case Config::Resolution::x250x250:
-            resolutionSize.x = 250;
-            resolutionSize.y = 250;
-            break;
-        case Config::Resolution::x550x550:
-            resolutionSize.x = 550;
-            resolutionSize.y = 550;
-            break;
-        case Config::Resolution::x1000x1000:
-            resolutionSize.x = 1000;
-            resolutionSize.y = 1000;
-            break;
-    }
-    window.setSize(resolutionSize);
+void BurgerTimeController::set_resolution(sf::Vector2u new_resolution) {
+    set_letterbox_view(new_resolution.x, new_resolution.y);
+    window.setSize(new_resolution);
 }
 
 unsigned int BurgerTimeController::get_initial_map() {
@@ -207,4 +233,45 @@ unsigned int BurgerTimeController::get_initial_map() {
 
 void BurgerTimeController::set_initial_map(unsigned int new_initial_map) {
     initial_map = new_initial_map;
+}
+
+bool BurgerTimeController::is_window_on_focus() const {
+    return is_in_focus;
+}
+
+void BurgerTimeController::set_letterbox_view(int windowWidth, int windowHeight) {
+
+    // Compares the aspect ratio of the window to the aspect ratio of the view,
+    // and sets the view's viewport accordingly in order to archieve a letterbox effect.
+    // A new view (with a new viewport set) is returned.
+
+    float windowRatio = windowWidth / (float) windowHeight;
+    float viewRatio = letter_view.getSize().x / (float) letter_view.getSize().y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+        horizontalSpacing = false;
+
+    // If horizontalSpacing is true, the black bars will appear on the left and right side.
+    // Otherwise, the black bars will appear on the top and bottom.
+
+    if (horizontalSpacing) {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+
+    else {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    letter_view.setViewport( sf::FloatRect(posX, posY, sizeX, sizeY) );
+}
+
+const std::vector<sf::Vector2u>& BurgerTimeController::get_available_resolutions() const {
+    return available_resolutions;
 }

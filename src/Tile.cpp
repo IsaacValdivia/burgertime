@@ -2,8 +2,10 @@
 
 StaticTexture Tile::floor_tex(FLOOR_PATH);
 StaticTexture Tile::go_up_both_tex(GO_UP_BOTH_PATH);
+// StaticTexture Tile::go_up_both_tex("img/red_square.png");
 StaticTexture Tile::go_down_tex(GO_DOWN_PATH);
 StaticTexture Tile::stairs_tex(STAIRS_PATH);
+// StaticTexture Tile::stairs_tex("img/stairs.png");
 StaticTexture Tile::left_basket_tex(LEFT_BASKET_PATH);
 StaticTexture Tile::mid_basket_tex(MID_BASKET_PATH);
 StaticTexture Tile::right_basket_tex(RIGHT_BASKET_PATH);
@@ -73,6 +75,17 @@ bool Tile::operator==(const Tile &other) const {
 
 void Tile::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     target.draw(shape, states);
+
+#if false
+    auto collision_shape = shape.getGlobalBounds();
+    sf::RectangleShape drawShape;
+    drawShape.setOutlineColor(sf::Color::Red);
+    drawShape.setFillColor(sf::Color::Transparent);
+    drawShape.setOutlineThickness(0.8);
+    drawShape.setPosition(collision_shape.left, collision_shape.top);
+    drawShape.setSize(sf::Vector2f(collision_shape.width, collision_shape.height));
+    target.draw(drawShape, states);
+#endif
 }
 
 Tile &Tile::operator=(const Tile &other) {

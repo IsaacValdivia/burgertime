@@ -5,22 +5,28 @@ namespace Audio {
     enum Track {
         BURGER_GOING_DOWN,
         BURGER_TOUCHING_FLOOR,
-        DIE,
-        HIGH_SCORES,
         ENTRY_SELECTED,
         COIN_INSERTED,
         ONE_UP,
         ENEMY_CRUSHED,
         ENEMY_FALL,
         PEPPER_UP,
-        LEVEL_INTRO,
-        MAIN,
-        MAIN_BIP,
         NEW_INGREDIENT,
         PEPPER,
         PEPPERED,
         STEPPING_ON_BURGER,
-        WIN
+        MENU_SELECT,
+        MENU_MOVE
+    };
+
+    enum MusicTrack {
+        DIE,
+        HIGH_SCORES,
+        LEVEL_INTRO,
+        MAIN,
+        MAIN_BIP,
+        WIN,
+        MENU_MUSIC,
     };
 
     /**
@@ -36,6 +42,8 @@ namespace Audio {
      */
     void play(const Track track);
 
+    void play(const MusicTrack track);
+
     /**
      * @brief Stops the reproduction of a selected track
      *
@@ -43,11 +51,25 @@ namespace Audio {
      */
     void stop(const Track track);
 
+    void stop(const MusicTrack track);
+
+    void set_sfx_vol(const unsigned int vol);
+
+    void set_music_vol(const unsigned int vol);
+
+    void pause_all_sfx();
+
+    void pause_all_music();
+
     /**
      * Pause every sound playing right now.
      * 
      */
     void pause_all();
+
+    void resume_all_sfx();
+
+    void resume_all_music();
 
     /**
      * Resume every sound that was playing before calling pause_all().
@@ -69,5 +91,7 @@ namespace Audio {
      * @return false
      */
     bool is_playing(const Track track);
+
+    bool is_playing(const MusicTrack track);
 }
 

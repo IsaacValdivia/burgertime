@@ -1,16 +1,10 @@
 #pragma once
 
+#include <SFML/System.hpp>
 #include <cstdint>
 #include <string>
 
 class Config {
-public:
-    enum Resolution : uint8_t {
-        x550x550,
-        x1000x1000,
-        x250x250
-    };
-
 private:
     /**
      * @brief Construct a new Config object
@@ -40,7 +34,10 @@ private:
     void create_default_config();
 
     const std::string file_name;
-    Resolution current_resolution;
+    sf::Vector2u current_resolution;
+    bool are_borders_on;
+    unsigned int sfx_vol;
+    unsigned int music_vol;
 
 public:
     /**
@@ -61,7 +58,26 @@ public:
      *
      * @param new_resolution
      */
-    void set_resolution(Resolution new_resolution);
+    void set_resolution(sf::Vector2u new_resolution);
+
+    /**
+     * @brief Sets the sfx volume to new_sfx_vol
+     *
+     * @param new_sfx_vol
+     */
+    void set_sfx_vol(unsigned int new_sfx_vol);
+
+    /**
+     * @brief Sets the music volume to new_music_vol
+     *
+     * @param new_music_vol
+     */
+    void set_music_vol(unsigned int new_music_vol);
+
+    /**
+     * @brief Changes the border mode
+     */
+    void change_border_mode();
 
     /**
      * @brief Writes to config file
@@ -74,5 +90,26 @@ public:
      *
      * @return Resolution
      */
-    Resolution get_resolution() const;
+    sf::Vector2u get_resolution() const;
+
+    /**
+     * @brief Gets the sfx volume
+     *
+     * @return unsigned int
+     */
+    unsigned int get_sfx_volume() const;
+
+    /**
+     * @brief Gets the music volume
+     *
+     * @return unsigned int
+     */
+    unsigned int get_music_volume() const;
+
+    /**
+     * @brief Checks if the borders are set or not
+     *
+     * @return bool
+     */
+    bool get_are_borders_on() const;
 };

@@ -70,7 +70,7 @@ void Map::fill_ingredients(const std::vector<std::string> &map_data) {
                         if ((Ingredient::Type)content == Ingredient::Type::TOP_BUN) {
                             ++num_burgers;
                         }
-                        float x = SIDE_MARGINS + j * Tile::TILE_WIDTH;
+                        float x = SIDE_MARGINS + j * Tile::TILE_WIDTH + 1;
                         float y = UPPER_MARGIN + i * Tile::TILE_HEIGHT;
                         ing_data.emplace_back(x, y, (Ingredient::Type)content);
                     }
@@ -171,6 +171,26 @@ bool Map::can_move_left(const Tile &t, float left_edge) const {
     else {
         return false;
     }
+}
+
+bool Map::can_move_left_upper(const Tile &t, float left_edge) const {
+    if (t.get_row() == 0) {
+        return false;
+    }
+
+    const Tile &above = *tile_data[t.get_row() - 1][t.get_col()];
+
+    return can_move_left(above, left_edge);
+}
+
+bool Map::can_move_right_upper(const Tile &t, float right_edge) const {
+    if (t.get_row() == 0) {
+        return false;
+    }
+
+    const Tile &above = *tile_data[t.get_row() - 1][t.get_col()];
+
+    return can_move_right(above, right_edge);
 }
 
 bool Map::can_move_up(const Tile &t, float top_edge) const {
@@ -291,10 +311,26 @@ bool Map::can_entity_move(float &x, float &y, const Entity &entity) const {
         up = y < 0.0;
     }
 
-    if (horizontal_mov && (right && can_move_right(*tiles_of_entity.back(), bot_right_x) || !right && can_move_left(*tiles_of_entity.front(), bot_left_x))) {
-        y = ((tiles_of_entity[0]->get_position().y + Tile::TILE_HEIGHT) -
-             tiles_of_entity[0]->get_height()) - bot_y;
-        return true;
+    if (horizontal_mov) {
+        if ((right && can_move_right(*tiles_of_entity.back(), bot_right_x)) || (!right && can_move_left(*tiles_of_entity.front(), bot_left_x))) {
+            y = ((tiles_of_entity[0]->get_position().y + Tile::TILE_HEIGHT) -
+                tiles_of_entity[0]->get_height()) - bot_y;
+
+            return true;
+        }
+        else if ((right && can_move_right_upper(*tiles_of_entity.back(), bot_right_x)) || (!right && can_move_left_upper(*tiles_of_entity.front(), bot_left_x))) {
+            y = ((tile_data[tiles_of_entity[0]->get_row() - 1][tiles_of_entity[0]->get_col()]->get_position().y + Tile::TILE_HEIGHT) -
+                tiles_of_entity[0]->get_height()) - bot_y;
+
+            float temp = y < 0 ? -y : y;
+
+            // To much distance.
+            if (temp > Tile::TILE_HEIGHT / 2) {
+                return false;
+            }
+
+            return true;
+        }
     }
     else {
         short up_bot_count = 0;

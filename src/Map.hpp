@@ -174,6 +174,26 @@ private:
     bool can_move_left(const Tile &t, const float left_edge) const;
 
     /**
+     * @brief Checks if movement to the right is possible on tile above t with a certain right edge
+     *
+     * @param t tile to check
+     * @param right_edge right edge
+     * @return true
+     * @return false
+     */
+    bool can_move_right_upper(const Tile &t, const float right_edge) const;
+
+    /**
+     * @brief Checks if movement to the right is possible on tile above t with a certain left edge
+     *
+     * @param t tile to check
+     * @param left_edge left edge
+     * @return true
+     * @return false
+     */
+    bool can_move_left_upper(const Tile &t, const float left_edge) const;
+
+    /**
      * @brief Checks if movement up is possible on tile t with a certain left edge
      *
      * @param t tile to check

@@ -3,6 +3,7 @@
 #include "InputSystem.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <string>
 
 namespace fs = std::filesystem;
@@ -15,18 +16,36 @@ GUI &MainScreenStateMachine::gui = GUI::get();
 void EnterStateMainScreen::entry() {
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_text("enterStateMainBurTime", "BURGER TIME",
-                                            sf::Vector2u(280, 150), sf::Vector2f(0.7, 0.7),
-                                            sf::Color::Red);
+    if (!Audio::is_playing(Audio::MusicTrack::MENU_MUSIC)) {
+        Audio::play(Audio::MusicTrack::MENU_MUSIC);
+    }
+
+    auto burger_time_text = gui.get_text("burTime").lock();
 
     auto start_text = gui.create_text("enterStateMainStart", "START",
                                       sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto options_text = gui.create_text("enterStateMainOptions", "OPTIONS",
+    auto instructions_text = gui.create_text("enterStateMainInstructions", "INSTRUCTIONS",
                                         sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+    auto options_text = gui.create_text("enterStateMainOptions", "SETTINGS",
+                                        sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
     auto exit_text = gui.create_text("enterStateMainExit", "EXIT",
-                                     sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+                                     sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
+
+
+    auto enter_help = gui.create_text("mainScreenEnterHelp",
+                                      "PRESS <" + std::string(InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::ENTER_MENU)) + "> TO INTERACT"),
+                                      sf::Vector2u(40, 960),
+                                      sf::Vector2f(0.28, 0.28));
+
+    auto go_back_help = gui.create_text("mainScreenGoBackHelp",
+                                        "PRESS <" + std::string(InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::BACK_MENU)) + "> TO GO BACK"),
+                                        sf::Vector2u(620, 960),
+                                        sf::Vector2f(0.28, 0.28));
 
     controller.add_drawable(burger_time_text);
+    controller.add_drawable(gui.get_text("mainScreenEnterHelp"));
+    controller.add_drawable(enter_help);
+    controller.add_drawable(instructions_text);
     controller.add_drawable(start_text);
     controller.add_drawable(options_text);
     controller.add_drawable(exit_text);
@@ -38,38 +57,68 @@ void EnterStateMainScreen::react(const ExecuteEvent &) {
 
 void StartOptionState::entry() {
     gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("enterStateMainInstructions").lock()->setFillColor(sf::Color::White);
     gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
     gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::White);
 }
 
 void StartOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        Audio::play(Audio::ENTRY_SELECTED);
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<LevelScreenEnterState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<ExitOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<InstructionsOptionState>();
+    }
+}
+
+
+void InstructionsOptionState::entry() {
+    gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainInstructions").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::White);
+}
+
+void InstructionsOptionState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
+        transit<FinishedGoToInstructionsState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<StartOptionState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<ConfigOptionState>();
     }
 }
 
+
 void ConfigOptionState::entry() {
     gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainInstructions").lock()->setFillColor(sf::Color::White);
     gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::Cyan);
     gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::White);
 }
 
 void ConfigOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        Audio::play(Audio::ENTRY_SELECTED);
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<InsideConfigOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
-        transit<StartOptionState>();
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<InstructionsOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<ExitOptionState>();
     }
 }
@@ -80,14 +129,20 @@ void InsideConfigOptionState::entry() {
     auto bindings_text = gui.create_text("insideConfigMainBindings", "CONTROLS",
                                          sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
 
-    auto resolution_text = gui.create_text("insideConfigMainResolution", "RESOLUTION",
-                                           sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
+    auto music_text = gui.create_text("insideConfigMainSoundMusic", "SOUND & MUSIC",
+                                         sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
 
-    auto back_text = gui.create_text("insideConfigMainBack", "BACK", sf::Vector2u(320, 500),
+    auto resolution_text = gui.create_text("insideConfigMainResolution", "RESOLUTION",
+                                           sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
+
+    auto back_text = gui.create_text("insideConfigMainBack", "BACK", sf::Vector2u(320, 600),
                                      sf::Vector2f(0.8, 0.8));
 
-    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(gui.get_text("burTime"));
+    controller.add_drawable(gui.get_text("mainScreenEnterHelp"));
+    controller.add_drawable(gui.get_text("mainScreenGoBackHelp"));
     controller.add_drawable(bindings_text);
+    controller.add_drawable(music_text);
     controller.add_drawable(resolution_text);
     controller.add_drawable(back_text);
 }
@@ -165,7 +220,13 @@ void BindingsScreenInsideState::entry() {
     auto back = gui.create_text("bindingsScreenBack", "BACK",
                                 sf::Vector2u(320, 900), sf::Vector2f(0.8, 0.8));
 
-    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    auto back_help = gui.create_text("bindingsScreenBackHelp", "PRESS <" + std::string(InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::BACK_MENU)) + "> TO GO BACK"),
+                                     sf::Vector2u(620, 960),
+                                     sf::Vector2f(0.28, 0.28));
+
+    controller.add_drawable(gui.get_text("burTime"));
+    controller.add_drawable(gui.get_text("mainScreenEnterHelp"));
+    controller.add_drawable(back_help);
     controller.add_drawable(help);
     controller.add_drawable(up);
     controller.add_drawable(up_key);
@@ -185,18 +246,21 @@ void BindingsScreenInsideState::entry() {
 void BindingsScreenInsideState::react(const ExecuteEvent &) {
     bool update_color = false;
     sf::Color new_color;
-    if (is_reading_key && has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (is_reading_key && has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         is_reading_key = false;
         update_color = true;
         new_color = sf::Color::Cyan;
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    else if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<InsideConfigOptionState>();
         return;
     }
     else if (is_reading_key) {
         auto help_text = gui.get_text("bindingsScreenHelp").lock();
         help_text->setString("PRESS KEY TO OVERRIDE");
+
+        auto back_help_text = gui.get_text("bindingsScreenBackHelp").lock();
+        back_help_text->setString("PRESS <" + std::string(InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::BACK_MENU))) + "> TO CANCEL");
 
         auto new_key = InputSystem::get_last_key();
 
@@ -245,7 +309,11 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
         auto help_text = gui.get_text("bindingsScreenHelp").lock();
         help_text->setString("PRESS ENTER TO CHANGE");
 
+        auto back_help_text = gui.get_text("bindingsScreenBackHelp").lock();
+        back_help_text->setString("PRESS <" + std::string(InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::BACK_MENU)) + "> TO GO BACK"));
+
         if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+            Audio::play(Audio::Track::MENU_SELECT);
             is_reading_key = true;
             InputSystem::reset_last_key();
             last_read_key = InputSystem::get_last_key();
@@ -257,6 +325,7 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
             new_color = sf::Color::Green;
         }
         else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+            Audio::play(Audio::Track::MENU_MOVE);
             is_reading_key = false;
             update_color = true;
             new_color = sf::Color::Cyan;
@@ -264,6 +333,7 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
                             + NUM_OPTIONS) % NUM_OPTIONS);
         }
         else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+            Audio::play(Audio::Track::MENU_MOVE);
             is_reading_key = false;
             update_color = true;
             new_color = sf::Color::Cyan;
@@ -312,143 +382,437 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
 
 void BindingsOptionState::entry() {
     gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("insideConfigMainSoundMusic").lock()->setFillColor(sf::Color::White);
     gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
     gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
 }
 
 void BindingsOptionState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        Audio::play(Audio::ENTRY_SELECTED);
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<BindingsScreenInsideState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<BackOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
-        transit<ResolutionOptionState>();
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<SoundMusicOptionState>();
     }
 }
 
 
-void ResolutionScreenInsideState::change_resolutions_text() const {
-    Config::Resolution cursor_resolution = Config::get().get_resolution();
+void SoundMusicOptionState::entry() {
+    gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainSoundMusic").lock()->setFillColor(sf::Color::Cyan);
+    gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
+}
 
-    gui.get_text("resolutionScreen250").lock()->setFillColor(sf::Color::White);
-    gui.get_text("resolutionScreen550").lock()->setFillColor(sf::Color::White);
-    gui.get_text("resolutionScreen1000").lock()->setFillColor(sf::Color::White);
-    gui.get_text("resolutionScreenBack").lock()->setFillColor(sf::Color::White);
-
-    switch (cursor_resolution) {
-        case Config::Resolution::x250x250:
-            gui.get_text("resolutionScreen250").lock()->setFillColor(sf::Color::Green);
-            break;
-        case Config::Resolution::x550x550:
-            gui.get_text("resolutionScreen550").lock()->setFillColor(sf::Color::Green);
-            break;
-        case Config::Resolution::x1000x1000:
-            gui.get_text("resolutionScreen1000").lock()->setFillColor(sf::Color::Green);
-            break;
+void SoundMusicOptionState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        transit<EnterStateMainScreen>();
     }
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
+        transit<SoundMusicScreenInsideState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<BindingsOptionState>();
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<ResolutionOptionState>();
+    }
+}
 
-    if (!is_in_exit) {
-        switch (current_resolution) {
-            case Config::Resolution::x250x250:
-                gui.get_text("resolutionScreen250").lock()->setFillColor(sf::Color::Cyan);
-                break;
-            case Config::Resolution::x550x550:
-                gui.get_text("resolutionScreen550").lock()->setFillColor(sf::Color::Cyan);
-                break;
-            case Config::Resolution::x1000x1000:
-                gui.get_text("resolutionScreen1000").lock()->setFillColor(sf::Color::Cyan);
-                break;
-        }
+void SoundMusicScreenInsideState::update_texts() const {
+    auto effects_text = gui.get_text("soundMusicScreenEffects").lock();
+    auto effects_value = gui.get_text("soundMusicScreenEffectsVal").lock();
+
+    if (sfx_vol == MIN_VOLUME) {
+        effects_value->setString("  " + std::to_string(sfx_vol) + " >");
+    } 
+    else if (sfx_vol == MAX_VOLUME) {
+        effects_value->setString("< " + std::to_string(sfx_vol) + "  ");
     }
     else {
-        gui.get_text("resolutionScreenBack").lock()->setFillColor(sf::Color::Cyan);
+        effects_value->setString("< " + std::to_string(sfx_vol) + " >");
+    }
+
+    auto sound_text = gui.get_text("soundMusicScreenSound").lock();
+    auto sound_value = gui.get_text("soundMusicScreenSoundVal").lock();
+    sound_value->setString("< " + std::to_string(music_vol) + " >");
+
+    if (music_vol == MIN_VOLUME) {
+        sound_value->setString("  " + std::to_string(music_vol) + " >");
+    } 
+    else if (music_vol == MAX_VOLUME) {
+        sound_value->setString("< " + std::to_string(music_vol) + "  ");
+    }
+    else {
+        sound_value->setString("< " + std::to_string(music_vol) + " >");
+    }
+
+    auto exit_text = gui.get_text("soundMusicScreenExit").lock();
+
+    switch (current_state) {
+        case SFX:
+            effects_text->setFillColor(sf::Color::Cyan);
+            effects_value->setFillColor(sf::Color::Cyan);
+            sound_text->setFillColor(sf::Color::White);
+            sound_value->setFillColor(sf::Color::White);
+            exit_text->setFillColor(sf::Color::White);
+            break;
+        case MUSIC:
+            effects_text->setFillColor(sf::Color::White);
+            effects_value->setFillColor(sf::Color::White);
+            sound_text->setFillColor(sf::Color::Cyan);
+            sound_value->setFillColor(sf::Color::Cyan);
+            exit_text->setFillColor(sf::Color::White);
+            break;
+        case BACK:
+            effects_text->setFillColor(sf::Color::White);
+            effects_value->setFillColor(sf::Color::White);
+            sound_text->setFillColor(sf::Color::White);
+            sound_value->setFillColor(sf::Color::White);
+            exit_text->setFillColor(sf::Color::Cyan);
+            break;
+        default:
+            throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
+    }
+}
+
+void SoundMusicScreenInsideState::entry() {
+    controller.clear_screen();
+
+    auto &config = Config::get();
+
+    sfx_vol = config.get_sfx_volume();
+    music_vol = config.get_music_volume();
+    current_state = SFX;
+
+    auto effects_text = gui.create_text("soundMusicScreenEffects", "SFX VOLUME",
+                                        sf::Vector2u(100, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
+
+    auto effects_value = gui.create_text("soundMusicScreenEffectsVal", "  " + std::to_string(sfx_vol) + "  ",
+                                         sf::Vector2u(660, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
+
+    auto sound_text = gui.create_text("soundMusicScreenSound", "MUSIC VOLUME",
+                                      sf::Vector2u(100, 400), sf::Vector2f(0.8, 0.8));
+
+    auto sound_value = gui.create_text("soundMusicScreenSoundVal", "  " + std::to_string(music_vol) + "  ",
+                                       sf::Vector2u(660, 400), sf::Vector2f(0.8, 0.8));
+
+    auto exit_text = gui.create_text("soundMusicScreenExit", "BACK", sf::Vector2u(100, 500), sf::Vector2f(0.8, 0.8));
+
+
+    controller.add_drawable(gui.get_text("burTime"));
+    controller.add_drawable(gui.get_text("mainScreenGoBackHelp"));
+    controller.add_drawable(effects_text);
+    controller.add_drawable(effects_value);
+    controller.add_drawable(sound_text);
+    controller.add_drawable(sound_value);
+    controller.add_drawable(exit_text);
+}
+
+void SoundMusicScreenInsideState::react(const ExecuteEvent &) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        transit<InsideConfigOptionState>();
+        return;
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        switch (current_state) {
+            case SFX:
+                current_state = BACK;
+                break;
+            case MUSIC:
+                current_state = SFX;
+                break;
+            case BACK:
+                current_state = MUSIC;
+                break;
+            default:
+                throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
+        }
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        switch (current_state) {
+            case SFX:
+                current_state = MUSIC;
+                break;
+            case MUSIC:
+                current_state = BACK;
+                break;
+            case BACK:
+                current_state = SFX;
+                break;
+            default:
+                throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
+        }
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::LEFT_MENU)) {
+        switch (current_state) {
+            case SFX:
+                if (sfx_vol != MIN_VOLUME) {
+                    sfx_vol = sfx_vol - VOLUME_GRANULARITY;
+                    Audio::set_sfx_vol(sfx_vol);
+                    Config::get().set_sfx_vol(sfx_vol);
+                    Config::get().write_file();
+                    Audio::play(Audio::Track::MENU_MOVE);
+                }
+                break;
+            case MUSIC:
+                if (music_vol != MIN_VOLUME) {
+                    music_vol = music_vol - VOLUME_GRANULARITY;
+                    Audio::set_music_vol(music_vol);
+                    Config::get().set_music_vol(music_vol);
+                    Config::get().write_file();
+                    Audio::play(Audio::Track::MENU_MOVE);
+                }
+                break;
+            case BACK:
+                // Nothing to do
+                break;
+            default:
+                throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
+        }
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::RIGHT_MENU)) {
+        switch (current_state) {
+            case SFX:
+                if (sfx_vol != MAX_VOLUME) {
+                    sfx_vol = sfx_vol + VOLUME_GRANULARITY;
+                    Audio::set_sfx_vol(sfx_vol);
+                    Config::get().set_sfx_vol(sfx_vol);
+                    Config::get().write_file();
+                    Audio::play(Audio::Track::MENU_MOVE);
+                }
+                break;
+            case MUSIC:
+                if (sfx_vol != MAX_VOLUME) {
+                    music_vol = music_vol + VOLUME_GRANULARITY;
+                    Audio::set_music_vol(music_vol);
+                    Config::get().set_music_vol(music_vol);
+                    Config::get().write_file();
+                    Audio::play(Audio::Track::MENU_MOVE);
+                }
+                break;
+            case BACK:
+                // Nothing to do
+                break;
+            default:
+                throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
+        }
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        switch (current_state) {
+            case SFX:
+            case MUSIC:
+                // Nothing to do
+                break;
+            case BACK:
+                transit<InsideConfigOptionState>();
+                return;
+            default:
+                throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
+        }
+    }
+
+    update_texts();
+}
+
+
+void ResolutionScreenInsideState::change_resolutions_text() const {
+    auto resolution_text = gui.get_text("resolutionScreenResText").lock();
+    auto resolution_value = gui.get_text("resolutionScreenResVal").lock();
+    resolution_value->setString("< " + std::to_string(current_resolution_it->x) + "x" + std::to_string(current_resolution_it->y) + " >");
+
+    if (current_resolution_it == BurgerTimeController::get().get_available_resolutions().begin()) {
+        resolution_value->setString("  " + std::to_string(current_resolution_it->x) + "x" + std::to_string(current_resolution_it->y) + " >");
+    } 
+    else if (current_resolution_it == BurgerTimeController::get().get_available_resolutions().end() - 1) {
+        resolution_value->setString("< " + std::to_string(current_resolution_it->x) + "x" + std::to_string(current_resolution_it->y) + "  ");
+    }
+    else {
+        resolution_value->setString("< " + std::to_string(current_resolution_it->x) + "x" + std::to_string(current_resolution_it->y) + " >");
+    }
+
+    auto borders_text = gui.get_text("resolutionScreenBordersText").lock();
+    auto borders_value = gui.get_text("resolutionScreenBordersVal").lock();
+    auto borders_value_text = are_borders_on ? "ON" : "OFF";
+    borders_value->setString("< " + std::string(borders_value_text) + " >");
+
+    auto exit_text = gui.get_text("soundMusicScreenExit").lock();
+
+    switch (current_state) {
+        case CHANGE_RESOLUTION:
+            resolution_text->setFillColor(sf::Color::Cyan);
+            resolution_value->setFillColor(sf::Color::Cyan);
+            borders_text->setFillColor(sf::Color::White);
+            borders_value->setFillColor(sf::Color::White);
+            exit_text->setFillColor(sf::Color::White);
+            break;
+        case BORDER_OR_NOT:
+            resolution_text->setFillColor(sf::Color::White);
+            resolution_value->setFillColor(sf::Color::White);
+            borders_text->setFillColor(sf::Color::Cyan);
+            borders_value->setFillColor(sf::Color::Cyan);
+            exit_text->setFillColor(sf::Color::White);
+            break;
+        case BACK:
+            resolution_text->setFillColor(sf::Color::White);
+            resolution_value->setFillColor(sf::Color::White);
+            borders_text->setFillColor(sf::Color::White);
+            borders_value->setFillColor(sf::Color::White);
+            exit_text->setFillColor(sf::Color::Cyan);
+            break;
+        default:
+            throw std::runtime_error("Unknown state for RESOLUTION screen");
     }
 }
 
 void ResolutionScreenInsideState::entry() {
     controller.clear_screen();
 
-    auto res250 = gui.create_text("resolutionScreen250", "250x250",
-                                  sf::Vector2u(320, 300), sf::Vector2f(0.8, 0.8));
-    auto res550 = gui.create_text("resolutionScreen550", "550x550",
-                                  sf::Vector2u(320, 400), sf::Vector2f(0.8, 0.8));
-    auto res1000 = gui.create_text("resolutionScreen1000", "1000x1000",
-                                   sf::Vector2u(320, 500), sf::Vector2f(0.8, 0.8));
-    auto back = gui.create_text("resolutionScreenBack", "BACK",
-                                sf::Vector2u(320, 600), sf::Vector2f(0.8, 0.8));
+    auto &config = Config::get();
 
-    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
-    controller.add_drawable(res250);
-    controller.add_drawable(res550);
-    controller.add_drawable(res1000);
-    controller.add_drawable(back);
+    const auto &available_resolutions = BurgerTimeController::get().get_available_resolutions();
+    current_resolution_it = std::find(available_resolutions.begin(), available_resolutions.end(), config.get_resolution());
 
-    is_in_exit = false;
-    current_resolution = Config::get().get_resolution();
+    current_state = CHANGE_RESOLUTION;
+    are_borders_on = config.get_are_borders_on();
+
+    auto resolution_text = gui.create_text("resolutionScreenResText", "RESOLUTION",
+                                        sf::Vector2u(100, 300), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
+    auto resolution_value = gui.create_text("resolutionScreenResVal", "  " + std::to_string(current_resolution_it->x) + "x" + std::to_string(current_resolution_it->y) + "  ",
+                                         sf::Vector2u(200, 400), sf::Vector2f(0.8, 0.8), sf::Color::Cyan);
+
+    auto borders_text = gui.create_text("resolutionScreenBordersText", "BORDERS",
+                                        sf::Vector2u(100, 500), sf::Vector2f(0.8, 0.8));
+    auto borders_value_text = are_borders_on ? "ON" : "OFF";
+    auto borders_value = gui.create_text("resolutionScreenBordersVal", "< " + std::string(borders_value_text) + " >",
+                                         sf::Vector2u(200, 600), sf::Vector2f(0.8, 0.8));
+
+    auto exit_text = gui.create_text("soundMusicScreenExit", "BACK", sf::Vector2u(100, 700), sf::Vector2f(0.8, 0.8));
+
+
+    controller.add_drawable(gui.get_text("burTime"));
+    controller.add_drawable(gui.get_text("mainScreenGoBackHelp"));
+    controller.add_drawable(resolution_text);
+    controller.add_drawable(resolution_value);
+    controller.add_drawable(borders_text);
+    controller.add_drawable(borders_value);
+    controller.add_drawable(exit_text);
 }
 
 void ResolutionScreenInsideState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<InsideConfigOptionState>();
         return;
     }
-    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        if (!is_in_exit) {
-            controller.set_resolution(current_resolution);
-
-            auto &config = Config::get();
-            config.set_resolution(current_resolution);
-            config.write_file();
-        }
-        else {
-            transit<InsideConfigOptionState>();
-            return;
-        }
-    }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
-        if (!is_in_exit) {
-            is_in_exit = false;
-            switch (current_resolution) {
-                case Config::Resolution::x250x250:
-                    is_in_exit = true;
-                    break;
-                case Config::Resolution::x550x550:
-                    current_resolution = Config::Resolution::x250x250;
-                    break;
-                case Config::Resolution::x1000x1000:
-                    current_resolution = Config::Resolution::x550x550;
-                    break;
-            }
-        }
-        else {
-            is_in_exit = false;
-            current_resolution = Config::Resolution::x1000x1000;
+        switch (current_state) {
+            case CHANGE_RESOLUTION:
+                current_state = BACK;
+                break;
+            case BORDER_OR_NOT:
+                current_state = CHANGE_RESOLUTION;
+                break;
+            case BACK:
+                current_state = BORDER_OR_NOT;
+                break;
+            default:
+                throw std::runtime_error("Unknown state for RESOLUTION screen");
         }
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
-        if (!is_in_exit) {
-            is_in_exit = false;
-            switch (current_resolution) {
-                case Config::Resolution::x250x250:
-                    current_resolution = Config::Resolution::x550x550;
-                    break;
-                case Config::Resolution::x550x550:
-                    current_resolution = Config::Resolution::x1000x1000;
-                    break;
-                case Config::Resolution::x1000x1000:
-                    is_in_exit = true;
-                    break;
-            }
+        switch (current_state) {
+            case CHANGE_RESOLUTION:
+                current_state = BORDER_OR_NOT;
+                break;
+            case BORDER_OR_NOT:
+                current_state = BACK;
+                break;
+            case BACK:
+                current_state = CHANGE_RESOLUTION;
+                break;
+            default:
+                throw std::runtime_error("Unknown state for RESOLUTION screen");
         }
-        else {
-            is_in_exit = false;
-            current_resolution = Config::Resolution::x250x250;
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::LEFT_MENU)) {
+        switch (current_state) {
+            case CHANGE_RESOLUTION:
+                if (current_resolution_it != BurgerTimeController::get().get_available_resolutions().begin()) {
+                    current_resolution_it--;
+                    BurgerTimeController::get().set_resolution(*current_resolution_it);
+                    Config::get().set_resolution(*current_resolution_it);
+                    Config::get().write_file();
+                    Audio::play(Audio::Track::MENU_MOVE);
+                }
+                break;
+            case BORDER_OR_NOT:
+                are_borders_on = !are_borders_on;
+                Config::get().change_border_mode();
+                Config::get().write_file();
+                BurgerTimeController::get().window_borderless_switch();
+                Audio::play(Audio::Track::MENU_MOVE);
+                break;
+            case BACK:
+                // Nothing to do
+                break;
+            default:
+                throw std::runtime_error("Unknown state for RESOLUTION screen");
+        }
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::RIGHT_MENU)) {
+        switch (current_state) {
+            case CHANGE_RESOLUTION:
+                if (current_resolution_it != BurgerTimeController::get().get_available_resolutions().end() - 1) {
+                    current_resolution_it++;
+                    BurgerTimeController::get().set_resolution(*current_resolution_it);
+                    Config::get().set_resolution(*current_resolution_it);
+                    Config::get().write_file();
+                    Audio::play(Audio::Track::MENU_MOVE);
+                }
+                break;
+            case BORDER_OR_NOT:
+                are_borders_on = !are_borders_on;
+                Config::get().change_border_mode();
+                Config::get().write_file();
+                BurgerTimeController::get().window_borderless_switch();
+                Audio::play(Audio::Track::MENU_MOVE);
+                break;
+            case BACK:
+                // Nothing to do
+                break;
+            default:
+                throw std::runtime_error("Unknown state for RESOLUTION screen");
+        }
+    }
+    else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        switch (current_state) {
+            case CHANGE_RESOLUTION:
+                // Nothing to do
+                break;
+            case BORDER_OR_NOT:
+                are_borders_on = !are_borders_on;
+                Config::get().change_border_mode();
+                Config::get().write_file();
+                BurgerTimeController::get().window_borderless_switch();
+                Audio::play(Audio::Track::MENU_MOVE);
+                break;
+            case BACK:
+                transit<InsideConfigOptionState>();
+                return;
+            default:
+                throw std::runtime_error("Unknown state for RESOLUTION screen");
         }
     }
 
@@ -458,22 +822,25 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
 
 void ResolutionOptionState::entry() {
     gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainSoundMusic").lock()->setFillColor(sf::Color::White);
     gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::Cyan);
     gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::White);
 }
 
 void ResolutionOptionState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        Audio::play(Audio::ENTRY_SELECTED);
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<ResolutionScreenInsideState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
-        transit<BindingsOptionState>();
+        Audio::play(Audio::Track::MENU_MOVE);
+        transit<SoundMusicOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<BackOptionState>();
     }
 }
@@ -481,21 +848,25 @@ void ResolutionOptionState::react(const ExecuteEvent &) {
 
 void BackOptionState::entry() {
     gui.get_text("insideConfigMainBindings").lock()->setFillColor(sf::Color::White);
+    gui.get_text("insideConfigMainSoundMusic").lock()->setFillColor(sf::Color::White);
     gui.get_text("insideConfigMainResolution").lock()->setFillColor(sf::Color::White);
     gui.get_text("insideConfigMainBack").lock()->setFillColor(sf::Color::Cyan);
 }
 
 void BackOptionState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<ResolutionOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<BindingsOptionState>();
     }
 }
@@ -503,19 +874,22 @@ void BackOptionState::react(const ExecuteEvent &) {
 
 void ExitOptionState::entry() {
     gui.get_text("enterStateMainStart").lock()->setFillColor(sf::Color::White);
+    gui.get_text("enterStateMainInstructions").lock()->setFillColor(sf::Color::White);
     gui.get_text("enterStateMainOptions").lock()->setFillColor(sf::Color::White);
     gui.get_text("enterStateMainExit").lock()->setFillColor(sf::Color::Cyan);
 }
 
 void ExitOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
-        Audio::play(Audio::ENTRY_SELECTED);
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<FinishedExitState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<ConfigOptionState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<StartOptionState>();
     }
 }
@@ -540,7 +914,9 @@ void LevelScreenEnterState::entry() {
     auto map_idx = gui.create_text("levelStateMapIdx", "_",
                                    sf::Vector2u(300, 500), sf::Vector2f(0.8, 0.8));
 
-    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    controller.add_drawable(gui.get_text("burTime"));
+    controller.add_drawable(gui.get_text("mainScreenEnterHelp"));
+    controller.add_drawable(gui.get_text("mainScreenGoBackHelp"));
     controller.add_drawable(help_text1);
     controller.add_drawable(help_text2);
     controller.add_drawable(map_idx);
@@ -563,7 +939,7 @@ void LevelScreenEnterState::react(const ExecuteEvent &) {
     else if (InputSystem::has_entered_text() && map_idx_str.getSize() < 8) {
         auto help_text1 = gui.get_text("levelStateHelp1").lock();
         help_text1->setString("PRESS ENTER TO START");
-        
+
         char new_char = InputSystem::get_current_char();
         if ('0' <= new_char && new_char <= '9') {
             map_idx_str[map_idx_str.getSize() - 1] = new_char;
@@ -575,7 +951,7 @@ void LevelScreenEnterState::react(const ExecuteEvent &) {
         auto map_idx = std::stoi(std::string(map_idx_str.substring(0, map_idx_str.getSize() - 1)));
         if (1 <= map_idx && map_idx <= num_maps) {
             controller.set_initial_map(map_idx - 1);
-            Audio::play(Audio::ENTRY_SELECTED);
+            Audio::play(Audio::Track::MENU_SELECT);
             transit<DifficultyScreenEnterState>();
         }
         else {
@@ -583,7 +959,7 @@ void LevelScreenEnterState::react(const ExecuteEvent &) {
             help_text1->setString(" INVALID MAP GIVEN");
         }
     }
-    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
 }
@@ -599,7 +975,16 @@ void DifficultyScreenEnterState::entry() {
     auto smiley_text = gui.create_text("difficultyStateSmiley", "+++ PTS - :-)",
                                      sf::Vector2u(165, 500), sf::Vector2f(0.8, 0.8));
 
-    controller.add_drawable(gui.get_text("enterStateMainBurTime"));
+    auto help_text_1 = gui.create_text("difficultyStateHelp1", "",
+                                     sf::Vector2u(140, 800), sf::Vector2f(0.28, 0.28));
+    auto help_text_2 = gui.create_text("difficultyStateHelp2", "",
+                                     sf::Vector2u(140, 820), sf::Vector2f(0.28, 0.28));
+
+    controller.add_drawable(gui.get_text("burTime"));
+    controller.add_drawable(gui.get_text("mainScreenEnterHelp"));
+    controller.add_drawable(gui.get_text("mainScreenGoBackHelp"));
+    controller.add_drawable(help_text_1);
+    controller.add_drawable(help_text_2);
     controller.add_drawable(classic_text);
     controller.add_drawable(hard_text);
     controller.add_drawable(smiley_text);
@@ -611,69 +996,87 @@ void DifficultyScreenEnterState::react(const ExecuteEvent &) {
 
 
 void DifficultyScreenClassicState::entry() {
+    gui.get_text("difficultyStateHelp1").lock()->setString("ENEMIES WILL CHASE YOU IN THE CLASSICAL MANNER");
+    gui.get_text("difficultyStateHelp2").lock()->setString("");
+
     gui.get_text("difficultyStateClassic").lock()->setFillColor(sf::Color::Cyan);
     gui.get_text("difficultyStateHard").lock()->setFillColor(sf::Color::White);
     gui.get_text("difficultyStateSmiley").lock()->setFillColor(sf::Color::White);
 }
 
 void DifficultyScreenClassicState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         controller.set_difficulty(CLASSIC);
         transit<FinishedStartState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<DifficultyScreenSmileyState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<DifficultyScreenHardState>();
     }
 }
 
 
 void DifficultyScreenHardState::entry() {
+    gui.get_text("difficultyStateHelp1").lock()->setString("ENEMIES WILL CHASE YOU, ASSUMING DIFFERENT");
+    gui.get_text("difficultyStateHelp2").lock()->setString("ROLES AND PERFORMING SWARMING");
+
     gui.get_text("difficultyStateClassic").lock()->setFillColor(sf::Color::White);
     gui.get_text("difficultyStateHard").lock()->setFillColor(sf::Color::Cyan);
     gui.get_text("difficultyStateSmiley").lock()->setFillColor(sf::Color::White);
 }
 
 void DifficultyScreenHardState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         controller.set_difficulty(HARD);
         transit<FinishedStartState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<DifficultyScreenClassicState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<DifficultyScreenSmileyState>();
     }
 }
 
 
 void DifficultyScreenSmileyState::entry() {
+    gui.get_text("difficultyStateHelp1").lock()->setString("ENEMIES WILL CHASE YOU AGGRESSIVELY, WHILE");
+    gui.get_text("difficultyStateHelp2").lock()->setString("PERFORMING SWARMING");
+
     gui.get_text("difficultyStateClassic").lock()->setFillColor(sf::Color::White);
     gui.get_text("difficultyStateHard").lock()->setFillColor(sf::Color::White);
     gui.get_text("difficultyStateSmiley").lock()->setFillColor(sf::Color::Cyan);
 }
 
 void DifficultyScreenSmileyState::react(const ExecuteEvent &) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         controller.set_difficulty(SMILEY);
         transit<FinishedStartState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::UP_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<DifficultyScreenHardState>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
+        Audio::play(Audio::Track::MENU_MOVE);
         transit<DifficultyScreenClassicState>();
     }
 }

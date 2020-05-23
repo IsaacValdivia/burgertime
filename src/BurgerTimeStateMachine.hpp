@@ -21,15 +21,6 @@ public:
     virtual void react(const ExecuteEvent &) {};
 
     /**
-     * @brief Reacts and refreshes timer if wait_time_s has elapsed or EXIT input is pressed
-     *
-     * @param wait_time_s
-     * @return true
-     * @return false
-     */
-    static bool timed_exit_state_react(int wait_time_s);
-
-    /**
      * @brief Reacts and refreshes timer if wait_time_s has elapsed
      *
      * @param wait_time_s
@@ -101,7 +92,6 @@ class ControlsInstructionsScreenState : public BurgerTimeStateMachine {
         DOWN,
         RIGHT,
         PEPPER,
-        END,
     };
 
     ControlStates current_control_state;

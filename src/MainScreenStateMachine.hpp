@@ -96,8 +96,15 @@ class ResolutionScreenInsideState : public MainScreenStateMachine {
      */
     void change_resolutions_text() const;
 
-    Config::Resolution current_resolution;
-    bool is_in_exit;
+    enum State {
+        CHANGE_RESOLUTION,
+        BORDER_OR_NOT,
+        BACK,
+    };
+
+    std::vector<sf::Vector2u>::const_iterator current_resolution_it;
+    bool are_borders_on;
+    State current_state;
 };
 
 class ResolutionScreenState : public MainScreenStateMachine {
@@ -150,6 +157,60 @@ class BindingsScreenInsideState : public MainScreenStateMachine {
 };
 
 class BindingsOptionState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+};
+
+class SoundMusicOptionState : public MainScreenStateMachine {
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+};
+
+class SoundMusicScreenInsideState : public MainScreenStateMachine {
+    /**
+     * @brief Update the texts
+     */
+    void update_texts() const;
+
+    /**
+     * @brief Entry state function
+     *
+     */
+    void entry() override;
+    /**
+     * @brief Main control function
+     *
+     */
+    void react(const ExecuteEvent &) override;
+
+    enum State {
+        SFX,
+        MUSIC,
+        BACK,
+    };
+
+    unsigned int sfx_vol;
+    unsigned int music_vol;
+    State current_state;
+};
+
+class InstructionsOptionState : public MainScreenStateMachine {
     /**
      * @brief Entry state function
      *
@@ -271,3 +332,5 @@ class DifficultyScreenSmileyState : public MainScreenStateMachine {
 class FinishedStartState : public MainScreenStateMachine {};
 
 class FinishedExitState : public MainScreenStateMachine {};
+
+class FinishedGoToInstructionsState : public MainScreenStateMachine {};

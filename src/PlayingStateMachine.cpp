@@ -192,7 +192,7 @@ void PlayingStateMachine::spawn_enemy(const Enemy::Type &type,
         case Difficulty::SMILEY: {
             chosen_ai = game_info->ai1;
             randomize = false;
-            enemy_x_movement_speed = 80;
+            enemy_x_movement_speed = 70;
             break;
         }
     }
@@ -361,7 +361,8 @@ uint32_t PlayingStateMachine::get_current_score() {
 }
 
 void EnterStatePlaying::entry() {
-    Audio::play(Audio::Track::LEVEL_INTRO);
+    Audio::stop(Audio::MusicTrack::MENU_MUSIC);
+    Audio::play(Audio::MusicTrack::LEVEL_INTRO);
 
     controller.clear_screen();
     game_info = std::unique_ptr<GameInfo>(new GameInfo);
@@ -483,12 +484,12 @@ void NormalStatePlaying::check_main_music() {
             if (BurgerTimeStateMachine::timed_state_react(4)) {
                 main_music_played = true;
                 game_info->has_just_entered = false;
-                Audio::play(Audio::Track::MAIN);
+                Audio::play(Audio::MusicTrack::MAIN);
             }
         }
         else {
             main_music_played = true;
-            Audio::play(Audio::Track::MAIN);
+            Audio::play(Audio::MusicTrack::MAIN);
         }
     }
 }
@@ -592,7 +593,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
 
         return;
     }
-    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
+    else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::PAUSE) || !controller.is_window_on_focus()) {
         controller.pause_timer();
         Audio::pause_all();
         game_info->paused_screen = std::make_shared<sf::RectangleShape>();
@@ -709,7 +710,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
 
 void DeadStatePlaying::entry() {
     Audio::stop_background();
-    Audio::play(Audio::Track::DIE);
+    Audio::play(Audio::MusicTrack::DIE);
 
     controller.restart_timer();
     game_info->lives_counter.change_lives(-1);
@@ -744,7 +745,7 @@ void DeadStatePlaying::react(const ExecuteEvent &event) {
 
 void WinStatePlaying::entry() {
     Audio::stop_background();
-    Audio::play(Audio::Track::WIN);
+    Audio::play(Audio::MusicTrack::WIN);
 
     controller.restart_timer();
     game_info->player->win();
@@ -754,7 +755,7 @@ void WinStatePlaying::entry() {
 
 void WinStatePlaying::react(const ExecuteEvent &event) {
     if (BurgerTimeStateMachine::timed_state_react(4)) {
-        Audio::play(Audio::Track::LEVEL_INTRO);
+        Audio::play(Audio::MusicTrack::LEVEL_INTRO);
         game_info->has_just_entered = true;
         game_info->level_counter.add_level(1);
 

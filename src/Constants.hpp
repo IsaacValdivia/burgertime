@@ -2,6 +2,8 @@
 
 #include <tinyfsm.hpp>
 #include <array>
+#include <vector>
+#include <SFML/System.hpp>
 
 // How many times per second the logic will be updated
 static constexpr float LOGIC_UPDATE_FREQ = 1.0 / 100;
@@ -18,6 +20,9 @@ static constexpr auto MAPS_FOLDER = "maps";
 static constexpr auto MAP_EXTENSION = ".map";
 static constexpr auto INGMAP_EXTENSION = ".ingmap";
 static constexpr auto MAX_SCORE_CHARS = 6;
+static constexpr unsigned int MIN_VOLUME = 0;
+static constexpr unsigned int MAX_VOLUME = 100;
+static constexpr unsigned int VOLUME_GRANULARITY = 10;
 
 enum Direction {
     LEFT,

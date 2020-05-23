@@ -12,12 +12,14 @@
 class BurgerTimeController {
 private:
     sf::RenderWindow window; // Window
+    sf::View letter_view;
 
     std::list<std::weak_ptr<sf::Drawable>> drawables_on_screen; // All drawables on screen
     Stopwatch logic_clock; // Clock
     Difficulty selected_difficulty;
     bool is_in_focus = true;
     unsigned int initial_map = 0;
+    std::vector<sf::Vector2u> available_resolutions;
 
     /**
      * @brief Construct a new Burger Time Controller object
@@ -67,6 +69,13 @@ private:
      * @return false
      */
     bool has_game_finished() const;
+
+
+    /**
+     * @brief from https://github.com/SFML/SFML/wiki/Source%3A-Letterbox-effect-using-a-view
+     * 
+     */
+    void set_letterbox_view(int windowWidth, int windowHeight);
 public:
     /**
      * @brief Singleton retriever
@@ -144,7 +153,7 @@ public:
      *
      * @param new_resolution new resolution to set
      */
-    void set_resolution(Config::Resolution new_resolution);
+    void set_resolution(sf::Vector2u new_resolution);
 
     /**
      * @brief Returns the initial map
@@ -159,4 +168,25 @@ public:
      * @param new_initial_map new initial map to set
      */
     void set_initial_map(unsigned int new_initial_map);
+
+    /**
+     * @brief Checks if the window is in focus or not
+     * 
+     * @return Whether the window is on focus or not
+     */
+    bool is_window_on_focus() const;
+
+    /**
+     * @brief Returns the available resolutions
+     * 
+     * @return const std::vector<sf::Vector2u>&
+     */
+    const std::vector<sf::Vector2u>& get_available_resolutions() const;
+
+    /**
+     * If window mode is borderless changes it to windowed.
+     * If window mode is windows changes it to borderless.
+     * 
+     */
+    void window_borderless_switch();
 };

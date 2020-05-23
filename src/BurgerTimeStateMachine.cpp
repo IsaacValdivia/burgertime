@@ -16,15 +16,6 @@ BurgerTimeController &BurgerTimeStateMachine::controller = BurgerTimeController:
 GUI &BurgerTimeStateMachine::gui = GUI::get();
 
 
-bool BurgerTimeStateMachine::timed_exit_state_react(int wait_time_s) {
-    if (has_input_just_been_pressed(InputSystem::Input::PAUSE)) {
-        controller.restart_timer();
-        return true;
-    }
-
-    return timed_state_react(wait_time_s);
-}
-
 bool BurgerTimeStateMachine::timed_state_react(int wait_time_s) {
     auto elapsed_time = controller.get_elapsed_time();
     if (elapsed_time.asSeconds() >= wait_time_s) {
@@ -39,7 +30,7 @@ bool BurgerTimeStateMachine::timed_state_react(int wait_time_s) {
 void HighscoreDisplayScreenState::entry() {
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_text("hScoreBurTime", "BURGER TIME",
+    auto burger_time_text = gui.create_text("burTime", "BURGER TIME",
                                             sf::Vector2u(280, 150),
                                             sf::Vector2f(0.70, 0.70),
                                             sf::Color::Red);
@@ -67,13 +58,20 @@ void HighscoreDisplayScreenState::entry() {
         controller.add_drawable(h_score_text);
     }
 
+    auto skip_help = gui.create_text("skipHelpBurTime",
+                                     "PRESS <" + std::string(InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::ENTER_MENU)) + "> TO SKIP"),
+                                     sf::Vector2u(40, 960),
+                                     sf::Vector2f(0.28, 0.28));
+
     controller.add_drawable(burger_time_text);
+    controller.add_drawable(skip_help);
     controller.add_drawable(best_five_players_text);
     controller.restart_timer();
 }
 
 void HighscoreDisplayScreenState::react(const ExecuteEvent &) {
-    if (BurgerTimeStateMachine::timed_exit_state_react(5)) {
+    if (BurgerTimeStateMachine::timed_state_react(5) || has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        controller.restart_timer();
         transit<ItemPointsScreenState>();
     }
 }
@@ -82,10 +80,7 @@ void HighscoreDisplayScreenState::react(const ExecuteEvent &) {
 void ItemPointsScreenState::entry() {
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_text("itemPointsBurTime", "BURGER TIME",
-                                            sf::Vector2u(280, 150),
-                                            sf::Vector2f(0.70, 0.70),
-                                            sf::Color::Red);
+    auto burger_time_text = gui.get_text("burTime").lock();
 
     auto score_text = gui.create_text("itemPointsScore", "-SCORE-",
                                       sf::Vector2u(340, 230), sf::Vector2f(0.70, 0.70));
@@ -282,6 +277,8 @@ void ItemPointsScreenState::entry() {
     chef->setPosition(22 * WINDOW_WIDTH / 100, 78 * WINDOW_HEIGHT / 100);
     chef->setScale(2, 2);
 
+    auto skip_help = gui.get_text("skipHelpBurTime").lock();
+
     controller.add_drawable(burger_time_text);
     controller.add_drawable(score_text);
     controller.add_drawable(top_bun[0]);
@@ -319,11 +316,13 @@ void ItemPointsScreenState::entry() {
     controller.add_drawable(pepper);
     controller.add_drawable(bonus_life_text);
     controller.add_drawable(chef);
+    controller.add_drawable(skip_help);
     controller.restart_timer();
 }
 
 void ItemPointsScreenState::react(const ExecuteEvent &) {
-    if (BurgerTimeStateMachine::timed_exit_state_react(5)) {
+    if (BurgerTimeStateMachine::timed_state_react(5) || has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        controller.restart_timer();
         transit<ControlsInstructionsScreenState>();
     }
 }
@@ -332,10 +331,7 @@ void ItemPointsScreenState::react(const ExecuteEvent &) {
 void ControlsInstructionsScreenState::entry() {
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_text("controlsBurgerTimeMain", "BURGER TIME",
-                                            sf::Vector2u(280, 150),
-                                            sf::Vector2f(0.70, 0.70),
-                                            sf::Color::Red);
+    auto burger_time_text = gui.get_text("burTime").lock();
 
     auto instructions_text = gui.create_text("controlsInstructionsMain", "-INSTRUCTIONS-",
                                             sf::Vector2u(225, 250),
@@ -360,18 +356,21 @@ void ControlsInstructionsScreenState::entry() {
 
     current_control_state = ControlStates::INITIAL;
 
+    auto skip_help = gui.get_text("skipHelpBurTime").lock();
+
     controller.add_drawable(burger_time_text);
     controller.add_drawable(instructions_text);
     controller.add_drawable(controls_text);
     controller.add_drawable(chef);
     controller.add_drawable(egg);
+    controller.add_drawable(skip_help);
     controller.restart_timer();
 }
 
 void ControlsInstructionsScreenState::react(const ExecuteEvent &) {
     auto elapsed_time = controller.get_elapsed_time();
 
-    if (elapsed_time.asSeconds() >= 2) {
+    if (elapsed_time.asSeconds() >= 2 || has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
 
         switch (current_control_state) {
             case INITIAL: {
@@ -380,7 +379,7 @@ void ControlsInstructionsScreenState::react(const ExecuteEvent &) {
                 auto controls_text = gui.get_text("controlsCurrentKeyMain").lock();
                 auto up_str = InputSystem::keyboard_key_to_string(InputSystem::input_to_key(InputSystem::Input::UP));
                 controls_text->setString(up_str);
-                
+
                 break;
             }
             case UP: {
@@ -432,20 +431,12 @@ void ControlsInstructionsScreenState::react(const ExecuteEvent &) {
                 break;
             }
             case PEPPER:
-                current_control_state = END;
-                break;
-            case END:
                 transit<MainScreenState>();
                 break;
             default:
                 throw std::runtime_error("Internal error, controls instruction state malfunction");
         }
         controller.restart_timer();
-    }
-
-
-    if (BurgerTimeStateMachine::timed_exit_state_react(1000)) {
-        transit<MainScreenState>();
     }
 }
 
@@ -464,6 +455,10 @@ void MainScreenState::react(const ExecuteEvent &event) {
 
     if (MainScreenStateMachine::is_in_state<FinishedExitState>()) {
         transit<FinishedState>();
+    }
+
+    if (MainScreenStateMachine::is_in_state<FinishedGoToInstructionsState>()) {
+        transit<ControlsInstructionsScreenState>();
     }
 }
 
@@ -527,10 +522,7 @@ void EnterHighscoreState::entry() {
     char_position = 0;
     controller.clear_screen();
 
-    auto burger_time_text = gui.create_text("enterHighScoreBurTime", "BURGER TIME",
-                                            sf::Vector2u(280, 150),
-                                            sf::Vector2f(0.7, 0.7),
-                                            sf::Color::Red);
+    auto burger_time_text = gui.get_text("burTime").lock();
 
     auto help_text = gui.create_text("enterHighScoreHelp", ENTER_NAME_STR,
                                      sf::Vector2u(220, 300), sf::Vector2f(0.7, 0.7));
