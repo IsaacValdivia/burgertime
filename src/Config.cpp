@@ -38,7 +38,7 @@ Config &Config::get() {
 
 void Config::create_default_config() {
     auto &controller = BurgerTimeController::get();
-    current_resolution = controller.get_available_resolutions()[0];
+    current_resolution = controller.get_available_resolutions()[controller.get_available_resolutions().size() - 1];
     sfx_vol = 100;
     music_vol = 100;
     are_borders_on = true;
