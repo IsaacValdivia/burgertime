@@ -595,7 +595,7 @@ void SoundMusicScreenInsideState::react(const ExecuteEvent &) {
                 }
                 break;
             case MUSIC:
-                if (sfx_vol != MAX_VOLUME) {
+                if (music_vol != MAX_VOLUME) {
                     music_vol = music_vol + VOLUME_GRANULARITY;
                     Audio::set_music_vol(music_vol);
                     Config::get().set_music_vol(music_vol);
