@@ -624,6 +624,7 @@ void SoundMusicScreenInsideState::react(const ExecuteEvent &) {
                 // Nothing to do
                 break;
             case BACK:
+                Audio::play(Audio::Track::MENU_SELECT);
                 transit<InsideConfigOptionState>();
                 return;
             default:
@@ -819,6 +820,7 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
                 Audio::play(Audio::Track::MENU_MOVE);
                 break;
             case BACK:
+                Audio::play(Audio::Track::MENU_SELECT);
                 transit<InsideConfigOptionState>();
                 return;
             default:

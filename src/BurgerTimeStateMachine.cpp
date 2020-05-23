@@ -71,6 +71,7 @@ void HighscoreDisplayScreenState::entry() {
 
 void HighscoreDisplayScreenState::react(const ExecuteEvent &) {
     if (BurgerTimeStateMachine::timed_state_react(5) || has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         controller.restart_timer();
         transit<ItemPointsScreenState>();
     }
