@@ -247,11 +247,13 @@ void BindingsScreenInsideState::react(const ExecuteEvent &) {
     bool update_color = false;
     sf::Color new_color;
     if (is_reading_key && has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         is_reading_key = false;
         update_color = true;
         new_color = sf::Color::Cyan;
     }
     else if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<InsideConfigOptionState>();
         return;
     }
@@ -389,6 +391,7 @@ void BindingsOptionState::entry() {
 
 void BindingsOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
@@ -415,6 +418,7 @@ void SoundMusicOptionState::entry() {
 
 void SoundMusicOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
@@ -523,6 +527,7 @@ void SoundMusicScreenInsideState::entry() {
 
 void SoundMusicScreenInsideState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<InsideConfigOptionState>();
         return;
     }
@@ -713,6 +718,7 @@ void ResolutionScreenInsideState::entry() {
 
 void ResolutionScreenInsideState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<InsideConfigOptionState>();
         return;
     }
@@ -829,6 +835,7 @@ void ResolutionOptionState::entry() {
 
 void ResolutionOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
@@ -855,6 +862,7 @@ void BackOptionState::entry() {
 
 void BackOptionState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
@@ -960,6 +968,7 @@ void LevelScreenEnterState::react(const ExecuteEvent &) {
         }
     }
     else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
 }
@@ -1006,6 +1015,7 @@ void DifficultyScreenClassicState::entry() {
 
 void DifficultyScreenClassicState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
@@ -1035,6 +1045,7 @@ void DifficultyScreenHardState::entry() {
 
 void DifficultyScreenHardState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
@@ -1064,6 +1075,7 @@ void DifficultyScreenSmileyState::entry() {
 
 void DifficultyScreenSmileyState::react(const ExecuteEvent &) {
     if (has_input_just_been_pressed(InputSystem::Input::BACK_MENU)) {
+        Audio::play(Audio::Track::MENU_SELECT);
         transit<EnterStateMainScreen>();
     }
     else if (has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
