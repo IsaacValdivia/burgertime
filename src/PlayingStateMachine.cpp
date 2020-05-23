@@ -573,6 +573,7 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
                 continueText->setFillColor(sf::Color::Cyan);
                 exitText->setFillColor(sf::Color::White);
             }
+            Audio::play(Audio::Track::MENU_MOVE);
         }
         else if (InputSystem::has_input_just_been_pressed(InputSystem::Input::ENTER_MENU)) {
             if (continueText->getFillColor() == sf::Color::Cyan) {

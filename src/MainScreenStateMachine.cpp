@@ -545,6 +545,7 @@ void SoundMusicScreenInsideState::react(const ExecuteEvent &) {
             default:
                 throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
         }
+        Audio::play(Audio::Track::MENU_MOVE);
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         switch (current_state) {
@@ -560,6 +561,7 @@ void SoundMusicScreenInsideState::react(const ExecuteEvent &) {
             default:
                 throw std::runtime_error("Unknown state for SOUND & MUSIC screen");
         }
+        Audio::play(Audio::Track::MENU_MOVE);
     }
     else if (has_input_just_been_pressed(InputSystem::Input::LEFT_MENU)) {
         switch (current_state) {
@@ -736,6 +738,7 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
             default:
                 throw std::runtime_error("Unknown state for RESOLUTION screen");
         }
+        Audio::play(Audio::Track::MENU_MOVE);
     }
     else if (has_input_just_been_pressed(InputSystem::Input::DOWN_MENU)) {
         switch (current_state) {
@@ -751,6 +754,7 @@ void ResolutionScreenInsideState::react(const ExecuteEvent &) {
             default:
                 throw std::runtime_error("Unknown state for RESOLUTION screen");
         }
+        Audio::play(Audio::Track::MENU_MOVE);
     }
     else if (has_input_just_been_pressed(InputSystem::Input::LEFT_MENU)) {
         switch (current_state) {
