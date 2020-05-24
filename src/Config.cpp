@@ -38,10 +38,10 @@ Config &Config::get() {
 
 void Config::create_default_config() {
     auto &controller = BurgerTimeController::get();
-    current_resolution = controller.get_available_resolutions()[controller.get_available_resolutions().size() - 1];
+    current_resolution = sf::Vector2u(sf::VideoMode::getDesktopMode().width, sf::VideoMode::getDesktopMode().height);
     sfx_vol = 100;
     music_vol = 100;
-    are_borders_on = true;
+    are_borders_on = false;
     controller.set_resolution(current_resolution);
     Audio::set_sfx_vol(sfx_vol);
     Audio::set_music_vol(music_vol);
