@@ -362,6 +362,7 @@ uint32_t PlayingStateMachine::get_current_score() {
 
 void EnterStatePlaying::entry() {
     Audio::stop(Audio::MusicTrack::MENU_MUSIC);
+    Audio::stop(Audio::MusicTrack::LEVEL_INTRO);
     Audio::play(Audio::MusicTrack::LEVEL_INTRO);
 
     controller.clear_screen();
@@ -569,7 +570,8 @@ void NormalStatePlaying::react(const ExecuteEvent &event) {
             if (continueText->getFillColor() == sf::Color::Cyan) {
                 continueText->setFillColor(sf::Color::White);
                 exitText->setFillColor(sf::Color::Cyan);
-            } else {
+            }
+            else {
                 continueText->setFillColor(sf::Color::Cyan);
                 exitText->setFillColor(sf::Color::White);
             }
